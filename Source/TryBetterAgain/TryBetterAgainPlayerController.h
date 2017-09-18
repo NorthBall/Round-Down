@@ -13,6 +13,8 @@ class ATryBetterAgainPlayerController : public APlayerController
 
 public:
 	ATryBetterAgainPlayerController();
+	void OnSetDestinationPressed();
+	void OnSetDestinationReleased();
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
@@ -36,8 +38,7 @@ protected:
 	void SetNewMoveDestination(const FVector DestLocation);
 
 	/** Input handlers for SetDestination action. */
-	void OnSetDestinationPressed();
-	void OnSetDestinationReleased();
+	
 };
 
 

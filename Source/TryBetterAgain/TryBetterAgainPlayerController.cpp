@@ -27,15 +27,17 @@ void ATryBetterAgainPlayerController::SetupInputComponent()
 {
 	// set up gameplay key bindings
 	Super::SetupInputComponent();
+	struct FInputActionBinding Consume;
 
-	InputComponent->BindAction("SetDestination", IE_Pressed, this, &ATryBetterAgainPlayerController::OnSetDestinationPressed);
-	InputComponent->BindAction("SetDestination", IE_Released, this, &ATryBetterAgainPlayerController::OnSetDestinationReleased);
-
+	InputComponent->BindAction("SetDestination", IE_Pressed, this, &ATryBetterAgainPlayerController::OnSetDestinationPressed).bConsumeInput=false;
+	//Consume.bConsumeInput = false;
+	InputComponent->BindAction("SetDestination", IE_Released, this, &ATryBetterAgainPlayerController::OnSetDestinationReleased).bConsumeInput=false;
+	//Consume.bConsumeInput = false;
 	// support touch devices 
-	InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ATryBetterAgainPlayerController::MoveToTouchLocation);
-	InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ATryBetterAgainPlayerController::MoveToTouchLocation);
+	/*InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ATryBetterAgainPlayerController::MoveToTouchLocation);
+	InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ATryBetterAgainPlayerController::MoveToTouchLocation);*/
 
-	InputComponent->BindAction("ResetVR", IE_Pressed, this, &ATryBetterAgainPlayerController::OnResetVR);
+	//InputComponent->BindAction("ResetVR", IE_Pressed, this, &ATryBetterAgainPlayerController::OnResetVR);
 }
 
 void ATryBetterAgainPlayerController::OnResetVR()
