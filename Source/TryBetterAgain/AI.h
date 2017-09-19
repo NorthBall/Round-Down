@@ -2,12 +2,13 @@
 
 #pragma once
 
+#include "CommonAncestor.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AI.generated.h"
 
 UCLASS()
-class TRYBETTERAGAIN_API AAI : public ACharacter
+class TRYBETTERAGAIN_API AAI : public ACommonAncestor
 {
 	GENERATED_BODY()
 
@@ -25,23 +26,5 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 Health;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 Mana;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 MaxHealth;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 MaxMana;
-	UFUNCTION(BlueprintNativeEvent, Category = "Damage")
-		void GetDamage(int HowMuch) ;
-	void GetDamage_Implementation(int HowMuch)
-	{
-		Health = Health - HowMuch;// Do something cool here
-	}
-	UFUNCTION(BlueprintCallable, Category = "Damage")
-		void TakeDamage(int HowMuch)
-	{
-		Health -= HowMuch;
-	};
+	
 };

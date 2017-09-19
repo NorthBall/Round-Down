@@ -6,6 +6,10 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "TryBetterAgainCharacter.h"
 
+void MoveToAttack()
+{
+
+}
 ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
 {
 	bShowMouseCursor = true;
@@ -17,9 +21,16 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	// keep updating the destination every tick while desired
-	if (bMoveToMouseCursor)
+	if (!bAttack)
 	{
-		MoveToMouseCursor();
+		if (bMoveToMouseCursor)
+		{
+			MoveToMouseCursor();
+		}
+	}
+	else
+	{ 
+		MoveToAttack();
 	}
 }
 
@@ -27,10 +38,10 @@ void ATryBetterAgainPlayerController::SetupInputComponent()
 {
 	// set up gameplay key bindings
 	Super::SetupInputComponent();
-	struct FInputActionBinding Consume;
+	struct FInputActionBinding* Consume;
 
-	InputComponent->BindAction("SetDestination", IE_Pressed, this, &ATryBetterAgainPlayerController::OnSetDestinationPressed).bConsumeInput=false;
-	//Consume.bConsumeInput = false;
+	Consume = &InputComponent->BindAction("SetDestination", IE_Pressed, this, &ATryBetterAgainPlayerController::OnSetDestinationPressed);//.bConsumeInput=false;
+	Consume->bConsumeInput = false;
 	InputComponent->BindAction("SetDestination", IE_Released, this, &ATryBetterAgainPlayerController::OnSetDestinationReleased).bConsumeInput=false;
 	//Consume.bConsumeInput = false;
 	// support touch devices 

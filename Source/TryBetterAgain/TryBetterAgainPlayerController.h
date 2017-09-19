@@ -15,6 +15,8 @@ public:
 	ATryBetterAgainPlayerController();
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+		bool bAttack;
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */

@@ -2,12 +2,13 @@
 
 #pragma once
 
+#include "CommonAncestor.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "TryBetterAgainCharacter.generated.h"
 
 UCLASS(Blueprintable)
-class ATryBetterAgainCharacter : public ACharacter
+class ATryBetterAgainCharacter : public ACommonAncestor
 {
 	GENERATED_BODY()
 
@@ -23,18 +24,6 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns CursorToWorld subobject **/
 	FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 Health;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 Mana;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 MaxHealth;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 MaxMana;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 AttackDamage;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 AttackSpeed;
 	UFUNCTION(BlueprintNativeEvent, Category = "Damage")
 		void GetDamage(int HowMuch);
 	void GetDamage_Implementation(int HowMuch)
