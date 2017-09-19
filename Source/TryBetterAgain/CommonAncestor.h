@@ -44,16 +44,13 @@ public:
 		float DamagePerSecond;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 MagicPower;//multiply magic skills
-	UFUNCTION(BlueprintNativeEvent, Category = "Damage")
-		void GetDamage(int HowMuch);
-	void GetDamage_Implementation(int HowMuch)
-	{
-		Health = Health - HowMuch;// Do something cool here
-	}
+	
 	UFUNCTION(BlueprintCallable, Category = "Damage")
-		void TakeDamage(int HowMuch)
+		void CalculateAttack( ACommonAncestor *Victim, TArray<int32> flags)
 	{
-		Health -= HowMuch;
+		Victim->Health -= AttackDamage;
 	};
+
+	
 	
 };

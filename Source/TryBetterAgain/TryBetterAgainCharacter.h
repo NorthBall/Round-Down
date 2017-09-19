@@ -24,17 +24,7 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns CursorToWorld subobject **/
 	FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
-	UFUNCTION(BlueprintNativeEvent, Category = "Damage")
-		void GetDamage(int HowMuch);
-	void GetDamage_Implementation(int HowMuch)
-	{
-		Health = Health - HowMuch;// Do something cool here
-	}
-	UFUNCTION(BlueprintCallable, Category = "Damage")
-		void TakeDamage(int HowMuch)
-	{
-		Health -= HowMuch;
-	};
+	
 
 private:
 	/** Top down camera */
