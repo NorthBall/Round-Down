@@ -5,33 +5,88 @@
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "TryBetterAgainCharacter.h"
+#include "AI.h"
 
-void MoveToAttack()
-{
-
-}
 ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 }
 
+FVector ATryBetterAgainPlayerController::Tehnika100TochekKorsuna(FVector to, int range, FVector from)
+{
+	UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
+	float path_len;
+	FVector nearest_point = to;
+
+	if (NavSys) {
+		nearest_point = to + FVector(range, 0, 0);
+		NavSys->GetPathLength(from, nearest_point, path_len);
+		//UE_LOG(LogTemp, Warning, TEXT("path_len = %f"), path_len);
+		for (int i = 1; i < 100; i++) {
+			float radian = i * PI / 50;
+			FVector current_point = to + FVector(range * cos(radian), range * sin(radian), 0);
+			float current_path_len;
+			NavSys->GetPathLength(from, current_point, current_path_len);
+			//UE_LOG(LogTemp, Warning, TEXT("current_path_len = %f"), current_path_len);
+			if (current_path_len < path_len) {
+				nearest_point = current_point;
+				path_len = current_path_len;
+			}
+		}
+	} 
+	//UE_LOG(LogTemp, Warning, TEXT("returning point = %f"), path_len);
+	return nearest_point;
+}
+
 void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
-
+	static bool is_gonna_attacking = false;
+	static AAI* victim;
+	
 	// keep updating the destination every tick while desired
-	if (!bAttack)
-	{
-		if (bMoveToMouseCursor)
-		{
-			MoveToMouseCursor();
+	if (bClicked) {
+		FHitResult Hit;
+		GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+
+		if (Hit.bBlockingHit) {
+			victim = Cast<AAI>(Hit.GetActor());
+			if (victim != nullptr) {
+				is_gonna_attacking = true;
+				UE_LOG(LogTemp, Warning, TEXT("Set victim"));
+				return;
+			}
+			is_gonna_attacking = false;
+			UE_LOG(LogTemp, Warning, TEXT("Move destination to HZ"));
+			SetNewMoveDestination(Hit.ImpactPoint);
 		}
+	} else if (is_gonna_attacking) {
+		//UE_LOG(LogTemp, Warning, TEXT("In is_gonna_attacking"));
+		APawn* const MyPawn = GetPawn();
+		ATryBetterAgainCharacter* MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
+		if (MyCharacter != nullptr) {
+			float const Distance = FVector::Dist(victim->GetActorLocation(), MyCharacter->GetActorLocation());
+			//UE_LOG(LogTemp, Warning, TEXT("Distance is %f"), Distance);
+			if (Distance >= MyCharacter->AttackRange) {
+				FVector destination = Tehnika100TochekKorsuna(victim->GetActorLocation(), MyCharacter->AttackRange - 50.0f, MyCharacter->GetActorLocation());
+				UE_LOG(LogTemp, Warning, TEXT("Move destination to AI"));
+				SetNewMoveDestination(destination);
+			}
+			else {
+				Attack();
+				is_gonna_attacking = false;
+				//UE_LOG(LogTemp, Warning, TEXT("Unset is_gonna_attacking"));
+			}
+		}
+		else
+			is_gonna_attacking = false;
 	}
-	else
-	{ 
-		MoveToAttack();
-	}
+}
+
+void ATryBetterAgainPlayerController::Attack()
+{
+	bAttack = true;
 }
 
 void ATryBetterAgainPlayerController::SetupInputComponent()
@@ -40,15 +95,9 @@ void ATryBetterAgainPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	struct FInputActionBinding* Consume;
 
-	Consume = &InputComponent->BindAction("SetDestination", IE_Pressed, this, &ATryBetterAgainPlayerController::OnSetDestinationPressed);//.bConsumeInput=false;
+	Consume = &InputComponent->BindAction("SetDestination", IE_Pressed, this, &ATryBetterAgainPlayerController::OnSetDestinationPressed);
 	Consume->bConsumeInput = false;
 	InputComponent->BindAction("SetDestination", IE_Released, this, &ATryBetterAgainPlayerController::OnSetDestinationReleased).bConsumeInput=false;
-	//Consume.bConsumeInput = false;
-	// support touch devices 
-	/*InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ATryBetterAgainPlayerController::MoveToTouchLocation);
-	InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ATryBetterAgainPlayerController::MoveToTouchLocation);*/
-
-	//InputComponent->BindAction("ResetVR", IE_Pressed, this, &ATryBetterAgainPlayerController::OnResetVR);
 }
 
 void ATryBetterAgainPlayerController::OnResetVR()
@@ -56,31 +105,6 @@ void ATryBetterAgainPlayerController::OnResetVR()
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
-void ATryBetterAgainPlayerController::MoveToMouseCursor()
-{
-	if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
-	{
-		if (ATryBetterAgainCharacter* MyPawn = Cast<ATryBetterAgainCharacter>(GetPawn()))
-		{
-			if (MyPawn->GetCursorToWorld())
-			{
-				UNavigationSystem::SimpleMoveToLocation(this, MyPawn->GetCursorToWorld()->GetComponentLocation());
-			}
-		}
-	}
-	else
-	{
-		// Trace to see what is under the mouse cursor
-		FHitResult Hit;
-		GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-
-		if (Hit.bBlockingHit)
-		{
-			// We hit something, move there
-			SetNewMoveDestination(Hit.ImpactPoint);
-		}
-	}
-}
 
 void ATryBetterAgainPlayerController::MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
@@ -99,14 +123,16 @@ void ATryBetterAgainPlayerController::MoveToTouchLocation(const ETouchIndex::Typ
 void ATryBetterAgainPlayerController::SetNewMoveDestination(const FVector DestLocation)
 {
 	APawn* const MyPawn = GetPawn();
+	
 	if (MyPawn)
 	{
 		UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
 		float const Distance = FVector::Dist(DestLocation, MyPawn->GetActorLocation());
 
 		// We need to issue move command only if far enough in order for walk animation to play correctly
-		if (NavSys && (Distance > 120.0f))
+		if (NavSys && (Distance > 10.0f))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("distance is %f"), Distance);
 			NavSys->SimpleMoveToLocation(this, DestLocation);
 		}
 	}
@@ -115,11 +141,11 @@ void ATryBetterAgainPlayerController::SetNewMoveDestination(const FVector DestLo
 void ATryBetterAgainPlayerController::OnSetDestinationPressed()
 {
 	// set flag to keep updating destination until released
-	bMoveToMouseCursor = true;
+	bClicked = true;
 }
 
 void ATryBetterAgainPlayerController::OnSetDestinationReleased()
 {
 	// clear flag to indicate we should stop updating the destination
-	bMoveToMouseCursor = false;
+	bClicked = false;
 }

@@ -20,7 +20,7 @@ public:
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
-	uint32 bMoveToMouseCursor : 1;
+	bool bClicked = false;
 
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
@@ -31,14 +31,18 @@ protected:
 	void OnResetVR();
 
 	/** Navigate player to the current mouse cursor location. */
-	void MoveToMouseCursor();
+	void OnClicked();
 
 	/** Navigate player to the current touch location. */
 	void MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location);
 	
 	/** Navigate player to the given world location. */
 	void SetNewMoveDestination(const FVector DestLocation);
+	
+	void Attack();
 
+	FVector Tehnika100TochekKorsuna(FVector to, int range, FVector from);
+		
 	/** Input handlers for SetDestination action. */
 	
 };
