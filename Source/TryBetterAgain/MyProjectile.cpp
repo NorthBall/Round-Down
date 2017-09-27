@@ -6,6 +6,7 @@
 
 AMyProjectile::AMyProjectile()
 {
+	PrimaryActorTick.bCanEverTick = true;
 	UE_LOG(LogTemp, Warning, TEXT("Construct projectile"));
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
@@ -32,11 +33,11 @@ AMyProjectile::AMyProjectile()
 	InitialLifeSpan = 3.0f;
 }
 
-void AMyProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AMyProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
 	UE_LOG(LogTemp, Warning, TEXT("HitSomething"));
 	// Only add impulse and destroy projectile if we hit a physics
-	if (OtherActor != NULL)
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
 	{
 		AAI* victim = Cast<AAI>(OtherActor);
 		UE_LOG(LogTemp, Warning, TEXT("BeforeCalculateAttack"));
