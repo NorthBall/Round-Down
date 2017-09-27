@@ -34,11 +34,16 @@ AMyProjectile::AMyProjectile()
 
 void AMyProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Warning, TEXT("HitSomething"));
 	// Only add impulse and destroy projectile if we hit a physics
-	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
+	if (OtherActor != NULL)
 	{
-		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-
-		Destroy();
+		AAI* victim = Cast<AAI>(OtherActor);
+		UE_LOG(LogTemp, Warning, TEXT("BeforeCalculateAttack"));
+		TArray<int32> flags;
+		if (victim != nullptr) {
+			UE_LOG(LogTemp, Warning, TEXT("CalculateAttack"));
+			owner->CalculateAttack(victim, flags);
+		}
 	}
 }

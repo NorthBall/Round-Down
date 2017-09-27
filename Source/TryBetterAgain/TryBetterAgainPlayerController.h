@@ -15,11 +15,15 @@ public:
 	ATryBetterAgainPlayerController();
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
+	void OnSpellCastPressed();
+	void OnSpellCastReleased();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		bool bAttack;
 
+	bool leftClicked;
+
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class AMyProjectile> ProjectileClass;
+		TSubclassOf<class AMyProjectile> MyProjectileBP;
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
@@ -45,6 +49,8 @@ protected:
 	void Attack();
 
 	void DontAttack();
+
+	void CastSpell();
 
 	FVector Tehnika100TochekKorsuna(FVector to, int range, FVector from);
 		

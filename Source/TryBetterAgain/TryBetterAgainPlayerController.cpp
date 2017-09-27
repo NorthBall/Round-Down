@@ -40,6 +40,12 @@ FVector ATryBetterAgainPlayerController::Tehnika100TochekKorsuna(FVector to, int
 	return nearest_point;
 }
 
+void RotateToFacedEnemy()
+{
+	
+
+}
+
 void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
@@ -47,7 +53,7 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 	static AAI* victim;
 	static float all_time = 0;
 	static ATryBetterAgainCharacter* MyCharacter;
-	
+
 	// keep updating the destination every tick while desired
 	if (bClicked) {
 		FHitResult Hit;
@@ -68,7 +74,7 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 		}
 	}
 
-	if (is_gonna_attacking) {
+	if (is_gonna_attacking && !bAttack) {
 		//UE_LOG(LogTemp, Warning, TEXT("In is_gonna_attacking"));
 		APawn* const MyPawn = GetPawn();
 		MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
@@ -81,8 +87,10 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 				SetNewMoveDestination(destination);
 			}
 			else {
-				Attack();
-				is_gonna_attacking = false;
+				if (MyCharacter->FacedToEnemy(victim->GetActorLocation())){
+					Attack();
+					is_gonna_attacking = false;
+				}
 				//UE_LOG(LogTemp, Warning, TEXT("Unset is_gonna_attacking"));
 			}
 		}
@@ -100,22 +108,25 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 	}
 }
 
+void ATryBetterAgainPlayerController::CastSpell()
+{
+	FHitResult Hit;
+	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+	if (Hit.bBlockingHit) {
+		APawn* const MyPawn = GetPawn();
+		ATryBetterAgainCharacter* MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
+		MyCharacter->FacedToEnemy(Hit.ImpactPoint);
+		UWorld* const World = GetWorld();
+		FRotator deltaRotate = (Hit.ImpactPoint - MyPawn->GetActorLocation()).Rotation();
+		FVector location = MyCharacter->GetActorLocation() + MyCharacter->GetActorForwardVector() * 50;
+		AMyProjectile* Projectile = World->SpawnActor<AMyProjectile>(MyProjectileBP, location, deltaRotate);
+		Projectile->owner = MyCharacter;
+	}
+}
+
 void ATryBetterAgainPlayerController::Attack()
 {
 	bAttack = true;
-	UWorld* const World = GetWorld();
-	const FRotator SpawnRotation = FRotator(0.1);//GetControlRotation();
-	APawn* const MyPawn = GetPawn();
-	// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-	const FVector SpawnLocation = MyPawn->GetActorLocation() + FVector(0, 0, 100.0f);
-
-	//Set Spawn Collision Handling Override
-	FActorSpawnParameters ActorSpawnParams;
-	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-	// spawn the projectile at the muzzle
-	World->SpawnActor<AMyProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-
 }
 
 void ATryBetterAgainPlayerController::DontAttack()
@@ -132,6 +143,10 @@ void ATryBetterAgainPlayerController::SetupInputComponent()
 	Consume = &InputComponent->BindAction("SetDestination", IE_Pressed, this, &ATryBetterAgainPlayerController::OnSetDestinationPressed);
 	Consume->bConsumeInput = false;
 	InputComponent->BindAction("SetDestination", IE_Released, this, &ATryBetterAgainPlayerController::OnSetDestinationReleased).bConsumeInput=false;
+
+	Consume = &InputComponent->BindAction("CastSpell", IE_Pressed, this, &ATryBetterAgainPlayerController::OnSpellCastPressed);
+	Consume->bConsumeInput = false;
+	InputComponent->BindAction("CastSpell", IE_Released, this, &ATryBetterAgainPlayerController::OnSpellCastReleased).bConsumeInput = false;
 }
 
 void ATryBetterAgainPlayerController::OnResetVR()
@@ -182,4 +197,17 @@ void ATryBetterAgainPlayerController::OnSetDestinationReleased()
 {
 	// clear flag to indicate we should stop updating the destination
 	bClicked = false;
+}
+
+void ATryBetterAgainPlayerController::OnSpellCastPressed()
+{
+	// set flag to keep updating destination until released
+	leftClicked = true;
+}
+
+void ATryBetterAgainPlayerController::OnSpellCastReleased()
+{
+	// set flag to keep updating destination until released
+	CastSpell();
+	leftClicked = false;
 }

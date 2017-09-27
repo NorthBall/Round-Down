@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "AI.h"
 #include "MyProjectile.generated.h"
 
 UCLASS(config = Game)
@@ -12,7 +13,7 @@ class AMyProjectile : public AActor
 	GENERATED_BODY()
 
 		/** Sphere collision component */
-		UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 		class USphereComponent* CollisionComp;
 
 	/** Projectile movement component */
@@ -21,6 +22,8 @@ class AMyProjectile : public AActor
 
 public:
 	AMyProjectile();
+
+	ACommonAncestor* owner;
 
 	/** called when projectile hits something */
 	UFUNCTION()

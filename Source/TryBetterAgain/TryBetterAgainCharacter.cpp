@@ -87,3 +87,10 @@ void ATryBetterAgainCharacter::Tick(float DeltaSeconds)
 		}
 	}
 }
+
+bool ATryBetterAgainCharacter::FacedToEnemy(FVector enemyLocation)
+{
+	FRotator deltaRotate = (enemyLocation - GetActorLocation()).Rotation();
+	SetActorRotation(deltaRotate);
+	return true;
+}
