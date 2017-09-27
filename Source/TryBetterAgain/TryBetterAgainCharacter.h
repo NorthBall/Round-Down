@@ -5,6 +5,7 @@
 #include "CommonAncestor.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "AI.h"
 #include "TryBetterAgainCharacter.generated.h"
 
 UCLASS(Blueprintable)

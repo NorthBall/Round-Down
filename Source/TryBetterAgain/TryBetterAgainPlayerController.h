@@ -18,6 +18,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		bool bAttack;
 
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		TSubclassOf<class AMyProjectile> ProjectileClass;
+
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	bool bClicked = false;
@@ -40,6 +43,8 @@ protected:
 	void SetNewMoveDestination(const FVector DestLocation);
 	
 	void Attack();
+
+	void DontAttack();
 
 	FVector Tehnika100TochekKorsuna(FVector to, int range, FVector from);
 		

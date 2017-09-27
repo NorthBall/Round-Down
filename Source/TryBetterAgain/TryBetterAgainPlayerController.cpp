@@ -5,6 +5,7 @@
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "TryBetterAgainCharacter.h"
+#include "MyProjectile.h"
 #include "AI.h"
 
 ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
@@ -44,6 +45,8 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 	static bool is_gonna_attacking = false;
 	static AAI* victim;
+	static float all_time = 0;
+	static ATryBetterAgainCharacter* MyCharacter;
 	
 	// keep updating the destination every tick while desired
 	if (bClicked) {
@@ -58,13 +61,14 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 				return;
 			}
 			is_gonna_attacking = false;
+			DontAttack();
 			UE_LOG(LogTemp, Warning, TEXT("Move destination to HZ"));
 			SetNewMoveDestination(Hit.ImpactPoint);
 		}
 	} else if (is_gonna_attacking) {
 		//UE_LOG(LogTemp, Warning, TEXT("In is_gonna_attacking"));
 		APawn* const MyPawn = GetPawn();
-		ATryBetterAgainCharacter* MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
+		MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
 		if (MyCharacter != nullptr) {
 			float const Distance = FVector::Dist(victim->GetActorLocation(), MyCharacter->GetActorLocation());
 			//UE_LOG(LogTemp, Warning, TEXT("Distance is %f"), Distance);
@@ -82,11 +86,37 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 		else
 			is_gonna_attacking = false;
 	}
+	else if (bAttack) {
+		all_time += DeltaTime;
+		if (all_time >= 1) {
+			TArray<int32> flags;
+			MyCharacter->CalculateAttack(victim, flags);
+			all_time = 0;
+		}
+	}
 }
 
 void ATryBetterAgainPlayerController::Attack()
 {
 	bAttack = true;
+	UWorld* const World = GetWorld();
+	const FRotator SpawnRotation = FRotator(0.1);//GetControlRotation();
+	APawn* const MyPawn = GetPawn();
+	// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+	const FVector SpawnLocation = MyPawn->GetActorLocation() + FVector(0, 0, 100.0f);
+
+	//Set Spawn Collision Handling Override
+	FActorSpawnParameters ActorSpawnParams;
+	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+	// spawn the projectile at the muzzle
+	World->SpawnActor<AMyProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+
+}
+
+void ATryBetterAgainPlayerController::DontAttack()
+{
+	bAttack = false;
 }
 
 void ATryBetterAgainPlayerController::SetupInputComponent()
