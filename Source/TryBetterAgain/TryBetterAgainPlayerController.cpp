@@ -58,14 +58,17 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 			if (victim != nullptr) {
 				is_gonna_attacking = true;
 				UE_LOG(LogTemp, Warning, TEXT("Set victim"));
-				return;
 			}
-			is_gonna_attacking = false;
-			DontAttack();
-			UE_LOG(LogTemp, Warning, TEXT("Move destination to HZ"));
-			SetNewMoveDestination(Hit.ImpactPoint);
+			else {
+				is_gonna_attacking = false;
+				DontAttack();
+				UE_LOG(LogTemp, Warning, TEXT("Move destination to HZ"));
+				SetNewMoveDestination(Hit.ImpactPoint);
+			}
 		}
-	} else if (is_gonna_attacking) {
+	}
+
+	if (is_gonna_attacking) {
 		//UE_LOG(LogTemp, Warning, TEXT("In is_gonna_attacking"));
 		APawn* const MyPawn = GetPawn();
 		MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
@@ -86,7 +89,8 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 		else
 			is_gonna_attacking = false;
 	}
-	else if (bAttack) {
+	
+	if (bAttack) {
 		all_time += DeltaTime;
 		if (all_time >= 1) {
 			TArray<int32> flags;
