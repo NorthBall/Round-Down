@@ -12,7 +12,8 @@ AMyProjectile::AMyProjectile()
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
-	CollisionComp->OnComponentHit.AddDynamic(this, &AMyProjectile::OnHit);		// set up a notification for when this component hits something blocking
+	CollisionComp->OnComponentHit.AddDynamic(this, &AMyProjectile::OnHit);
+			// set up a notification for when this component hits something blocking
 
 																						// Players can't walk on it
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
@@ -32,8 +33,15 @@ AMyProjectile::AMyProjectile()
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
 }
+void AMyProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	
 
-void AMyProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+}
+
+void AMyProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	UE_LOG(LogTemp, Warning, TEXT("HitSomething"));
 	// Only add impulse and destroy projectile if we hit a physics
