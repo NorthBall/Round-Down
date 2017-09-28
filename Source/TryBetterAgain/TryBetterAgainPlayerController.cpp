@@ -40,12 +40,6 @@ FVector ATryBetterAgainPlayerController::Tehnika100TochekKorsuna(FVector to, int
 	return nearest_point;
 }
 
-void RotateToFacedEnemy()
-{
-	
-
-}
-
 void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
