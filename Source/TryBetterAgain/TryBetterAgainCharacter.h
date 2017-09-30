@@ -44,12 +44,19 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* CursorToWorld;
 
+	UPROPERTY(EditAnywhere)
+		float CameraSpeed;
+	UPROPERTY(EditAnywhere)
+		float CameraUp;
+	UPROPERTY(EditAnywhere)
+		float CameraDown;
+
 	float ZoomFactor;
 	int bZooming;
 
 	void ZoomIn();
 	void ZoomOut();
-	void NoZoom();
+	//void NoZoom();
 
 };
 

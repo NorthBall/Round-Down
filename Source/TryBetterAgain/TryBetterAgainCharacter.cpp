@@ -54,6 +54,9 @@ ATryBetterAgainCharacter::ATryBetterAgainCharacter()
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+	CameraSpeed = 4;
+	CameraUp = 1500;
+	CameraDown = 600;
 }
 
 void ATryBetterAgainCharacter::Tick(float DeltaSeconds)
@@ -86,26 +89,22 @@ void ATryBetterAgainCharacter::Tick(float DeltaSeconds)
 			CursorToWorld->SetWorldRotation(CursorR);
 		}
 	}
-
-	//Zoom in if ZoomIn button is down, zoom back out if it's not
+	//Zoom
 	{
 		if (bZooming == 1)
 		{
-			ZoomFactor += DeltaSeconds / 0.5f;         //Zoom in over half a second
+			ZoomFactor += CameraSpeed * DeltaSeconds;         //Zoom in over half a second
 		}
 		else if (bZooming == -1)
 		{
-			ZoomFactor -= DeltaSeconds / 0.25f;        //Zoom out over a quarter of a second
-		}
-		else
-		{
-			ZoomFactor = 0;
+			ZoomFactor -= CameraSpeed * DeltaSeconds;        //Zoom out over a quarter of a second
 		}
 		ZoomFactor = FMath::Clamp<float>(ZoomFactor, 0.0f, 1.0f);
 		//Blend our camera's FOV and our SpringArm's length based on ZoomFactor
 		TopDownCameraComponent->FieldOfView = FMath::Lerp<float>(90.0f, 60.0f, ZoomFactor);
-		CameraBoom->TargetArmLength = FMath::Lerp<float>(400.0f, 300.0f, ZoomFactor);
-	}
+		CameraBoom->TargetArmLength = FMath::Lerp<float>(CameraUp, CameraDown, ZoomFactor);
+		bZooming = 0;
+	} 
 }
 
 bool ATryBetterAgainCharacter::FacedToEnemy(FVector enemyLocation)
@@ -126,10 +125,10 @@ void ATryBetterAgainCharacter::ZoomOut()
 	bZooming = -1;
 }
 
-void ATryBetterAgainCharacter::NoZoom()
+/*void ATryBetterAgainCharacter::NoZoom()
 {
 	bZooming = 0;
-}
+}*/
 
 // Called to bind functionality to input
 void ATryBetterAgainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -139,6 +138,6 @@ void ATryBetterAgainCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	//Hook up events for "ZoomIn"
 	InputComponent->BindAction("ZoomIn", IE_Pressed, this, &ATryBetterAgainCharacter::ZoomIn);
 	InputComponent->BindAction("ZoomOut", IE_Pressed, this, &ATryBetterAgainCharacter::ZoomOut);
-	InputComponent->BindAction("ZoomIn", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);
-	InputComponent->BindAction("ZoomOut", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);
+/*	InputComponent->BindAction("ZoomIn", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);
+	InputComponent->BindAction("ZoomOut", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);*/
 }
