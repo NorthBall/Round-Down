@@ -111,7 +111,7 @@ void ATryBetterAgainPlayerController::CastSpell()
 		ATryBetterAgainCharacter* MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
 		MyCharacter->FacedToEnemy(Hit.ImpactPoint);
 		UWorld* const World = GetWorld();
-		FRotator deltaRotate = (Hit.ImpactPoint - MyPawn->GetActorLocation()).Rotation();
+		FRotator deltaRotate = (Hit.ImpactPoint - MyPawn->GetActorLocation() + FVector(0, 0, MyPawn->GetActorLocation().Z - Hit.ImpactPoint.Z)).Rotation();
 		FVector location = MyCharacter->GetActorLocation() + MyCharacter->GetActorForwardVector() * 50;
 		AMyProjectile* Projectile = World->SpawnActor<AMyProjectile>(MyProjectileBP, location, deltaRotate);
 		Projectile->owner = MyCharacter;
