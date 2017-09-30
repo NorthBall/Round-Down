@@ -19,6 +19,9 @@ public:
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
 
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 	bool FacedToEnemy(FVector enemyLocation);
 
 	/** Returns TopDownCameraComponent subobject **/
@@ -40,5 +43,13 @@ private:
 	/** A decal that projects to the cursor location. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* CursorToWorld;
+
+	float ZoomFactor;
+	int bZooming;
+
+	void ZoomIn();
+	void ZoomOut();
+	void NoZoom();
+
 };
 

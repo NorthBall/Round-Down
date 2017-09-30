@@ -2,7 +2,6 @@
 
 #include "AI.h"
 
-
 // Sets default values
 AAI::AAI()
 {
