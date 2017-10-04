@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "AI.generated.h"
 
+
+
 UCLASS()
 class TRYBETTERAGAIN_API AAI : public ACommonAncestor
 {
@@ -26,5 +28,5 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 };
