@@ -55,14 +55,11 @@ ATryBetterAgainCharacter::ATryBetterAgainCharacter()
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
-<<<<<<< HEAD
-	//Dumb = CreateDefaultSubobject<UNavMovementComponent>(TEXT("Dobby"));
-	//Dumb->UpdateNavAgent(this);
-=======
+
 	CameraSpeed = 4;
 	CameraUp = 1500;
 	CameraDown = 600;
->>>>>>> 44f0bf1aeaf2605e42af71eaa60c8b66f067308e
+
 }
 
 void ATryBetterAgainCharacter::Tick(float DeltaSeconds)
