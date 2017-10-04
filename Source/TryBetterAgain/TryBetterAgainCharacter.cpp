@@ -40,6 +40,7 @@ ATryBetterAgainCharacter::ATryBetterAgainCharacter()
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+
 	// Create a decal in the world to show the cursor's location
 	CursorToWorld = CreateDefaultSubobject<UDecalComponent>("CursorToWorld");
 	CursorToWorld->SetupAttachment(RootComponent);
@@ -54,6 +55,8 @@ ATryBetterAgainCharacter::ATryBetterAgainCharacter()
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+	//Dumb = CreateDefaultSubobject<UNavMovementComponent>(TEXT("Dobby"));
+	//Dumb->UpdateNavAgent(this);
 }
 
 void ATryBetterAgainCharacter::Tick(float DeltaSeconds)

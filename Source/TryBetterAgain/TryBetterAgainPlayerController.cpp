@@ -1,19 +1,54 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
-
+#pragma once
 #include "TryBetterAgainPlayerController.h"
+
+#include "MyAIController.h"
 #include "AI/Navigation/NavigationSystem.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "TryBetterAgainCharacter.h"
 #include "MyProjectile.h"
 #include "AI.h"
+#include "CommonAncestor.h"
+#include "GameFramework/Character.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Camera/CameraComponent.h"
+#include "Components/DecalComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
+#include "Materials/Material.h"
 
 ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
+	
+	
+	/*Dumb = CreateDefaultSubobject<UNavMovementComponent>(TEXT("Dobby"));
+	Dumb->UpdateNavAgent(this);
+	AIMovement= CreateDefaultSubobject<UPathFollowingComponent>(TEXT("MovementComp"));
+	AIMovement->SetMovementComponent(Dumb);*/
 }
 
+void ATryBetterAgainPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	NPK = GetWorld()->SpawnActor<AMyAIController>(AIKClass, FVector(-490.f, -86.f, 392.f), FRotator::ZeroRotator);
+	NPK->MyOwner = this;
+	OursPawn=Cast<ATryBetterAgainCharacter>(NPK->GetPawn());
+	SetViewTarget(OursPawn);
+	if (OursPawn == NULL)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Korsun is absolute zero  iq"));
+	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Korsun is onehugredandforty  iq"));
+	SetViewTargetWithBlend(OursPawn);
+	
+}
 FVector ATryBetterAgainPlayerController::Tehnika100TochekKorsuna(FVector to, int range, FVector from)
 {
 	UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
@@ -43,10 +78,7 @@ FVector ATryBetterAgainPlayerController::Tehnika100TochekKorsuna(FVector to, int
 void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
-	static bool is_gonna_attacking = false;
-	static AAI* victim;
-	static float all_time = 0;
-	static ATryBetterAgainCharacter* MyCharacter;
+	
 
 	// keep updating the destination every tick while desired
 	if (bClicked) {
@@ -70,15 +102,23 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 
 	if (is_gonna_attacking && !bAttack) {
 		//UE_LOG(LogTemp, Warning, TEXT("In is_gonna_attacking"));
-		APawn* const MyPawn = GetPawn();
+		APawn* const MyPawn = NPK->GetPawn();
 		MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
 		if (MyCharacter != nullptr) {
 			float const Distance = FVector::Dist(victim->GetActorLocation(), MyCharacter->GetActorLocation());
-			//UE_LOG(LogTemp, Warning, TEXT("Distance is %f"), Distance);
+			UE_LOG(LogTemp, Warning, TEXT("Korsun is %f  iq"), Distance- MyCharacter->AttackRange);
 			if (Distance >= MyCharacter->AttackRange) {
-				FVector destination = Tehnika100TochekKorsuna(victim->GetActorLocation(), MyCharacter->AttackRange - 50.0f, MyCharacter->GetActorLocation());
-				UE_LOG(LogTemp, Warning, TEXT("Move destination to AI"));
-				SetNewMoveDestination(destination);
+				FVector destination = Tehnika100TochekKorsuna(victim->GetActorLocation(), MyCharacter->AttackRange - 2.0f, MyCharacter->GetActorLocation());
+				UE_LOG(LogTemp, Warning, TEXT("Move destination to AI %f"),Distance- MyCharacter->AttackRange);
+				victim->SpawnMesh(destination);
+				if (Korsuns)
+				{
+					NPK->MoveToActor(victim, MyCharacter->AttackRange);
+					Korsuns = false;
+				}
+				//NPK->MoveToLocation(destination, 1.0f);
+				/*if(FVector::Dist(destination, MyPawn->GetActorLocation())>15.0f)
+				SetNewMoveDestination(destination);*/
 			}
 			else {
 				if (MyCharacter->FacedToEnemy(victim->GetActorLocation())){
@@ -107,7 +147,7 @@ void ATryBetterAgainPlayerController::CastSpell()
 	FHitResult Hit;
 	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
 	if (Hit.bBlockingHit) {
-		APawn* const MyPawn = GetPawn();
+		APawn* const MyPawn = NPK->GetPawn();
 		ATryBetterAgainCharacter* MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
 		MyCharacter->FacedToEnemy(Hit.ImpactPoint);
 		UWorld* const World = GetWorld();
@@ -165,18 +205,19 @@ void ATryBetterAgainPlayerController::MoveToTouchLocation(const ETouchIndex::Typ
 
 void ATryBetterAgainPlayerController::SetNewMoveDestination(const FVector DestLocation)
 {
-	APawn* const MyPawn = GetPawn();
+	APawn* const MyPawn = NPK->GetPawn();
 	
 	if (MyPawn)
 	{
 		UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
 		float const Distance = FVector::Dist(DestLocation, MyPawn->GetActorLocation());
-
+		
 		// We need to issue move command only if far enough in order for walk animation to play correctly
-		if (NavSys && (Distance > 10.0f))
+		if (NavSys )
 		{
-			UE_LOG(LogTemp, Warning, TEXT("distance is %f"), Distance);
-			NavSys->SimpleMoveToLocation(this, DestLocation);
+			//UE_LOG(LogTemp, Warning, TEXT("distance is %f"), Distance);
+			//NavSys->SimpleMoveToLocation(this, DestLocation);
+			NPK->MoveToLocation(DestLocation, 1.0f);
 		}
 	}
 }

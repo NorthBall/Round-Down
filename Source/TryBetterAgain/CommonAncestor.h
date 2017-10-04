@@ -46,7 +46,8 @@ public:
 		int32 MagicPower;//multiply magic skills
 	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
 		void UpdateHealth();
-	
+	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
+		void SpawnMesh(FVector a);
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 		void CalculateAttack( ACommonAncestor *Victim, TArray<int32> flags)
 	{
