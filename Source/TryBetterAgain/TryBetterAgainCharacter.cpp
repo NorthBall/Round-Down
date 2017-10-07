@@ -92,22 +92,7 @@ void ATryBetterAgainCharacter::Tick(float DeltaSeconds)
 			CursorToWorld->SetWorldRotation(CursorR);
 		}
 	}
-	//Zoom
-	{
-		if (bZooming == 1)
-		{
-			ZoomFactor += CameraSpeed * DeltaSeconds;         //Zoom in over half a second
-		}
-		else if (bZooming == -1)
-		{
-			ZoomFactor -= CameraSpeed * DeltaSeconds;        //Zoom out over a quarter of a second
-		}
-		ZoomFactor = FMath::Clamp<float>(ZoomFactor, 0.0f, 1.0f);
-		//Blend our camera's FOV and our SpringArm's length based on ZoomFactor
-		TopDownCameraComponent->FieldOfView = FMath::Lerp<float>(90.0f, 60.0f, ZoomFactor);
-		CameraBoom->TargetArmLength = FMath::Lerp<float>(CameraUp, CameraDown, ZoomFactor);
-		bZooming = 0;
-	} 
+	
 }
 
 bool ATryBetterAgainCharacter::FacedToEnemy(FVector enemyLocation)
@@ -118,15 +103,7 @@ bool ATryBetterAgainCharacter::FacedToEnemy(FVector enemyLocation)
 	return true;
 }
 
-void ATryBetterAgainCharacter::ZoomIn()
-{
-	bZooming = 1;
-}
 
-void ATryBetterAgainCharacter::ZoomOut()
-{
-	bZooming = -1;
-}
 
 /*void ATryBetterAgainCharacter::NoZoom()
 {
@@ -139,8 +116,7 @@ void ATryBetterAgainCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	//Hook up events for "ZoomIn"
-	InputComponent->BindAction("ZoomIn", IE_Pressed, this, &ATryBetterAgainCharacter::ZoomIn);
-	InputComponent->BindAction("ZoomOut", IE_Pressed, this, &ATryBetterAgainCharacter::ZoomOut);
+	
 /*	InputComponent->BindAction("ZoomIn", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);
 	InputComponent->BindAction("ZoomOut", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);*/
 }

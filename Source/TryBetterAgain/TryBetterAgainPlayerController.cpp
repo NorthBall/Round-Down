@@ -36,6 +36,9 @@ ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
 void ATryBetterAgainPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	CameraSpeed = 4;
+	CameraUp = 1500;
+	CameraDown = 600;
 	NPK = GetWorld()->SpawnActor<AMyAIController>(AIKClass, FVector(-490.f, -86.f, 392.f), FRotator::ZeroRotator);
 	NPK->MyOwner = this;
 	OursPawn=Cast<ATryBetterAgainCharacter>(NPK->GetPawn());
@@ -49,31 +52,7 @@ void ATryBetterAgainPlayerController::BeginPlay()
 	SetViewTargetWithBlend(OursPawn);
 	
 }
-FVector ATryBetterAgainPlayerController::Tehnika100TochekKorsuna(FVector to, int range, FVector from)
-{
-	UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
-	float path_len;
-	FVector nearest_point = to;
 
-	if (NavSys) {
-		nearest_point = to + FVector(range, 0, 0);
-		NavSys->GetPathLength(from, nearest_point, path_len);
-		//UE_LOG(LogTemp, Warning, TEXT("path_len = %f"), path_len);
-		for (int i = 1; i < 100; i++) {
-			float radian = i * PI / 50;
-			FVector current_point = to + FVector(range * cos(radian), range * sin(radian), 0);
-			float current_path_len;
-			NavSys->GetPathLength(from, current_point, current_path_len);
-			//UE_LOG(LogTemp, Warning, TEXT("current_path_len = %f"), current_path_len);
-			if (current_path_len < path_len) {
-				nearest_point = current_point;
-				path_len = current_path_len;
-			}
-		}
-	} 
-	//UE_LOG(LogTemp, Warning, TEXT("returning point = %f"), path_len);
-	return nearest_point;
-}
 
 void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 {
@@ -100,28 +79,20 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 		}
 	}
 
-	if (is_gonna_attacking && !bAttack) {
+	if (is_gonna_attacking && !bAttack ) {
 		//UE_LOG(LogTemp, Warning, TEXT("In is_gonna_attacking"));
-		APawn* const MyPawn = NPK->GetPawn();
-		MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
-		if (MyCharacter != nullptr) {
-			float const Distance = FVector::Dist(victim->GetActorLocation(), MyCharacter->GetActorLocation());
-			UE_LOG(LogTemp, Warning, TEXT("Korsun is %f  iq"), Distance- MyCharacter->AttackRange);
-			if (Distance >= MyCharacter->AttackRange) {
-				FVector destination = Tehnika100TochekKorsuna(victim->GetActorLocation(), MyCharacter->AttackRange - 2.0f, MyCharacter->GetActorLocation());
-				UE_LOG(LogTemp, Warning, TEXT("Move destination to AI %f"),Distance- MyCharacter->AttackRange);
-				victim->SpawnMesh(destination);
-				if (Korsuns)
-				{
-					NPK->MoveToActor(victim, MyCharacter->AttackRange);
-					Korsuns = false;
-				}
-				//NPK->MoveToLocation(destination, 1.0f);
-				/*if(FVector::Dist(destination, MyPawn->GetActorLocation())>15.0f)
-				SetNewMoveDestination(destination);*/
+		
+		if (OursPawn != nullptr) {
+			float const Distance = FVector::Dist2D(victim->GetActorLocation(), OursPawn->GetActorLocation());
+			UE_LOG(LogTemp, Warning, TEXT("Korsun is %f  iq"), Distance- OursPawn->AttackRange);
+			if (Distance > OursPawn->AttackRange) {
+				//victim->SpawnMesh(destination);
+				if (bClicked)
+					NPK->MoveToActor(victim, OursPawn->AttackRange);
+			
 			}
 			else {
-				if (MyCharacter->FacedToEnemy(victim->GetActorLocation())){
+				if (OursPawn->FacedToEnemy(victim->GetActorLocation())){
 					Attack();
 					is_gonna_attacking = false;
 				}
@@ -136,9 +107,25 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 		all_time += DeltaTime;
 		if (all_time >= 1) {
 			TArray<int32> flags;
-			MyCharacter->CalculateAttack(victim, flags);
+			OursPawn->CalculateAttack(victim, flags);
 			all_time = 0;
 		}
+	}
+	//Zoom
+	{
+		if (bZooming == 1)
+		{
+			ZoomFactor += CameraSpeed * DeltaTime;         //Zoom in over half a second
+		}
+		else if (bZooming == -1)
+		{
+			ZoomFactor -= CameraSpeed * DeltaTime;        //Zoom out over a quarter of a second
+		}
+		ZoomFactor = FMath::Clamp<float>(ZoomFactor, 0.0f, 1.0f);
+		//Blend our camera's FOV and our SpringArm's length based on ZoomFactor
+		OursPawn->TopDownCameraComponent->FieldOfView = FMath::Lerp<float>(90.0f, 60.0f, ZoomFactor);
+		OursPawn->CameraBoom->TargetArmLength = FMath::Lerp<float>(CameraUp, CameraDown, ZoomFactor);
+		bZooming = 0;
 	}
 }
 
@@ -147,14 +134,13 @@ void ATryBetterAgainPlayerController::CastSpell()
 	FHitResult Hit;
 	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
 	if (Hit.bBlockingHit) {
-		APawn* const MyPawn = NPK->GetPawn();
-		ATryBetterAgainCharacter* MyCharacter = Cast<ATryBetterAgainCharacter>(MyPawn);
-		MyCharacter->FacedToEnemy(Hit.ImpactPoint);
+		
+		OursPawn->FacedToEnemy(Hit.ImpactPoint);
 		UWorld* const World = GetWorld();
-		FRotator deltaRotate = (Hit.ImpactPoint - MyPawn->GetActorLocation() + FVector(0, 0, MyPawn->GetActorLocation().Z - Hit.ImpactPoint.Z)).Rotation();
-		FVector location = MyCharacter->GetActorLocation() + MyCharacter->GetActorForwardVector() * 50;
+		FRotator deltaRotate = (Hit.ImpactPoint - OursPawn->GetActorLocation() + FVector(0, 0, OursPawn->GetActorLocation().Z - Hit.ImpactPoint.Z)).Rotation();
+		FVector location = OursPawn->GetActorLocation() + OursPawn->GetActorForwardVector() * 50;
 		AMyProjectile* Projectile = World->SpawnActor<AMyProjectile>(MyProjectileBP, location, deltaRotate);
-		Projectile->owner = MyCharacter;
+		Projectile->owner = OursPawn;
 	}
 }
 
@@ -181,6 +167,8 @@ void ATryBetterAgainPlayerController::SetupInputComponent()
 	Consume = &InputComponent->BindAction("CastSpell", IE_Pressed, this, &ATryBetterAgainPlayerController::OnSpellCastPressed);
 	Consume->bConsumeInput = false;
 	InputComponent->BindAction("CastSpell", IE_Released, this, &ATryBetterAgainPlayerController::OnSpellCastReleased).bConsumeInput = false;
+	InputComponent->BindAction("ZoomIn", IE_Pressed, this, &ATryBetterAgainPlayerController::ZoomIn);
+	InputComponent->BindAction("ZoomOut", IE_Pressed, this, &ATryBetterAgainPlayerController::ZoomOut);
 }
 
 void ATryBetterAgainPlayerController::OnResetVR()
@@ -205,12 +193,12 @@ void ATryBetterAgainPlayerController::MoveToTouchLocation(const ETouchIndex::Typ
 
 void ATryBetterAgainPlayerController::SetNewMoveDestination(const FVector DestLocation)
 {
-	APawn* const MyPawn = NPK->GetPawn();
 	
-	if (MyPawn)
+	
+	if (OursPawn)
 	{
 		UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
-		float const Distance = FVector::Dist(DestLocation, MyPawn->GetActorLocation());
+		float const Distance = FVector::Dist(DestLocation, OursPawn->GetActorLocation());
 		
 		// We need to issue move command only if far enough in order for walk animation to play correctly
 		if (NavSys )
@@ -245,4 +233,13 @@ void ATryBetterAgainPlayerController::OnSpellCastReleased()
 	// set flag to keep updating destination until released
 	CastSpell();
 	leftClicked = false;
+}
+void ATryBetterAgainPlayerController::ZoomIn()
+{
+	bZooming = 1;
+}
+
+void ATryBetterAgainPlayerController::ZoomOut()
+{
+	bZooming = -1;
 }

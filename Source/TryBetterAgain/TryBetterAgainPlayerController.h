@@ -18,23 +18,20 @@ public:
 	void OnSpellCastReleased();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		bool bAttack;
-	bool Korsuns=true;
+
 	bool leftClicked;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class AMyProjectile> MyProjectileBP;
+		TSubclassOf<class AMyProjectile> MyProjectileBP;//стрела
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement)
-		class AMyAIController* NPK;
+		class AMyAIController* NPK; //реальный контроллер
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement)
-		class ATryBetterAgainCharacter*  OursPawn;
+		class ATryBetterAgainCharacter*  OursPawn;//рпеальная моделька
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<class AMyAIController> AIKClass;
-	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-		class UPathFollowingComponent* AIMovement;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-				class UNavMovementComponent* Dumb;*/
-	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
+	/*UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
 		void SpawnMesh(FVector a);
+		Показать точку направления*/
 
 
 	/** True if the controlled character should navigate to the mouse cursor. */
@@ -64,12 +61,24 @@ public:
 
 	void CastSpell();
 
-	FVector Tehnika100TochekKorsuna(FVector to, int range, FVector from);
 	 bool is_gonna_attacking = false;
 	 class AAI* victim;
 	 float all_time = 0;
 	 class ATryBetterAgainCharacter* MyCharacter;
 		
+	 //раздел медведа, опасная зона
+	 UPROPERTY(EditAnywhere)
+		 float CameraSpeed;
+	 UPROPERTY(EditAnywhere)
+		 float CameraUp;
+	 UPROPERTY(EditAnywhere)
+		 float CameraDown;
+
+	 float ZoomFactor;
+	 int bZooming;
+
+	 void ZoomIn();
+	 void ZoomOut();
 	/** Input handlers for SetDestination action. */
 	
 };

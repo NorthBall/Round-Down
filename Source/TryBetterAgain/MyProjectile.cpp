@@ -45,7 +45,7 @@ void AMyProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 {
 	UE_LOG(LogTemp, Warning, TEXT("HitSomething"));
 	// Only add impulse and destroy projectile if we hit a physics
-	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
 		AAI* victim = Cast<AAI>(OtherActor);
 		UE_LOG(LogTemp, Warning, TEXT("BeforeCalculateAttack"));
