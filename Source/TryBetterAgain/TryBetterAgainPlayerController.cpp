@@ -20,6 +20,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Materials/Material.h"
+#include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 
 ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
 {
@@ -36,12 +37,15 @@ ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
 void ATryBetterAgainPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	CameraSpeed = 4;
-	CameraUp = 1500;
-	CameraDown = 600;
+	ZoomFactor = 0.5f;
+	CameraSpeed = 4.f;
+	CameraUp = 1500.f;
+	CameraDown = 600.f;
+	bZooming = 0;
 	NPK = GetWorld()->SpawnActor<AMyAIController>(AIKClass, FVector(-490.f, -86.f, 392.f), FRotator::ZeroRotator);
 	NPK->MyOwner = this;
 	OursPawn=Cast<ATryBetterAgainCharacter>(NPK->GetPawn());
+	if(OursPawn) 	OursPawn->RealController = this;
 	SetViewTarget(OursPawn);
 	if (OursPawn == NULL)
 	{
@@ -49,7 +53,7 @@ void ATryBetterAgainPlayerController::BeginPlay()
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Korsun is onehugredandforty  iq"));
-	SetViewTargetWithBlend(OursPawn);
+	SetViewTargetWithBlend(OursPawn,1.0f);
 	
 }
 
@@ -112,7 +116,7 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 		}
 	}
 	//Zoom
-	{
+	
 		if (bZooming == 1)
 		{
 			ZoomFactor += CameraSpeed * DeltaTime;         //Zoom in over half a second
@@ -123,10 +127,14 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 		}
 		ZoomFactor = FMath::Clamp<float>(ZoomFactor, 0.0f, 1.0f);
 		//Blend our camera's FOV and our SpringArm's length based on ZoomFactor
-		OursPawn->TopDownCameraComponent->FieldOfView = FMath::Lerp<float>(90.0f, 60.0f, ZoomFactor);
-		OursPawn->CameraBoom->TargetArmLength = FMath::Lerp<float>(CameraUp, CameraDown, ZoomFactor);
-		bZooming = 0;
-	}
+		if (OursPawn != NULL)
+		{
+			OursPawn->TopDownCameraComponent->FieldOfView = FMath::Lerp<float>(90.0f, 60.0f, ZoomFactor);
+			OursPawn->CameraBoom->TargetArmLength = FMath::Lerp<float>(CameraUp, CameraDown, ZoomFactor);
+			bZooming = 0;
+		}
+
+	
 }
 
 void ATryBetterAgainPlayerController::CastSpell()
@@ -167,29 +175,13 @@ void ATryBetterAgainPlayerController::SetupInputComponent()
 	Consume = &InputComponent->BindAction("CastSpell", IE_Pressed, this, &ATryBetterAgainPlayerController::OnSpellCastPressed);
 	Consume->bConsumeInput = false;
 	InputComponent->BindAction("CastSpell", IE_Released, this, &ATryBetterAgainPlayerController::OnSpellCastReleased).bConsumeInput = false;
-	InputComponent->BindAction("ZoomIn", IE_Pressed, this, &ATryBetterAgainPlayerController::ZoomIn);
-	InputComponent->BindAction("ZoomOut", IE_Pressed, this, &ATryBetterAgainPlayerController::ZoomOut);
-}
-
-void ATryBetterAgainPlayerController::OnResetVR()
-{
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
+	InputComponent->BindAction("ZoomIn", IE_Pressed, this, &ATryBetterAgainPlayerController::ZoomIn).bConsumeInput=false;
+	InputComponent->BindAction("ZoomOut", IE_Pressed, this, &ATryBetterAgainPlayerController::ZoomOut).bConsumeInput=false;
+	InputComponent->BindAction("PauseMenu", IE_Pressed, this, &ATryBetterAgainPlayerController::SetPauseMenu).bConsumeInput = false;
 }
 
 
-void ATryBetterAgainPlayerController::MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location)
-{
-	FVector2D ScreenSpaceLocation(Location);
 
-	// Trace to see what is under the touch location
-	FHitResult HitResult;
-	GetHitResultAtScreenPosition(ScreenSpaceLocation, CurrentClickTraceChannel, true, HitResult);
-	if (HitResult.bBlockingHit)
-	{
-		// We hit something, move there
-		SetNewMoveDestination(HitResult.ImpactPoint);
-	}
-}
 
 void ATryBetterAgainPlayerController::SetNewMoveDestination(const FVector DestLocation)
 {
@@ -205,8 +197,13 @@ void ATryBetterAgainPlayerController::SetNewMoveDestination(const FVector DestLo
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("distance is %f"), Distance);
 			//NavSys->SimpleMoveToLocation(this, DestLocation);
+			//UE_LOG(LogTemp, Warning, TEXT("Korsun is onehungredandforty  iq"));
 			NPK->MoveToLocation(DestLocation, 1.0f);
 		}
+	}
+	else
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Korsun is absolute zero  iq"));
 	}
 }
 
@@ -234,6 +231,7 @@ void ATryBetterAgainPlayerController::OnSpellCastReleased()
 	CastSpell();
 	leftClicked = false;
 }
+
 void ATryBetterAgainPlayerController::ZoomIn()
 {
 	bZooming = 1;
@@ -242,4 +240,20 @@ void ATryBetterAgainPlayerController::ZoomIn()
 void ATryBetterAgainPlayerController::ZoomOut()
 {
 	bZooming = -1;
+}
+void ATryBetterAgainPlayerController::SetPauseMenu()
+{
+	if (IsPaused() == false)
+	{
+		if (PauseMenu == NULL)
+		{
+			PauseMenu = CreateWidget<UUserWidget>(GetWorld(), WidgetClass);
+		}
+		if (PauseMenu)
+		{
+			if(PauseMenu->IsInViewport()==false)
+			PauseMenu->AddToViewport();
+		}
+	}
+
 }

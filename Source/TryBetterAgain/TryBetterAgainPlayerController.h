@@ -16,6 +16,10 @@ public:
 	void OnSetDestinationReleased();
 	void OnSpellCastPressed();
 	void OnSpellCastReleased();
+	void SetPauseMenu();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<class UUserWidget> WidgetClass;
+	UUserWidget* PauseMenu;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		bool bAttack;
 
@@ -43,14 +47,10 @@ public:
 	virtual void BeginPlay() override;
 	// End PlayerController interface
 
-	/** Resets HMD orientation in VR. */
-	void OnResetVR();
 
-	/** Navigate player to the current mouse cursor location. */
-	void OnClicked();
+	
 
-	/** Navigate player to the current touch location. */
-	void MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location);
+	
 	
 	/** Navigate player to the given world location. */
 	void SetNewMoveDestination(const FVector DestLocation);
@@ -67,11 +67,11 @@ public:
 	 class ATryBetterAgainCharacter* MyCharacter;
 		
 	 //раздел медведа, опасная зона
-	 UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		 float CameraSpeed;
-	 UPROPERTY(EditAnywhere)
+	 UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		 float CameraUp;
-	 UPROPERTY(EditAnywhere)
+	 UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		 float CameraDown;
 
 	 float ZoomFactor;

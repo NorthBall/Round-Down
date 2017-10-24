@@ -51,7 +51,8 @@ public:
 		float CameraUp;
 	UPROPERTY(EditAnywhere)
 		float CameraDown;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class ATryBetterAgainPlayerController* RealController;
 	float ZoomFactor;
 	int bZooming;
 
