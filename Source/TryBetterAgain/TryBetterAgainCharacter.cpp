@@ -10,6 +10,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Materials/Material.h"
+#include "MyAIController.h"
+#include "TryBetterAgainPlayerController.h"
 
 ATryBetterAgainCharacter::ATryBetterAgainCharacter()
 {
@@ -40,6 +42,7 @@ ATryBetterAgainCharacter::ATryBetterAgainCharacter()
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+
 	// Create a decal in the world to show the cursor's location
 	CursorToWorld = CreateDefaultSubobject<UDecalComponent>("CursorToWorld");
 	CursorToWorld->SetupAttachment(RootComponent);
@@ -54,11 +57,16 @@ ATryBetterAgainCharacter::ATryBetterAgainCharacter()
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	CameraSpeed = 4;
+	CameraUp = 1500;
+	CameraDown = 600;
+
 }
 
 void ATryBetterAgainCharacter::Tick(float DeltaSeconds)
 {
-    Super::Tick(DeltaSeconds);
+	Super::Tick(DeltaSeconds);
 
 	if (CursorToWorld != nullptr)
 	{
@@ -76,14 +84,41 @@ void ATryBetterAgainCharacter::Tick(float DeltaSeconds)
 				CursorToWorld->SetWorldLocationAndRotation(HitResult.Location, SurfaceRotation);
 			}
 		}
-		else if (APlayerController* PC = Cast<APlayerController>(GetController()))
+		else if (RealController)
 		{
 			FHitResult TraceHitResult;
-			PC->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
+			RealController->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
 			FVector CursorFV = TraceHitResult.ImpactNormal;
 			FRotator CursorR = CursorFV.Rotation();
 			CursorToWorld->SetWorldLocation(TraceHitResult.Location);
 			CursorToWorld->SetWorldRotation(CursorR);
 		}
 	}
+	
+}
+
+bool ATryBetterAgainCharacter::FacedToEnemy(FVector enemyLocation)
+{
+	FRotator deltaRotate = (enemyLocation - GetActorLocation()).Rotation();
+	deltaRotate.Pitch = 0;
+	SetActorRotation(deltaRotate);
+	return true;
+}
+
+
+
+/*void ATryBetterAgainCharacter::NoZoom()
+{
+	bZooming = 0;
+}*/
+
+// Called to bind functionality to input
+void ATryBetterAgainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	//Hook up events for "ZoomIn"
+	
+/*	InputComponent->BindAction("ZoomIn", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);
+	InputComponent->BindAction("ZoomOut", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);*/
 }
