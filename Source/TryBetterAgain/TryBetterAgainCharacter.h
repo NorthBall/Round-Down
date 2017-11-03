@@ -13,6 +13,18 @@ class ATryBetterAgainCharacter : public ACommonAncestor
 	GENERATED_BODY()
 
 public:
+	//class definitons
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 Class;
+	//playable functions
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+		void ChooseClass(int32 choise)	{};
+	
+
+
+
+
+
 	ATryBetterAgainCharacter();
 
 	// Called every frame.
