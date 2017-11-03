@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include <vector>
 #include "GameFramework/Character.h"
 #include "CommonAncestor.generated.h"
+
 
 UCLASS()
 class TRYBETTERAGAIN_API ACommonAncestor : public ACharacter
@@ -25,29 +27,72 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	//effects
+	float InvulTime;
+	//current stats
+	UPROPERTY(BlueprintReadWrite, Category = "Stats")
 		int32 Health;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY( BlueprintReadWrite, Category = "Stats")
 		int32 Mana;
+	UPROPERTY( BlueprintReadWrite, Category = "Stats")
+		int32 AttackDamageBuffM;//in percent
+	UPROPERTY(BlueprintReadWrite, Category = "Stats")
+		int32 AttackSpeedBuffM;//in perecent	
+	UPROPERTY(BlueprintReadWrite, Category = "Stats")
+		int32 AttackRangeBuffM;//in percent
+	UPROPERTY(BlueprintReadWrite, Category = "Stats")
+		int32 MagicRangeBuffM;//in percent
+	UPROPERTY(BlueprintReadWrite, Category = "Stats")
+		int32 Exp;//expirience
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 ISRange;//is heroes melee or ranged
+	//base stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 MaxHealth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 MaxMana;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 AttackDamage;
+		int32 RedSt;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 AttackSpeed;
+		int32 GreenSt;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 AttackRange;
+		int32 BlueSt;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 BaseDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 BaseAttackSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 BaseMagicPower;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 BaseMagicRange;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 BaseRange;
+	//shown stats
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 lvl;
+	//support information
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Damage")
 		float DamagePerSecond;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 LvlExp;//for up
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 AttackDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 AttackRange;
+	UPROPERTY(BlueprintReadWrite, Category = "Stats")
 		int32 MagicPower;//multiply magic skills
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 MagicRange;
+	//inside values
+	TArray<int32> bleed;
+	 int32 BleedNum;
+	 float BleedTime;
+	//blueprints functions
 	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
 		void UpdateHealth();
 	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
 		void SpawnMesh(FVector a);
+	//influence functions
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 		void CalculateAttack( ACommonAncestor *Victim, TArray<int32> flags)
 	{
@@ -56,7 +101,13 @@ public:
 			Victim->Destroy();
 		Victim->UpdateHealth();
 	};
-
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+		void Ataka(ACommonAncestor victim,float AtakaTime);
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void BleedDamage(int32 Damage);
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void Dead();
+	
 	
 	
 };
