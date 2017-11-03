@@ -102,7 +102,7 @@ public:
 		Victim->UpdateHealth();
 	};
 	UFUNCTION(BlueprintCallable, Category = "Damage")
-		void Ataka(ACommonAncestor victim,float AtakaTime);
+		void Ataka(ACommonAncestor *Victim,float AtakaTime);
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void BleedDamage(int32 Damage);
 	UFUNCTION(BlueprintCallable, Category = "Self")

@@ -63,7 +63,8 @@ void ACommonAncestor::Dead()
 {
 	Destroy();
 }
-void ACommonAncestor::Ataka(ACommonAncestor victim,float AtakaTime)
+void ACommonAncestor::Ataka(ACommonAncestor *Victim,float AtakaTime)
 {
 	if(AtakaTime>=1)
+	{ }
 }
