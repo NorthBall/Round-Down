@@ -69,13 +69,17 @@ public:
 		int32 BaseMagicRange;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 BaseRange;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 BaseArmor;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+		int32 NumOfWeapon;
 	//shown stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 lvl;
 	//support information
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Damage")
 		float DamagePerSecond;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exp")
 		int32 LvlExp;//for up
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 AttackDamage;
@@ -88,7 +92,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 AttackSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 AttackTime;
+		float AttackTime;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
+		float Armor;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
+		float PhysCoeff;
 
 	//inside values
 	TArray<int32> bleed;

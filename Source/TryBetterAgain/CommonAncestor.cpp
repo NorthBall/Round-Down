@@ -18,6 +18,9 @@ ACommonAncestor::ACommonAncestor()
 	Mana = 100;
 	MaxMana = 100;
 	PreAtak = 0.5f;
+	PhysCoeff = 1.0f;
+	AttackSpeed = 100;
+	AttackTime = 1.5f;
 }
 
 // Called when the game starts or when spawned
@@ -66,5 +69,6 @@ void ACommonAncestor::Dead()
 }
 void ACommonAncestor::Ataka(ACommonAncestor *Victim)
 {
-	
+	Victim->Health -= AttackDamage*Victim->PhysCoeff;
+	Victim->UpdateHealth();
 }

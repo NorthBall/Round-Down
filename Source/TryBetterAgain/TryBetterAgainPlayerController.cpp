@@ -62,80 +62,82 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 	
-
-	// keep updating the destination every tick while desired
-	if (bClicked) {
-		FHitResult Hit;
-		GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-
-		if (Hit.bBlockingHit) {
-			victim = Cast<AAI>(Hit.GetActor());
-			if (victim != nullptr) {
-				is_gonna_attacking = true;
-				UE_LOG(LogTemp, Warning, TEXT("Set victim"));
-			}
-			else {
-				is_gonna_attacking = false;
-				DontAttack();
-				UE_LOG(LogTemp, Warning, TEXT("Move destination to HZ"));
-				SetNewMoveDestination(Hit.ImpactPoint);
-			}
-		}
-	}
-
-	if (is_gonna_attacking && !bAttack ) {
-		//UE_LOG(LogTemp, Warning, TEXT("In is_gonna_attacking"));
-		
-		if (OursPawn != nullptr) {
-			float const Distance = FVector::Dist2D(victim->GetActorLocation(), OursPawn->GetActorLocation());
-			UE_LOG(LogTemp, Warning, TEXT("Korsun is %f  iq"), Distance- OursPawn->AttackRange);
-			if (Distance > OursPawn->AttackRange) {
-				//victim->SpawnMesh(destination);
-				if (bClicked)
-					NPK->MoveToActor(victim, OursPawn->AttackRange);
-			
-			}
-			else {
-				if (OursPawn->FacedToEnemy(victim->GetActorLocation())){
-					Attack();
-					is_gonna_attacking = false;
-				}
-				//UE_LOG(LogTemp, Warning, TEXT("Unset is_gonna_attacking"));
-			}
-		}
-		else
-			is_gonna_attacking = false;
-	}
-	
-	
-	if (bAttack) {
-		OursPawn->OnePunch = true;
-		AttackAnimTime += DeltaTime;
-		if (PrevAttackTick == 1)
-		{
-			PrevAttackTick = AtakAnim(AttackAnimTime);
-			if (PrevAttackTick == 2||PrevAttackTick==3)
-			{
-				OursPawn->Ataka(victim);
-			}
-		}
-		else
-		{
-			PrevAttackTick = AtakAnim(AttackAnimTime);
-		}
-		if (PrevAttackTick == 3)
-		{
-			PrevAttackTick = 1;
-			AttackAnimTime -= 1.0f;
-		}
-	}
-	else
+	if (OursPawn != NULL)
 	{
-		OursPawn->OnePunch = false;
-		PrevAttackTick = 0;
-	}
-	//Zoom
-	
+		// keep updating the destination every tick while desired
+		if (bClicked) {
+			FHitResult Hit;
+			GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+
+			if (Hit.bBlockingHit) {
+				victim = Cast<AAI>(Hit.GetActor());
+				if (victim != nullptr) {
+					is_gonna_attacking = true;
+					UE_LOG(LogTemp, Warning, TEXT("Set victim"));
+				}
+				else {
+					is_gonna_attacking = false;
+					DontAttack();
+					UE_LOG(LogTemp, Warning, TEXT("Move destination to HZ"));
+					SetNewMoveDestination(Hit.ImpactPoint);
+				}
+			}
+		}
+
+		if (is_gonna_attacking && !bAttack) {
+			//UE_LOG(LogTemp, Warning, TEXT("In is_gonna_attacking"));
+
+			if (OursPawn != nullptr) {
+				float const Distance = FVector::Dist2D(victim->GetActorLocation(), OursPawn->GetActorLocation());
+				UE_LOG(LogTemp, Warning, TEXT("Korsun is %f  iq"), Distance - OursPawn->AttackRange);
+				if (Distance > OursPawn->AttackRange) {
+					//victim->SpawnMesh(destination);
+					if (bClicked)
+						NPK->MoveToActor(victim, OursPawn->AttackRange);
+
+				}
+				else {
+					if (OursPawn->FacedToEnemy(victim->GetActorLocation())) {
+						Attack();
+						is_gonna_attacking = false;
+					}
+					//UE_LOG(LogTemp, Warning, TEXT("Unset is_gonna_attacking"));
+				}
+			}
+			else
+				is_gonna_attacking = false;
+		}
+
+
+		if (bAttack) {
+			OursPawn->OnePunch = true;
+			AttackAnimTime += DeltaTime;
+			if (PrevAttackTick == 1)
+			{
+				PrevAttackTick = AtakAnim(AttackAnimTime);
+				if (PrevAttackTick == 2 || PrevAttackTick == 3)
+				{
+					OursPawn->Ataka(victim);
+				}
+			}
+			else
+			{
+				PrevAttackTick = AtakAnim(AttackAnimTime);
+			}
+			if (PrevAttackTick == 3)
+			{
+				PrevAttackTick = 1;
+				AttackAnimTime -= 1.0f;
+			}
+		}
+		else
+		{
+			OursPawn->OnePunch = false;
+			PrevAttackTick = 0;
+			AttackAnimTime = 0.0f;
+		}
+		//Zoom
+
 		if (bZooming == 1)
 		{
 			ZoomFactor += CameraSpeed * DeltaTime;         //Zoom in over half a second
@@ -153,7 +155,7 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 			bZooming = 0;
 		}
 
-	
+	}
 }
 
 void ATryBetterAgainPlayerController::CastSpell()
