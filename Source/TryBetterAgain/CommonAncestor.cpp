@@ -17,6 +17,7 @@ ACommonAncestor::ACommonAncestor()
 	MaxHealth = 100;
 	Mana = 100;
 	MaxMana = 100;
+	PreAtak = 0.5f;
 }
 
 // Called when the game starts or when spawned
@@ -63,8 +64,7 @@ void ACommonAncestor::Dead()
 {
 	Destroy();
 }
-void ACommonAncestor::Ataka(ACommonAncestor *Victim,float AtakaTime)
+void ACommonAncestor::Ataka(ACommonAncestor *Victim)
 {
-	if(AtakaTime>=1)
-	{ }
+	
 }

@@ -107,13 +107,32 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 			is_gonna_attacking = false;
 	}
 	
+	
 	if (bAttack) {
-		all_time += DeltaTime;
-		if (all_time >= 1) {
-			TArray<int32> flags;
-			OursPawn->CalculateAttack(victim, flags);
-			all_time = 0;
+		OursPawn->OnePunch = true;
+		AttackAnimTime += DeltaTime;
+		if (PrevAttackTick == 1)
+		{
+			PrevAttackTick = AtakAnim(AttackAnimTime);
+			if (PrevAttackTick == 2||PrevAttackTick==3)
+			{
+				OursPawn->Ataka(victim);
+			}
 		}
+		else
+		{
+			PrevAttackTick = AtakAnim(AttackAnimTime);
+		}
+		if (PrevAttackTick == 3)
+		{
+			PrevAttackTick = 1;
+			AttackAnimTime -= 1.0f;
+		}
+	}
+	else
+	{
+		OursPawn->OnePunch = false;
+		PrevAttackTick = 0;
 	}
 	//Zoom
 	
@@ -256,4 +275,10 @@ void ATryBetterAgainPlayerController::SetPauseMenu()
 		}
 	}
 
+}
+int ATryBetterAgainPlayerController::AtakAnim(float AtakAnim)
+{
+	if (AtakAnim < OursPawn->PreAtak*OursPawn->AttackTime) return 1;
+	if (AtakAnim < OursPawn->AttackTime) return 2;
+	return 3;
 }

@@ -65,6 +65,10 @@ public:
 	 class AAI* victim;
 	 float all_time = 0;
 	 class ATryBetterAgainCharacter* MyCharacter;
+	 //try new functions
+	 int AtakAnim(float AtakTime);
+	 int PrevAttackTick;
+	 float AttackAnimTime = 0.0f;
 		
 	 //раздел медведа, опасная зона
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)

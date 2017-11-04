@@ -62,6 +62,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 BaseAttackSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		float PreAtak;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 BaseMagicPower;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 BaseMagicRange;
@@ -83,10 +85,18 @@ public:
 		int32 MagicPower;//multiply magic skills
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 MagicRange;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 AttackSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 AttackTime;
+
 	//inside values
 	TArray<int32> bleed;
 	 int32 BleedNum;
 	 float BleedTime;
+	 //anim values
+	 UPROPERTY(BlueprintReadWrite,Category="Animations")
+	 bool OnePunch = false;
 	//blueprints functions
 	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
 		void UpdateHealth();
@@ -102,7 +112,7 @@ public:
 		Victim->UpdateHealth();
 	};
 	UFUNCTION(BlueprintCallable, Category = "Damage")
-		void Ataka(ACommonAncestor *Victim,float AtakaTime);
+		void Ataka(ACommonAncestor *Victim);
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void BleedDamage(int32 Damage);
 	UFUNCTION(BlueprintCallable, Category = "Self")
