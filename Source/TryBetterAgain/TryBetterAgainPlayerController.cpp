@@ -111,7 +111,7 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 
 		if (bAttack) {
 			OursPawn->OnePunch = true;
-			AttackAnimTime += DeltaTime;
+			AttackAnimTime += DeltaTime/(OursPawn->AttackTime);
 			if (PrevAttackTick == 1)
 			{
 				PrevAttackTick = AtakAnim(AttackAnimTime);
@@ -280,7 +280,7 @@ void ATryBetterAgainPlayerController::SetPauseMenu()
 }
 int ATryBetterAgainPlayerController::AtakAnim(float AtakAnim)
 {
-	if (AtakAnim < OursPawn->PreAtak*OursPawn->AttackTime) return 1;
-	if (AtakAnim < OursPawn->AttackTime) return 2;
+	if (AtakAnim < OursPawn->PreAtak) return 1;
+	if (AtakAnim < 1.0f) return 2;
 	return 3;
 }

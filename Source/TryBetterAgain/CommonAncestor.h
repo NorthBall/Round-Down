@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include <vector>
+//#include "InvWeapon.h"
 #include "GameFramework/Character.h"
 #include "CommonAncestor.generated.h"
 
@@ -34,16 +34,31 @@ public:
 		int32 Health;
 	UPROPERTY( BlueprintReadWrite, Category = "Stats")
 		int32 Mana;
+		//attack
 	UPROPERTY( BlueprintReadWrite, Category = "Stats")
-		int32 AttackDamageBuffM;//in percent
+		float PhysDamageBuffM;
 	UPROPERTY(BlueprintReadWrite, Category = "Stats")
-		int32 AttackSpeedBuffM;//in perecent	
+		float AttackSpeedBuffM;	
 	UPROPERTY(BlueprintReadWrite, Category = "Stats")
-		int32 AttackRangeBuffM;//in percent
+		float AttackRangeBuffM;
+		//Magic
 	UPROPERTY(BlueprintReadWrite, Category = "Stats")
-		int32 MagicRangeBuffM;//in percent
+		float MagicPowerBuffM;
+	UPROPERTY(BlueprintReadWrite, Category = "Stats")
+		float MagicRangeBuffM;
+		//resist
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
+		float ArmorBuffM;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
+		float NegateArmorBuffM;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
+		float PhysCoeffBuffM;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
+		float MagicCoeffBuffM;
+		//expirience
 	UPROPERTY(BlueprintReadWrite, Category = "Stats")
 		int32 Exp;//expirience
+		//extra
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 ISRange;//is heroes melee or ranged
 	//base stats
@@ -64,40 +79,59 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		float PreAtak;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 BaseRange;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 BaseMagicPower;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 BaseMagicRange;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 BaseRange;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 BaseArmor;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-		int32 NumOfWeapon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 BasePhysCoef;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		int32 BaseMagicCoef;
+	
 	//shown stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int32 lvl;
 	//support information
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Damage")
-		float DamagePerSecond;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Exp")
-		int32 LvlExp;//for up
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		//attack
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
 		int32 AttackDamage;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
+		float PhysDamage;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
+		int32 AttackSpeed;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
+		float AttackTime;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Damage")
+		float DamagePerSecond;	
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
 		int32 AttackRange;
+		//magic
 	UPROPERTY(BlueprintReadWrite, Category = "Stats")
 		int32 MagicPower;//multiply magic skills
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
 		int32 MagicRange;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 AttackSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		float AttackTime;
+		//resist	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
 		float Armor;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
+		float NegateArmor;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
 		float PhysCoeff;
-
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
+		float MagicCoeff;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Exp")
+		int32 LvlExp;//for up
+	//weapon section
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+		int32 NumOfWeapon;
+	TArray<int32> WeapType;
+	TArray<bool> HaveWeap;
+	TArray<class InvWeapon*> WeapSlots;
+	//std::vector <class InvWeapon> a;
 	//inside values
 	TArray<int32> bleed;
 	 int32 BleedNum;
@@ -107,7 +141,7 @@ public:
 	 bool OnePunch = false;
 	//blueprints functions
 	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
-		void UpdateHealth();
+		void UpdateHealthBar();
 	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
 		void SpawnMesh(FVector a);
 	//influence functions
@@ -117,7 +151,7 @@ public:
 		Victim->Health -= AttackDamage;
 		if (Victim->Health < 0)
 			Victim->Destroy();
-		Victim->UpdateHealth();
+		Victim->UpdateHealthBar();
 	};
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 		void Ataka(ACommonAncestor *Victim);
@@ -125,6 +159,35 @@ public:
 		void BleedDamage(int32 Damage);
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void Dead();
+	//recalculate functions
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void UpdateAll() ;
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void UpdateAttackDamage();
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void UpdateAttackSpeed();
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void UpdateAttackRange();
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void UpdateMagicPower() ;
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void UpdateMagicRange();
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void UpdateResist() ;
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void UpdateExp() ;
+	//effects functions
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void ChangePhys(TArray<int32>flags) {};
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void ChangeMagic(TArray<int32>flags) {};
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void ChangeResist(TArray<int32>flags) {};
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void ChangeRange(TArray<int32>flags) {};
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void ChangeHealth(TArray<int32>flags) {};
+
 	
 	
 	

@@ -6,6 +6,4 @@ InvWeapon::InvWeapon()
 {
 }
 
-InvWeapon::~InvWeapon()
-{
-}
+

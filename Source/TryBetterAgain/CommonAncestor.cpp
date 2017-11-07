@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CommonAncestor.h"
+#include "InvWeapon.h"
+#define maxweapons 20
 #define maxi(a,b) ((a)<(b)?(b):(a))
 
 // Sets default values
@@ -10,23 +12,34 @@ ACommonAncestor::ACommonAncestor()
 	PrimaryActorTick.bCanEverTick = true;
 	//preset stats
 	bleed.AddZeroed(400);
+	WeapType.AddZeroed(maxweapons);
+	HaveWeap.AddZeroed(maxweapons);
+	WeapSlots.AddZeroed(maxweapons);
 	BleedNum = 0;
 	BleedTime = 0.0f;
 	InvulTime = 0.0f;
+	//health
 	Health = 100;
 	MaxHealth = 100;
 	Mana = 100;
 	MaxMana = 100;
-	PreAtak = 0.5f;
-	PhysCoeff = 1.0f;
+	//attack
+	PreAtak = 0.5f;	
 	AttackSpeed = 100;
 	AttackTime = 1.5f;
+	PhysDamageBuffM = 1.0f;
+	PhysDamage = 1.0f;
+	BaseDamage = 10;
+
+	//armor
+	PhysCoeff = 1.0f;
 }
 
 // Called when the game starts or when spawned
 void ACommonAncestor::BeginPlay()
 {
 	Super::BeginPlay();
+	if (HaveWeap[0]==false) UE_LOG(LogTemp, Warning, TEXT("NotHavingWeap"));
 	
 }
 
@@ -70,5 +83,187 @@ void ACommonAncestor::Dead()
 void ACommonAncestor::Ataka(ACommonAncestor *Victim)
 {
 	Victim->Health -= AttackDamage*Victim->PhysCoeff;
-	Victim->UpdateHealth();
+	Victim->UpdateHealthBar();
+}
+void ACommonAncestor::UpdateAll()
+{
+	UpdateAttackDamage();
+	UpdateAttackRange();
+	UpdateAttackSpeed();
+	UpdateMagicPower();
+	UpdateMagicRange();
+	UpdateHealthBar();
+}
+void ACommonAncestor::UpdateAttackDamage()
+{
+	int32 i;
+	AttackDamage = BaseDamage;
+	for (i = 0; i < NumOfWeapon; i++)
+	{
+		if (HaveWeap[i])
+		{
+			AttackDamage += WeapSlots[i]->AttackDamageA;
+		}
+	}
+	AttackDamage = maxi(0, AttackDamage);
+	PhysDamage = PhysDamageBuffM;
+	for (i = 0; i < NumOfWeapon; i++)
+	{
+		if (HaveWeap[i])
+		{
+			PhysDamage *= WeapSlots[i]->PhysM;
+		}
+	}
+	AttackDamage *= PhysDamage;
+	DamagePerSecond = AttackDamage*AttackTime;
+}
+void ACommonAncestor::UpdateAttackSpeed()
+{
+	int32 i;
+	AttackSpeed = BaseAttackSpeed;
+	for (i = 0; i < NumOfWeapon; i++)
+	{
+		if (HaveWeap[i])
+		{
+			AttackSpeed += WeapSlots[i]->AttackSpeedA;
+		}
+	}
+	AttackSpeed = maxi(0, AttackSpeed);
+	AttackSpeed *= AttackSpeedBuffM;
+	for (i = 0; i < NumOfWeapon; i++)
+	{
+		if (HaveWeap[i])
+		{
+			AttackSpeed *= WeapSlots[i]->AttackSpeedM;
+		}
+	}
+	AttackTime = 150.0f / AttackSpeed;
+	DamagePerSecond = AttackDamage*AttackTime;
+}
+void ACommonAncestor::UpdateAttackRange()
+{
+	int32 i;	
+	AttackRange = BaseRange;
+	if (ISRange)
+	{
+		for (i = 0; i < NumOfWeapon; i++)
+		{
+			if (HaveWeap[i])
+			{
+				AttackRange += WeapSlots[i]->AttackRangeA;
+			}
+		}
+		AttackRange = maxi(0, AttackRange);
+		AttackRange *= AttackRangeBuffM;
+		for (i = 0; i < NumOfWeapon; i++)
+		{
+			if (HaveWeap[i])
+			{
+				AttackRange *= WeapSlots[i]->AttackRangeM;
+			}
+		}
+	}
+	
+}
+void ACommonAncestor::UpdateMagicPower()
+{
+	int32 i;
+	MagicPower = BaseMagicPower;
+	for (i = 0; i < NumOfWeapon; i++)
+	{
+		if (HaveWeap[i])
+		{
+			MagicPower += WeapSlots[i]->MagicPowerA;
+		}
+	}
+	MagicPower = maxi(0, MagicPower);
+	MagicPower *= MagicPowerBuffM;
+	for (i = 0; i < NumOfWeapon; i++)
+	{
+		if (HaveWeap[i])
+		{
+			MagicPower *= WeapSlots[i]->MagicPowerM;
+		}
+	}
+}
+void ACommonAncestor::UpdateMagicRange()
+{
+	int32 i;
+
+	MagicRange = BaseRange;
+	if (ISRange)
+	{
+		for (i = 0; i < NumOfWeapon; i++)
+		{
+			if (HaveWeap[i])
+			{
+				MagicRange += WeapSlots[i]->MagicRangeA;
+			}
+		}
+		MagicRange = maxi(0, MagicRange);
+		MagicRange *= MagicRangeBuffM;
+		for (i = 0; i < NumOfWeapon; i++)
+		{
+			if (HaveWeap[i])
+			{
+				MagicRange *= WeapSlots[i]->MagicRangeM;
+			}
+		}
+	}
+
+}
+void ACommonAncestor::UpdateResist()
+{
+	int32 i;
+	NegateArmor = 0;
+	Armor = 0;
+	if (BaseArmor > 0)
+		Armor = BaseArmor;
+	else
+		NegateArmor = BaseArmor;
+	for (i = 0; i < NumOfWeapon; i++)
+	{
+		if (HaveWeap[i])
+		{
+			if (WeapSlots[i]->ArmorA>0)
+				Armor += WeapSlots[i]->ArmorA;
+			else
+				NegateArmor += WeapSlots[i]->ArmorA;
+		}
+	}
+	Armor = maxi(0, Armor);
+	Armor *= ArmorBuffM;
+	for (i = 0; i < NumOfWeapon; i++)
+	{
+		if (HaveWeap[i])
+		{
+			if (WeapSlots[i]->ArmorM>0)
+				Armor *= WeapSlots[i]->ArmorM;
+			else
+				NegateArmor *= -WeapSlots[i]->ArmorM;
+		}
+	}
+	Armor += NegateArmor;
+	if (Armor > 0)
+		PhysCoeff = BasePhysCoef*PhysCoeffBuffM / (1 + Armor / 100.0f);
+	else
+		PhysCoeff = BasePhysCoef*PhysCoeffBuffM * (1 - Armor / 100.0f);
+	MagicCoeff = BaseMagicCoef*MagicCoeffBuffM;
+}
+
+
+
+
+
+void ACommonAncestor::UpdateExp()
+{
+	if (Exp > LvlExp)
+	{
+		lvl++;
+		Exp -= LvlExp;
+		LvlExp *= 1.2;
+		PhysDamageBuffM /= 0.95f;
+		AttackSpeedBuffM *= 0.95f;
+		UpdateAll();
+	}
 }

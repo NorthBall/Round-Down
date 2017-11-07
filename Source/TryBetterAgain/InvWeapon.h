@@ -11,13 +11,13 @@ class TRYBETTERAGAIN_API InvWeapon
 {
 public:
 	InvWeapon();
-	~InvWeapon();
+	
 	//stats
 		//attack
 	int32 AttackDamageA;
 	float PhysM;
-	int32 AttackDistA;
-	float AttackDistM;
+	int32 AttackRangeA;
+	float AttackRangeM;
 	int32 AttackSpeedA;
 	float AttackSpeedM;
 		//physics
@@ -26,6 +26,8 @@ public:
 		//magic
 	int32 MagicPowerA;
 	float MagicPowerM;
+	int32 MagicRangeA;
+	float MagicRangeM;
 	int32 CDA;
 	float CDM;
 	int32 CastTimeA;
