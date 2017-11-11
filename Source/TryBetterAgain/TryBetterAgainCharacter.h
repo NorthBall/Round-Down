@@ -14,13 +14,13 @@ class ATryBetterAgainCharacter : public ACommonAncestor
 
 public:
 	//class definitons
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY( BlueprintReadWrite, Category = "Class")
 		int32 Class;
 	//playable functions
-	UFUNCTION(BlueprintCallable, Category = "Damage")
+	UFUNCTION(BlueprintCallable, Category = "Class")
 		void ChooseClass(int32 choise)	{};
-	
-
+	//class functions MAY BE VERY MUCH
+	void FireBlink();
 
 
 

@@ -11,6 +11,7 @@ class ATryBetterAgainPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	void FireBlink();
 	ATryBetterAgainPlayerController();
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();

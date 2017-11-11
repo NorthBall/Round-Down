@@ -11,28 +11,9 @@ ACommonAncestor::ACommonAncestor()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	//preset stats
-	bleed.AddZeroed(400);
-	WeapType.AddZeroed(maxweapons);
-	HaveWeap.AddZeroed(maxweapons);
-	WeapSlots.AddZeroed(maxweapons);
-	BleedNum = 0;
-	BleedTime = 0.0f;
+	InitStats();
 	InvulTime = 0.0f;
-	//health
-	Health = 100;
-	MaxHealth = 100;
-	Mana = 100;
-	MaxMana = 100;
-	//attack
-	PreAtak = 0.5f;	
-	AttackSpeed = 100;
-	AttackTime = 1.5f;
-	PhysDamageBuffM = 1.0f;
-	PhysDamage = 1.0f;
-	BaseDamage = 10;
-
-	//armor
-	PhysCoeff = 1.0f;
+	
 }
 
 // Called when the game starts or when spawned
@@ -40,22 +21,14 @@ void ACommonAncestor::BeginPlay()
 {
 	Super::BeginPlay();
 	if (HaveWeap[0]==false) UE_LOG(LogTemp, Warning, TEXT("NotHavingWeap"));
-	
+	//UE_LOG(LogTemp, Warning, TEXT("AttackTime=%f"), AttackTime);
+	//UE_LOG(LogTemp, Warning, TEXT("PunchRate=%f"), PunchRate);
 }
 
 // Called every frame
 void ACommonAncestor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	BleedTime += DeltaTime;
-	if (BleedTime >= 0.25f)
-	{
-		BleedDamage(bleed[BleedNum]);
-		bleed[BleedNum] = 0;
-		BleedTime -= 0.25f;
-		BleedNum += 1;
-		if (BleedNum == 400) BleedNum = 0;
-	}
 	InvulTime = maxi(0.0f, InvulTime - DeltaTime);
 
 }
@@ -67,188 +40,43 @@ void ACommonAncestor::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
-void ACommonAncestor::BleedDamage(int32 Damage)
-{
-	if (InvulTime <= 0.01f)
-	{
-		Health -= Damage;
-		if (Health <= 0) Dead();
-	}
-	
-}
+
 void ACommonAncestor::Dead()
 {
 	Destroy();
 }
-void ACommonAncestor::Ataka(ACommonAncestor *Victim)
+void ACommonAncestor::DoAttack(ACommonAncestor *Victim)
 {
-	Victim->Health -= AttackDamage*Victim->PhysCoeff;
-	Victim->UpdateHealthBar();
+	Victim->Health -= (AttackDamage*(int)(100*Victim->PhysicMultiplier))/100;
+	Victim->UpdateHealthBar();//may be deleted
+	if (Victim->Health <= 0) Victim->Dead();
 }
 void ACommonAncestor::UpdateAll()
 {
-	UpdateAttackDamage();
-	UpdateAttackRange();
-	UpdateAttackSpeed();
-	UpdateMagicPower();
-	UpdateMagicRange();
-	UpdateHealthBar();
-}
-void ACommonAncestor::UpdateAttackDamage()
-{
-	int32 i;
-	AttackDamage = BaseDamage;
-	for (i = 0; i < NumOfWeapon; i++)
-	{
-		if (HaveWeap[i])
-		{
-			AttackDamage += WeapSlots[i]->AttackDamageA;
-		}
-	}
-	AttackDamage = maxi(0, AttackDamage);
-	PhysDamage = PhysDamageBuffM;
-	for (i = 0; i < NumOfWeapon; i++)
-	{
-		if (HaveWeap[i])
-		{
-			PhysDamage *= WeapSlots[i]->PhysM;
-		}
-	}
-	AttackDamage *= PhysDamage;
-	DamagePerSecond = AttackDamage*AttackTime;
-}
-void ACommonAncestor::UpdateAttackSpeed()
-{
-	int32 i;
-	AttackSpeed = BaseAttackSpeed;
-	for (i = 0; i < NumOfWeapon; i++)
-	{
-		if (HaveWeap[i])
-		{
-			AttackSpeed += WeapSlots[i]->AttackSpeedA;
-		}
-	}
-	AttackSpeed = maxi(0, AttackSpeed);
-	AttackSpeed *= AttackSpeedBuffM;
-	for (i = 0; i < NumOfWeapon; i++)
-	{
-		if (HaveWeap[i])
-		{
-			AttackSpeed *= WeapSlots[i]->AttackSpeedM;
-		}
-	}
+	MaxHealth = (MaxHealthA*(int)(MaxHealthM * 100)) / 100;
+	MaxMana = (MaxManaA*(int)(MaxManaM * 100)) / 100;
+
+	AttackDamage = (AttackDamageA*(int)(AttackDamageM * 100)) / 100;
+	AttackSpeed = (AttackSpeedA*(int)(AttackSpeedM * 100)) / 100;
 	AttackTime = 150.0f / AttackSpeed;
-	DamagePerSecond = AttackDamage*AttackTime;
-}
-void ACommonAncestor::UpdateAttackRange()
-{
-	int32 i;	
-	AttackRange = BaseRange;
+	PunchRate = (AttackSpeed*PunchTime) / (150.0f);
+	DamagePerSecond = AttackDamage*(AttackSpeed / 150.f);
 	if (ISRange)
-	{
-		for (i = 0; i < NumOfWeapon; i++)
-		{
-			if (HaveWeap[i])
-			{
-				AttackRange += WeapSlots[i]->AttackRangeA;
-			}
-		}
-		AttackRange = maxi(0, AttackRange);
-		AttackRange *= AttackRangeBuffM;
-		for (i = 0; i < NumOfWeapon; i++)
-		{
-			if (HaveWeap[i])
-			{
-				AttackRange *= WeapSlots[i]->AttackRangeM;
-			}
-		}
-	}
-	
-}
-void ACommonAncestor::UpdateMagicPower()
-{
-	int32 i;
-	MagicPower = BaseMagicPower;
-	for (i = 0; i < NumOfWeapon; i++)
-	{
-		if (HaveWeap[i])
-		{
-			MagicPower += WeapSlots[i]->MagicPowerA;
-		}
-	}
-	MagicPower = maxi(0, MagicPower);
-	MagicPower *= MagicPowerBuffM;
-	for (i = 0; i < NumOfWeapon; i++)
-	{
-		if (HaveWeap[i])
-		{
-			MagicPower *= WeapSlots[i]->MagicPowerM;
-		}
-	}
-}
-void ACommonAncestor::UpdateMagicRange()
-{
-	int32 i;
-
-	MagicRange = BaseRange;
-	if (ISRange)
-	{
-		for (i = 0; i < NumOfWeapon; i++)
-		{
-			if (HaveWeap[i])
-			{
-				MagicRange += WeapSlots[i]->MagicRangeA;
-			}
-		}
-		MagicRange = maxi(0, MagicRange);
-		MagicRange *= MagicRangeBuffM;
-		for (i = 0; i < NumOfWeapon; i++)
-		{
-			if (HaveWeap[i])
-			{
-				MagicRange *= WeapSlots[i]->MagicRangeM;
-			}
-		}
-	}
-
-}
-void ACommonAncestor::UpdateResist()
-{
-	int32 i;
-	NegateArmor = 0;
-	Armor = 0;
-	if (BaseArmor > 0)
-		Armor = BaseArmor;
+		AttackRange = (AttackRangeA*(int)(AttackRangeM * 100)) / 100;
 	else
-		NegateArmor = BaseArmor;
-	for (i = 0; i < NumOfWeapon; i++)
+		AttackRange = MeleeAttackRangeA;
+	Armor = (ArmorA*(int)(ArmorM * 100)) / 100 - (NegateArmorA*(int)(NegateArmorM * 100)) / 100;
+	if (Armor > 0.0f)
 	{
-		if (HaveWeap[i])
-		{
-			if (WeapSlots[i]->ArmorA>0)
-				Armor += WeapSlots[i]->ArmorA;
-			else
-				NegateArmor += WeapSlots[i]->ArmorA;
-		}
+		PhysicMultiplier = (100.0f) / (100 + Armor)*PhysicMultiplierM;
 	}
-	Armor = maxi(0, Armor);
-	Armor *= ArmorBuffM;
-	for (i = 0; i < NumOfWeapon; i++)
-	{
-		if (HaveWeap[i])
-		{
-			if (WeapSlots[i]->ArmorM>0)
-				Armor *= WeapSlots[i]->ArmorM;
-			else
-				NegateArmor *= -WeapSlots[i]->ArmorM;
-		}
-	}
-	Armor += NegateArmor;
-	if (Armor > 0)
-		PhysCoeff = BasePhysCoef*PhysCoeffBuffM / (1 + Armor / 100.0f);
 	else
-		PhysCoeff = BasePhysCoef*PhysCoeffBuffM * (1 - Armor / 100.0f);
-	MagicCoeff = BaseMagicCoef*MagicCoeffBuffM;
+	{
+		PhysicMultiplier = ((100 - Armor) / 100.0f) / PhysicMultiplierM;
+	}
+	RedSt = (RedStA*(int)(RedStM * 100)) / 100;
+	GreenSt = (GreenStA*(int)(GreenStM * 100)) / 100;
+	BlueSt = (BlueStA*(int)(BlueStM * 100)) / 100;
 }
 
 
@@ -261,9 +89,73 @@ void ACommonAncestor::UpdateExp()
 	{
 		lvl++;
 		Exp -= LvlExp;
-		LvlExp *= 1.2;
-		PhysDamageBuffM /= 0.95f;
-		AttackSpeedBuffM *= 0.95f;
+		LvlExp *= 1.4;
+		AttackDamageM /= 0.95f;
+		AttackSpeedM *= 0.95f;
 		UpdateAll();
 	}
+}
+void ACommonAncestor::InitStats()
+{
+	WeapType.AddZeroed(maxweapons);
+	HaveWeap.AddZeroed(maxweapons);
+	WeapSlots.AddZeroed(maxweapons);
+	Health = 100;
+	MaxHealthA = 100;
+	MaxHealthM = 1.0f;
+	MaxHealth = (MaxHealthA*(int)(MaxHealthM * 100)) / 100;
+
+	Mana = 100;
+	MaxManaA = 100;
+	MaxManaM = 1.0f;
+	MaxMana = (MaxManaA*(int)(MaxManaM * 100)) / 100;
+
+	AttackDamageA = 10;
+	AttackDamageM = 1.0f;
+	AttackDamage = (AttackDamageA*(int)(AttackDamageM * 100)) / 100;
+	AttackSpeedA = 100;
+	AttackSpeedM = 1.0f;
+	AttackSpeed = (AttackSpeedA*(int)(AttackSpeedM * 100)) / 100;
+	AttackTime = 150.0f / AttackSpeed;
+	PunchRate = (AttackSpeed*PunchTime) / (150.0f);
+	DamagePerSecond = AttackDamage*(AttackSpeed / 150.f);
+	PreAttack = 0.45f;
+	ISRange = false;
+	AttackRangeA = 500;
+	AttackRangeM = 1.0f;
+	MeleeAttackRangeA = 150;
+	if (ISRange)
+		AttackRange = (AttackRangeA*(int)(AttackRangeM * 100)) / 100;
+	else
+		AttackRange = MeleeAttackRangeA;
+	MagicPowerA = 0;
+	MagicPowerM = 1.0f;
+	MagicRangeA = 0;
+	MagicRangeM = 1.0f;
+	ArmorA = 0;
+	ArmorM = 1.0f;
+	NegateArmorA = 0;
+	NegateArmorM = 1.0f;
+	Armor = (ArmorA*(int)(ArmorM * 100)) / 100 -(NegateArmorA*(int)(NegateArmorM * 100)) / 100;
+	PhysicMultiplierM = 1.0f;
+	if (Armor > 0.0f)
+	{
+		PhysicMultiplier = (100.0f) / (100 + Armor)*PhysicMultiplierM;
+	}
+	else
+	{
+		PhysicMultiplier = ((100 - Armor) / 100.0f )/ PhysicMultiplierM;
+	}
+	RedStA = 0;
+	RedStM = 1.0f;
+	RedSt = (RedStA*(int)(RedStM * 100)) / 100;
+	GreenStA = 0;
+	GreenStM = 1.0f;
+	GreenSt = (GreenStA*(int)(GreenStM * 100)) / 100;
+	BlueStA = 0;
+	BlueStM = 1.0f;
+	BlueSt = (BlueStA*(int)(BlueStM * 100)) / 100;
+	Exp = 0;
+	lvl = 1;
+	LvlExp = 100;
 }

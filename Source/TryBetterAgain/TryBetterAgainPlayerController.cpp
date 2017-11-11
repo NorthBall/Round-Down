@@ -20,6 +20,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Materials/Material.h"
+#include "Runtime/Core/Public/Templates/SharedPointer.h"
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 
 ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
@@ -54,6 +55,7 @@ void ATryBetterAgainPlayerController::BeginPlay()
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Korsun is onehugredandforty  iq"));
 	SetViewTargetWithBlend(OursPawn,1.0f);
+	OursPawn->InitStats();
 	
 }
 
@@ -109,15 +111,15 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 		}
 
 
-		if (bAttack) {
+		if (bAttack&&IsValid(victim)) {
 			OursPawn->OnePunch = true;
 			AttackAnimTime += DeltaTime/(OursPawn->AttackTime);
-			if (PrevAttackTick == 1)
+			if (PrevAttackTick !=2)
 			{
 				PrevAttackTick = AtakAnim(AttackAnimTime);
 				if (PrevAttackTick == 2 || PrevAttackTick == 3)
 				{
-					OursPawn->Ataka(victim);
+					OursPawn->DoAttack(victim);
 				}
 			}
 			else
@@ -199,6 +201,7 @@ void ATryBetterAgainPlayerController::SetupInputComponent()
 	InputComponent->BindAction("ZoomIn", IE_Pressed, this, &ATryBetterAgainPlayerController::ZoomIn).bConsumeInput=false;
 	InputComponent->BindAction("ZoomOut", IE_Pressed, this, &ATryBetterAgainPlayerController::ZoomOut).bConsumeInput=false;
 	InputComponent->BindAction("PauseMenu", IE_Pressed, this, &ATryBetterAgainPlayerController::SetPauseMenu).bConsumeInput = false;
+	InputComponent->BindAction("FirstSkill", IE_Pressed, this, &ATryBetterAgainPlayerController::FireBlink).bConsumeInput = false;
 }
 
 
@@ -280,7 +283,16 @@ void ATryBetterAgainPlayerController::SetPauseMenu()
 }
 int ATryBetterAgainPlayerController::AtakAnim(float AtakAnim)
 {
-	if (AtakAnim < OursPawn->PreAtak) return 1;
+	if (AtakAnim < OursPawn->PreAttack) return 1;
 	if (AtakAnim < 1.0f) return 2;
 	return 3;
+}
+void ATryBetterAgainPlayerController::FireBlink()
+{
+	if (OursPawn != NULL) {
+		FHitResult Hit;
+		GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+		OursPawn->SetActorLocation(Hit.ImpactPoint + FVector(0, 0, OursPawn->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+		OursPawn->FireBlink();
+	}
 }

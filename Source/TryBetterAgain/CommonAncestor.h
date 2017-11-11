@@ -29,123 +29,128 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	//effects
 	float InvulTime;
-	//current stats
-	UPROPERTY(BlueprintReadWrite, Category = "Stats")
+	//Stats area
+	//health and mana
+	UPROPERTY(BlueprintReadWrite, Category = "Health")
 		int32 Health;
-	UPROPERTY( BlueprintReadWrite, Category = "Stats")
-		int32 Mana;
-		//attack
-	UPROPERTY( BlueprintReadWrite, Category = "Stats")
-		float PhysDamageBuffM;
-	UPROPERTY(BlueprintReadWrite, Category = "Stats")
-		float AttackSpeedBuffM;	
-	UPROPERTY(BlueprintReadWrite, Category = "Stats")
-		float AttackRangeBuffM;
-		//Magic
-	UPROPERTY(BlueprintReadWrite, Category = "Stats")
-		float MagicPowerBuffM;
-	UPROPERTY(BlueprintReadWrite, Category = "Stats")
-		float MagicRangeBuffM;
-		//resist
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
-		float ArmorBuffM;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
-		float NegateArmorBuffM;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
-		float PhysCoeffBuffM;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
-		float MagicCoeffBuffM;
-		//expirience
-	UPROPERTY(BlueprintReadWrite, Category = "Stats")
-		int32 Exp;//expirience
-		//extra
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 ISRange;//is heroes melee or ranged
-	//base stats
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(BlueprintReadWrite,VisibleAnywhere,Transient, Category = "Health")
 		int32 MaxHealth;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	UPROPERTY(BlueprintReadWrite, Category = "Health")
+		int32 MaxHealthA;
+	UPROPERTY(BlueprintReadWrite, Category = "Health")
+		float MaxHealthM;
+	UPROPERTY( BlueprintReadWrite, Category = "Mana")
+		int32 Mana;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Transient, Category = "Mana")
 		int32 MaxMana;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 RedSt;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 GreenSt;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 BlueSt;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 BaseDamage;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 BaseAttackSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		float PreAtak;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 BaseRange;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 BaseMagicPower;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 BaseMagicRange;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 BaseArmor;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 BasePhysCoef;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 BaseMagicCoef;
-	
-	//shown stats
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 lvl;
-	//support information
+	UPROPERTY(BlueprintReadWrite, Category = "Mana")
+		int32 MaxManaA;
+	UPROPERTY(BlueprintReadWrite, Category = "Mana")
+		float MaxManaM;
 		//attack
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Transient, Category = "AttackDamage")
 		int32 AttackDamage;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
-		float PhysDamage;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
+	UPROPERTY(BlueprintReadWrite, Category = "AttackDamage")
+		int32 AttackDamageA;
+	UPROPERTY(BlueprintReadWrite, Category = "AttackDamage")
+		float AttackDamageM;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "AttackDamage")
+		float DamagePerSecond;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Transient, Category = "AttackSpeed")
 		int32 AttackSpeed;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
+	UPROPERTY(BlueprintReadWrite, Category = "AttackSpeed")
+		int32 AttackSpeedA;
+	UPROPERTY(BlueprintReadWrite, Category = "AttackSpeed")
+		float AttackSpeedM;
+	UPROPERTY(BlueprintReadWrite, Category = "AttackSpeed")
+		float PreAttack;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Transient, Category = "AttackSpeed")
 		float AttackTime;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Damage")
-		float DamagePerSecond;	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Transient, Category = "AttackSpeed")
+		float PunchRate;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Transient, Category = "AttackRange")
 		int32 AttackRange;
-		//magic
+	UPROPERTY(BlueprintReadWrite, Category = "AttackRange")
+		int32 AttackRangeA;
+	UPROPERTY(BlueprintReadWrite, Category = "AttackRange")
+		int32 MeleeAttackRangeA;
+	UPROPERTY(BlueprintReadWrite, Category = "AttackRange")
+		float AttackRangeM;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AttackRange")
+		int32 ISRange;//is heroes ranged(true) or melee(false)
+		//Magic
+	UPROPERTY(BlueprintReadWrite, Category = "MagicPower")
+		int32 MagicPowerA;
+	UPROPERTY(BlueprintReadWrite, Category = "MagicPower")
+		float MagicPowerM;
+	UPROPERTY(BlueprintReadWrite, Category = "MagicRange")
+		int32 MagicRangeA;
+	UPROPERTY(BlueprintReadWrite, Category = "MagicRange")
+		float MagicRangeM;
+		//Armor&&resist
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Transient, Category = "Armor")
+		int32 Armor;
+	UPROPERTY(BlueprintReadWrite, Category = "Armor")
+		int32 ArmorA;
+	UPROPERTY(BlueprintReadWrite, Category = "Armor")
+		float ArmorM;
+	UPROPERTY(BlueprintReadWrite, Category = "Armor")
+		int32 NegateArmorA;
+	UPROPERTY(BlueprintReadWrite, Category = "Armor")
+		float NegateArmorM;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Transient, Category = "Resist")
+		float PhysicMultiplier;
+	UPROPERTY(BlueprintReadWrite, Category = "Resist")
+		float PhysicMultiplierM;
+	UPROPERTY(BlueprintReadWrite, Category = "Resist")
+		float MagicMultiplierM;
+		//base stats
+	UPROPERTY( BlueprintReadWrite,Transient, Category = "Stats")
+		int32 RedSt;
+	UPROPERTY( BlueprintReadWrite, Transient,Category = "Stats")
+		int32 GreenSt;
+	UPROPERTY( BlueprintReadWrite, Transient,Category = "Stats")
+		int32 BlueSt;
 	UPROPERTY(BlueprintReadWrite, Category = "Stats")
-		int32 MagicPower;//multiply magic skills
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Stats")
-		int32 MagicRange;
-		//resist	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
-		float Armor;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
-		float NegateArmor;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
-		float PhysCoeff;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Phys")
-		float MagicCoeff;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Transient, Category = "Exp")
-		int32 LvlExp;//for up
+		int32 RedStA;
+	UPROPERTY( BlueprintReadWrite, Category = "Stats")
+		int32 GreenStA;
+	UPROPERTY( BlueprintReadWrite, Category = "Stats")
+		int32 BlueStA;
+	UPROPERTY( BlueprintReadWrite, Category = "Stats")
+		float RedStM;
+	UPROPERTY( BlueprintReadWrite, Category = "Stats")
+		float GreenStM;
+	UPROPERTY( BlueprintReadWrite, Category = "Stats")
+		float BlueStM;
+		//expirience
+	UPROPERTY(BlueprintReadWrite, Category = "Experience")
+		int32 Exp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Experience")
+		int32 lvl;
+	UPROPERTY(BlueprintReadWrite, Category = "Experience")
+		int32 LvlExp;
+
+		//extra
 	//weapon section
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 		int32 NumOfWeapon;
 	TArray<int32> WeapType;
 	TArray<bool> HaveWeap;
 	TArray<class InvWeapon*> WeapSlots;
-	//std::vector <class InvWeapon> a;
-	//inside values
-	TArray<int32> bleed;
-	 int32 BleedNum;
-	 float BleedTime;
-	 //anim values
+	//anim values
 	 UPROPERTY(BlueprintReadWrite,Category="Animations")
-	 bool OnePunch = false;
+		bool OnePunch = false;
+	 UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Animations")
+		 float PunchTime=0.8f;
 	//blueprints functions
 	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
 		void UpdateHealthBar();
-	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
+		//MUST BE DELETED
+	UFUNCTION(BlueprintImplementableEvent, Category = "DEBUG")
 		void SpawnMesh(FVector a);
 	//influence functions
-	UFUNCTION(BlueprintCallable, Category = "Damage")
+	UFUNCTION(BlueprintCallable, Category = "Attack")
 		void CalculateAttack( ACommonAncestor *Victim, TArray<int32> flags)
 	{
 		Victim->Health -= AttackDamage;
@@ -153,27 +158,14 @@ public:
 			Victim->Destroy();
 		Victim->UpdateHealthBar();
 	};
-	UFUNCTION(BlueprintCallable, Category = "Damage")
-		void Ataka(ACommonAncestor *Victim);
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void BleedDamage(int32 Damage);
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+		void DoAttack(ACommonAncestor *Victim);
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void Dead();
-	//recalculate functions
+	//update functions
+	void InitStats();//init commit
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void UpdateAll() ;
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void UpdateAttackDamage();
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void UpdateAttackSpeed();
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void UpdateAttackRange();
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void UpdateMagicPower() ;
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void UpdateMagicRange();
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void UpdateResist() ;
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void UpdateExp() ;
 	//effects functions

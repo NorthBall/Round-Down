@@ -11,6 +11,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Materials/Material.h"
 #include "MyAIController.h"
+#include "AI.h"
 #include "TryBetterAgainPlayerController.h"
 
 ATryBetterAgainCharacter::ATryBetterAgainCharacter()
@@ -121,4 +122,27 @@ void ATryBetterAgainCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	
 /*	InputComponent->BindAction("ZoomIn", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);
 	InputComponent->BindAction("ZoomOut", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);*/
+}
+
+void ATryBetterAgainCharacter::FireBlink()
+{
+
+	int32 i, n;
+	float Range = (2000 + MagicRangeA)*MagicRangeM;
+	TArray<FOverlapResult> All;
+	AAI *Target;
+	UE_LOG(LogTemp,Warning, TEXT("vizov"));
+	GetWorld()->OverlapMultiByObjectType(All, GetActorLocation(), FQuat(), ECollisionChannel::ECC_Pawn, FCollisionShape::MakeSphere(Range));
+	n = All.Num();
+	UE_LOG(LogTemp, Warning, TEXT("SpellCasted range= %f, actors= %d"),Range,n);
+	for (i = 0; i < n; i++)
+	{
+		Target = Cast<AAI>(All[i].GetActor());
+		if (Target != NULL)
+		{
+			Target->Health -= (20 + MagicPowerA)*MagicPowerM;
+			Target->UpdateHealthBar();
+			if (Target->Health <= 0) Target->Dead();
+		}
+	}
 }
