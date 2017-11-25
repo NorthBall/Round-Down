@@ -56,6 +56,7 @@ void ATryBetterAgainPlayerController::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Korsun is onehugredandforty  iq"));
 	SetViewTargetWithBlend(OursPawn,1.0f);
 	OursPawn->InitStats();
+	OursPawn->SkillLevel[0] = 1;
 	
 }
 
@@ -97,12 +98,12 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 					if (bClicked)
 						NPK->MoveToActor(victim, OursPawn->AttackRange);
 
-				}
+					}
 				else {
-					if (OursPawn->FacedToEnemy(victim->GetActorLocation())) {
+					
 						Attack();
 						is_gonna_attacking = false;
-					}
+					
 					//UE_LOG(LogTemp, Warning, TEXT("Unset is_gonna_attacking"));
 				}
 			}
@@ -112,24 +113,26 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 
 
 		if (bAttack&&IsValid(victim)) {
-			OursPawn->OnePunch = true;
-			AttackAnimTime += DeltaTime/(OursPawn->AttackTime);
-			if (PrevAttackTick !=2)
-			{
-				PrevAttackTick = AtakAnim(AttackAnimTime);
-				if (PrevAttackTick == 2 || PrevAttackTick == 3)
+			if (OursPawn->FacedToEnemy(victim->GetActorLocation())) {
+				OursPawn->OnePunch = true;
+				AttackAnimTime += DeltaTime / (OursPawn->AttackTime);
+				if (PrevAttackTick != 2)
 				{
-					OursPawn->DoAttack(victim);
+					PrevAttackTick = AtakAnim(AttackAnimTime);
+					if (PrevAttackTick == 2 || PrevAttackTick == 3)
+					{
+						OursPawn->DoAttack(victim);
+					}
 				}
-			}
-			else
-			{
-				PrevAttackTick = AtakAnim(AttackAnimTime);
-			}
-			if (PrevAttackTick == 3)
-			{
-				PrevAttackTick = 1;
-				AttackAnimTime -= 1.0f;
+				else
+				{
+					PrevAttackTick = AtakAnim(AttackAnimTime);
+				}
+				if (PrevAttackTick == 3)
+				{
+					PrevAttackTick = 1;
+					AttackAnimTime -= 1.0f;
+				}
 			}
 		}
 		else
@@ -202,6 +205,7 @@ void ATryBetterAgainPlayerController::SetupInputComponent()
 	InputComponent->BindAction("ZoomOut", IE_Pressed, this, &ATryBetterAgainPlayerController::ZoomOut).bConsumeInput=false;
 	InputComponent->BindAction("PauseMenu", IE_Pressed, this, &ATryBetterAgainPlayerController::SetPauseMenu).bConsumeInput = false;
 	InputComponent->BindAction("FirstSkill", IE_Pressed, this, &ATryBetterAgainPlayerController::FireBlink).bConsumeInput = false;
+	InputComponent->BindAction("Skill2", IE_Pressed, this, &ATryBetterAgainPlayerController::FireLance).bConsumeInput = false;
 }
 
 
@@ -292,7 +296,16 @@ void ATryBetterAgainPlayerController::FireBlink()
 	if (OursPawn != NULL) {
 		FHitResult Hit;
 		GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-		OursPawn->SetActorLocation(Hit.ImpactPoint + FVector(0, 0, OursPawn->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
-		OursPawn->FireBlink();
+		OursPawn->FireBlink(Hit);
+	}
+}
+void ATryBetterAgainPlayerController::FireLance()
+{
+	if (OursPawn != NULL)
+	{
+		if (OursPawn->SkillCDTimes[1] == 0.0f&&OursPawn->SkillLevel[1] != 0)
+		{
+
+		}
 	}
 }

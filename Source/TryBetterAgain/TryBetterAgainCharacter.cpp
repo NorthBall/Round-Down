@@ -12,6 +12,7 @@
 #include "Materials/Material.h"
 #include "MyAIController.h"
 #include "AI.h"
+#include "Effects.h"
 #include "TryBetterAgainPlayerController.h"
 
 ATryBetterAgainCharacter::ATryBetterAgainCharacter()
@@ -123,26 +124,86 @@ void ATryBetterAgainCharacter::SetupPlayerInputComponent(UInputComponent* Player
 /*	InputComponent->BindAction("ZoomIn", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);
 	InputComponent->BindAction("ZoomOut", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);*/
 }
+void ATryBetterAgainCharacter::DoAttack(ACommonAncestor* Victim)
+{
+	Victim->Health -= (AttackDamage*(int)(100 * Victim->PhysicMultiplier)) / 100;
+	Victim->FireStacks++;
+	Victim->UpdateHealthBar();//may be deleted
+	if (Victim->Health <= 0) Victim->Dead();
+}
 
-void ATryBetterAgainCharacter::FireBlink()
+void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 {
 
-	int32 i, n;
-	float Range = (2000 + MagicRangeA)*MagicRangeM;
-	TArray<FOverlapResult> All;
-	AAI *Target;
-	UE_LOG(LogTemp,Warning, TEXT("vizov"));
-	GetWorld()->OverlapMultiByObjectType(All, GetActorLocation(), FQuat(), ECollisionChannel::ECC_Pawn, FCollisionShape::MakeSphere(Range));
-	n = All.Num();
-	UE_LOG(LogTemp, Warning, TEXT("SpellCasted range= %f, actors= %d"),Range,n);
-	for (i = 0; i < n; i++)
+	
+	if (SkillCDTimes[0] == 0.0f&&SkillLevel[0] != 0)
 	{
-		Target = Cast<AAI>(All[i].GetActor());
-		if (Target != NULL)
+
+		UE_LOG(LogTemp, Warning, TEXT("vizov"));
+		if (FVector::Dist2D(Hit.ImpactPoint, GetActorLocation())<(500 + MagicRangeA)*MagicRangeM)
 		{
-			Target->Health -= (20 + MagicPowerA)*MagicPowerM;
-			Target->UpdateHealthBar();
-			if (Target->Health <= 0) Target->Dead();
+			bool IsLegal = false;
+			int32 i, n;
+			float CollisionRange = (150 + MagicRangeA)*MagicRangeM;
+			TArray<FOverlapResult> All;
+			AAI *Target;
+			GetWorld()->OverlapMultiByObjectType(All, Hit.ImpactPoint, FQuat(), ECollisionChannel::ECC_Pawn, FCollisionShape::MakeSphere(CollisionRange));
+			n = All.Num();
+			for (i = 0; i < n; i++)
+			{
+				Target = Cast<AAI>(All[i].GetActor());
+				if (Target != nullptr)
+				{
+					IsLegal = true;
+					break;
+				}
+
+			}
+			All.Empty();
+			if (IsLegal)
+			{
+
+				FacedToEnemy(Hit.ImpactPoint);
+				SetActorLocation(Hit.ImpactPoint + FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+				Effects* OursEffect;
+				Effects* BurnEffect;
+				float Range = (300 + MagicRangeA)*MagicRangeM;
+
+				GetWorld()->OverlapMultiByObjectType(All, GetActorLocation(), FQuat(), ECollisionChannel::ECC_Pawn, FCollisionShape::MakeSphere(Range));
+				n = All.Num();
+				UE_LOG(LogTemp, Warning, TEXT("SpellCasted range= %f, actors= %d"), Range, n);
+				for (i = 0; i < n; i++)
+				{
+					Target = Cast<AAI>(All[i].GetActor());
+					if (Target != NULL)
+					{
+
+						//Target->Health -= (20*SkillLevel[0] + MagicPowerA+10*SkillLevel[0]*Target->FireStacks)*MagicPowerM;
+						OursEffect = (Target->AddNewEffect(false, false, false, NameEffects::FireBlinkE, 4.0f));
+						OursEffect->TickHealthA = -7;
+						OursEffect->IsSingle = false;
+
+						BurnEffect = Target->FindName(NameEffects::FireBurnE);
+						if (BurnEffect != NULL)
+						{
+							Health += BurnEffect->SpecInt * 10;
+							UpdateAll();
+							Target->DeleteEffect(BurnEffect);
+						}
+						Target->CalcOneEffect(OursEffect, 0);
+						UpdateAll();
+						Target->UpdateHealthBar();
+						if (Target->Health <= 0) Target->Dead();
+					}
+				}
+
+			}
 		}
-	}
+		SkillCDTimes[0] = (5.0f - CoolDownTimeA / CoolDownTimeM);
+			}
+			
+}
+void ATryBetterAgainCharacter::FireLance(FHitResult Hit)
+{
+
 }

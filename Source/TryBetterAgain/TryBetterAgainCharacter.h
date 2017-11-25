@@ -15,12 +15,16 @@ class ATryBetterAgainCharacter : public ACommonAncestor
 public:
 	//class definitons
 	UPROPERTY( BlueprintReadWrite, Category = "Class")
-		int32 Class;
+		int32 MyClass;
+
+	//UFUNCTION(BlueprintCallable, Category = "Attack")
+		void DoAttack(ACommonAncestor *Victim) ;
 	//playable functions
 	UFUNCTION(BlueprintCallable, Category = "Class")
 		void ChooseClass(int32 choise)	{};
 	//class functions MAY BE VERY MUCH
-	void FireBlink();
+	void FireBlink(FHitResult Hit);
+	void FireLance(FHitResult Hit);
 
 
 
