@@ -22,6 +22,7 @@
 #include "Materials/Material.h"
 #include "Runtime/Core/Public/Templates/SharedPointer.h"
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
+#include "Effects.h"
 
 ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
 {
@@ -56,7 +57,13 @@ void ATryBetterAgainPlayerController::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Korsun is onehugredandforty  iq"));
 	SetViewTargetWithBlend(OursPawn,1.0f);
 	OursPawn->InitStats();
-	OursPawn->SkillLevel[0] = 1;
+	//skill TEST AREA DELETE THIS
+	OursPawn->Health = 50;
+	OursPawn->SkillLevel[(int32)Skill::FireBlink-(int32)Skill::Fire_Start] = 1;
+	OursPawn->SkillLevel[(int32)Skill::FireBurn - (int32)Skill::Fire_Start] = 7;
+	OursPawn->SkillLevel[(int32)Skill::FireFire - (int32)Skill::Fire_Start] = 100;
+	OursPawn->SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start] = 5;
+	OursPawn->SkillLevel[(int32)Skill::FireLance - (int32)Skill::Fire_Start] = 3;
 	
 }
 
@@ -303,9 +310,8 @@ void ATryBetterAgainPlayerController::FireLance()
 {
 	if (OursPawn != NULL)
 	{
-		if (OursPawn->SkillCDTimes[1] == 0.0f&&OursPawn->SkillLevel[1] != 0)
-		{
-
-		}
+		FHitResult Hit;
+		GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+		OursPawn->FireLance(Hit);
 	}
 }

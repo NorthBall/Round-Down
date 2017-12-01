@@ -16,6 +16,4 @@ public:
 	TArray<TArray <int32>> Line;
 	TArray <TArray <TArray <int32>>> Table;
 };
-enum class Skill {
-	FireBLink
-};
+

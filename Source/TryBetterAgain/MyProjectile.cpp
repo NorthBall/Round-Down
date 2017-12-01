@@ -6,7 +6,7 @@
 
 AMyProjectile::AMyProjectile()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	UE_LOG(LogTemp, Warning, TEXT("Construct projectile"));
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
@@ -29,6 +29,8 @@ AMyProjectile::AMyProjectile()
 	ProjectileMovement->MaxSpeed = 1000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
+	ProjectileMovement->ProjectileGravityScale = 0;
+	
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
@@ -53,6 +55,8 @@ void AMyProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 		if (victim != nullptr) {
 			UE_LOG(LogTemp, Warning, TEXT("CalculateAttack"));
 			owner->CalculateAttack(victim, flags);
+
+			Destroy();
 		}
 	}
 }

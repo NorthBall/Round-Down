@@ -12,6 +12,7 @@ class AMyProjectile : public AActor
 {
 	GENERATED_BODY()
 
+public:
 		/** Sphere collision component */
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 		class USphereComponent* CollisionComp;
@@ -20,7 +21,6 @@ class AMyProjectile : public AActor
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		class UProjectileMovementComponent* ProjectileMovement;
 
-public:
 	AMyProjectile();
 
 	ACommonAncestor* owner;
@@ -33,7 +33,6 @@ public:
 	FORCEINLINE class USphereComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
-protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 };

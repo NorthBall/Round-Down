@@ -111,7 +111,17 @@ public:
 };
 enum class NameEffects {
 	FireBurnE,
-	FireBurnS,
+	FireFireS,
+	FireAfterBurnE,
 	FireBlinkE
 	
+};
+enum class Skill {
+	Fire_Start,
+	FireBurn,
+	FireFire,
+	FireAfterBurn,
+	FireBlink,
+	FireLance,
+	Skill_Max
 };

@@ -6,7 +6,8 @@
 #include "Effects.h"
 #define maxweapons 20
 #define maxi(a,b) ((a)<(b)?(b):(a))
-#define maxskills 10
+#define maxskills 30
+#define mini(a,b) ((a)<(b)?(a):(b))
 
 // Sets default values
 ACommonAncestor::ACommonAncestor()
@@ -78,8 +79,9 @@ void ACommonAncestor::Dead()
 void ACommonAncestor::DoAttack(ACommonAncestor *Victim)
 {
 	Victim->Health -= (AttackDamage*(int)(100*Victim->PhysicMultiplier))/100;
-	//Victim->UpdateHealthBar();//may be deleted
+	Victim->UpdateHealthBar();//may be deleted
 	if (Victim->Health <= 0) Victim->Dead();
+	
 }
 void ACommonAncestor::UpdateAll()
 {
