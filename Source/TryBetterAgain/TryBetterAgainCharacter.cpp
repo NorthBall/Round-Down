@@ -14,6 +14,7 @@
 #include "AI.h"
 #include "Effects.h"
 #include "FireLance.h"
+#include "FireMeteor.h"
 #include "TryBetterAgainPlayerController.h"
 #define maxi(a,b) ((a)<(b)?(b):(a))
 #define maxskills 10
@@ -270,29 +271,49 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 			}
 			
 }
+void ATryBetterAgainCharacter::FireMeteor(FHitResult Hit)
+{
+
+
+	UE_LOG(LogTemp, Warning, TEXT("vizov"));
+	FacedToEnemy(Hit.ImpactPoint);
+	FRotator deltaRotate = (Hit.ImpactPoint - GetActorLocation() + FVector(0, 0, GetActorLocation().Z - Hit.ImpactPoint.Z)).Rotation();
+	FVector location = FVector(Hit.ImpactPoint.X,Hit.ImpactPoint.Y,GetActorLocation().Z);
+	FActorSpawnParameters a;
+	a.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	AFireMeteor* Meteor = GetWorld()->SpawnActor<AFireMeteor>(AFireMeteor::StaticClass(), location, deltaRotate);
+	//Meteor->SetActorLocation(location);
+	if (Meteor == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Fing imposible"));
+		return;
+	}
+	//SpawnMesh(location);
+	Meteor->owner = this;
+	FireFire();
+	SkillCDTimes[0] = (5.0f - CoolDownTimeA / CoolDownTimeM);
+
+}
 void ATryBetterAgainCharacter::FireLance(FHitResult Hit)
 {
-	int32 SkillNum = (int32)Skill::FireLance - (int32)Skill::Fire_Start;
-
-	if (SkillCDTimes[SkillNum] == 0.0f&&SkillLevel[SkillNum] != 0)
-	{
+	
 
 		UE_LOG(LogTemp, Warning, TEXT("vizov"));
-		float Range = (700 + MagicRangeA)*MagicRangeM;
-		if (FVector::Dist2D(Hit.ImpactPoint, GetActorLocation()) < Range)
+		FacedToEnemy(Hit.ImpactPoint);
+		FRotator deltaRotate = (Hit.ImpactPoint - GetActorLocation() + FVector(0, 0, GetActorLocation().Z - Hit.ImpactPoint.Z)).Rotation();
+		FVector location = GetActorLocation() + GetActorForwardVector() * 50;
+		AFireLance* Lance = GetWorld()->SpawnActor<AFireLance>(LanceBP, location, deltaRotate);
+		if (Lance == nullptr)
 		{
-			FacedToEnemy(Hit.ImpactPoint);
-			FRotator deltaRotate = (Hit.ImpactPoint - GetActorLocation() + FVector(0, 0, GetActorLocation().Z - Hit.ImpactPoint.Z)).Rotation();
-			FVector location = GetActorLocation() + GetActorForwardVector() * 50;
-			AFireLance* Lance = GetWorld()->SpawnActor<AFireLance>(LanceBP, location, deltaRotate);
-			if (Lance == nullptr)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Fing imposible"));
-				return;
-			}
-			Lance->owner = this;
-			FireFire();
-			SkillCDTimes[0] = (5.0f - CoolDownTimeA / CoolDownTimeM);
+			UE_LOG(LogTemp, Warning, TEXT("Fing imposible"));
+			return;
 		}
-	}
+		Lance->owner = this;
+		FireFire();
+		SkillCDTimes[0] = (5.0f - CoolDownTimeA / CoolDownTimeM);
+	
+}
+void ATryBetterAgainCharacter::FireAura()
+{
+
 }

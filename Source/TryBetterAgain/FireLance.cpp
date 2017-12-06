@@ -43,6 +43,7 @@ void AFireLance::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimit
 		Effects* BurnEffect;
 
 		float Range= (150 + Hero->MagicRangeA)*Hero->MagicRangeM;
+		Damage = (50 * Hero->SkillLevel[(int32)Skill::FireBlink - (int32)Skill::Fire_Start] + Hero->MagicPowerA)*Hero->MagicPowerM;
 		TArray<FOverlapResult> All;
 		GetWorld()->OverlapMultiByObjectType(All, victim->GetActorLocation()+GetActorRotation().Vector()*75, FQuat(), ECollisionChannel::ECC_Pawn, FCollisionShape::MakeSphere(Range));
 		n = All.Num();
@@ -52,8 +53,6 @@ void AFireLance::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimit
 			Target = Cast<AAI>(All[i].GetActor());
 			if (Target != NULL)
 			{
-
-				Damage = (50 * Hero->SkillLevel[(int32)Skill::FireBlink - (int32)Skill::Fire_Start] + Hero->MagicPowerA)*Hero->MagicPowerM;
 				Target->Health -= Damage;
 				OursEffect = Hero->FireAfterBurn(Target, Damage);
 				BurnEffect = Hero->FireBurn(Target);

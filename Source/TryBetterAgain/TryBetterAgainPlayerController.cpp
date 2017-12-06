@@ -57,14 +57,20 @@ void ATryBetterAgainPlayerController::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Korsun is onehugredandforty  iq"));
 	SetViewTargetWithBlend(OursPawn,1.0f);
 	OursPawn->InitStats();
+	oldVictim = NULL;
+	IsMoved = false;
 	//skill TEST AREA DELETE THIS
 	OursPawn->Health = 50;
 	OursPawn->SkillLevel[(int32)Skill::FireBlink-(int32)Skill::Fire_Start] = 1;
 	OursPawn->SkillLevel[(int32)Skill::FireBurn - (int32)Skill::Fire_Start] = 7;
 	OursPawn->SkillLevel[(int32)Skill::FireFire - (int32)Skill::Fire_Start] = 100;
 	OursPawn->SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start] = 5;
+	OursPawn->SkillLevel[(int32)Skill::FireMeteor - (int32)Skill::Fire_Start] = 2;
 	OursPawn->SkillLevel[(int32)Skill::FireLance - (int32)Skill::Fire_Start] = 3;
+	OursPawn->SkillLevel[(int32)Skill::FireAura - (int32)Skill::Fire_Start] = 3;
+
 	
+	State = Skill::None;
 }
 
 
@@ -72,81 +78,117 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 	
-	if (OursPawn != NULL)
+	if (OursPawn != nullptr)
 	{
-		// keep updating the destination every tick while desired
-		if (bClicked) {
-			FHitResult Hit;
-			GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-
-			if (Hit.bBlockingHit) {
-				victim = Cast<AAI>(Hit.GetActor());
-				if (victim != nullptr) {
-					is_gonna_attacking = true;
-					UE_LOG(LogTemp, Warning, TEXT("Set victim"));
-				}
-				else {
-					is_gonna_attacking = false;
-					DontAttack();
-					UE_LOG(LogTemp, Warning, TEXT("Move destination to HZ"));
-					SetNewMoveDestination(Hit.ImpactPoint);
-				}
-			}
-		}
-
-		if (is_gonna_attacking && !bAttack) {
-			//UE_LOG(LogTemp, Warning, TEXT("In is_gonna_attacking"));
-
-			if (OursPawn != nullptr) {
-				float const Distance = FVector::Dist2D(victim->GetActorLocation(), OursPawn->GetActorLocation());
-				UE_LOG(LogTemp, Warning, TEXT("Korsun is %f  iq"), Distance - OursPawn->AttackRange);
-				if (Distance > OursPawn->AttackRange) {
-					//victim->SpawnMesh(destination);
-					if (bClicked)
-						NPK->MoveToActor(victim, OursPawn->AttackRange);
-
-					}
-				else {
-					
-						Attack();
-						is_gonna_attacking = false;
-					
-					//UE_LOG(LogTemp, Warning, TEXT("Unset is_gonna_attacking"));
-				}
-			}
-			else
-				is_gonna_attacking = false;
-		}
-
-
-		if (bAttack&&IsValid(victim)) {
-			if (OursPawn->FacedToEnemy(victim->GetActorLocation())) {
-				OursPawn->OnePunch = true;
-				AttackAnimTime += DeltaTime / (OursPawn->AttackTime);
-				if (PrevAttackTick != 2)
-				{
-					PrevAttackTick = AtakAnim(AttackAnimTime);
-					if (PrevAttackTick == 2 || PrevAttackTick == 3)
-					{
-						OursPawn->DoAttack(victim);
-					}
-				}
-				else
-				{
-					PrevAttackTick = AtakAnim(AttackAnimTime);
-				}
-				if (PrevAttackTick == 3)
-				{
-					PrevAttackTick = 1;
-					AttackAnimTime -= 1.0f;
-				}
+		if (State != Skill::None)
+		{
+			WaitTime -= DeltaTime;
+			if (WaitTime <= 0.0f)
+			{
+				DoSkill(State);
+				State = Skill::None;
 			}
 		}
 		else
 		{
-			OursPawn->OnePunch = false;
-			PrevAttackTick = 0;
-			AttackAnimTime = 0.0f;
+			// get command from mouse
+			if (bClicked) {
+				FHitResult Hit;
+				GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+
+				if (Hit.bBlockingHit) {
+					victim = Cast<AAI>(Hit.GetActor());
+					if (victim != nullptr) {
+						if (victim != oldVictim)
+						{
+							bAttack = false;
+							oldVictim = victim;
+						}
+						is_gonna_attacking = true;
+						UE_LOG(LogTemp, Warning, TEXT("Set victim"));
+					}
+					else {
+						is_gonna_attacking = false;
+						DontAttack();
+						UE_LOG(LogTemp, Warning, TEXT("Move destination to HZ"));
+						SetNewMoveDestination(Hit.ImpactPoint);
+					}
+				}
+			}
+			//check have victim died yet(3)
+			if (is_gonna_attacking && !IsValid(victim))
+			{
+				is_gonna_attacking = false;
+				bAttack = false;
+			}
+			//get distance from victim
+			if (is_gonna_attacking)	Distance = FVector::Dist2D(victim->GetActorLocation(), OursPawn->GetActorLocation());
+			//set path to victim
+			if (is_gonna_attacking && !bAttack) 
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Korsun is %f  iq"), Distance - OursPawn->AttackRange);
+				if (Distance > OursPawn->AttackRange)
+				{
+					//victim->SpawnMesh(destination);
+					if (!IsMoved)
+					{
+						NPK->MoveToActor(victim, OursPawn->AttackRange);
+						IsMoved = true;
+					}
+				}
+				else 
+				{
+					Attack();
+					IsMoved = false;
+				}
+			}
+
+			if (AttackAnimTime < 0)
+			{
+				AttackAnimTime += DeltaTime / OursPawn->AttackTime;
+			}
+			else
+			{
+				if (bAttack&&Distance < 2 * OursPawn->AttackRange)
+				{
+					if (OursPawn->FacedToEnemy(victim->GetActorLocation())) {
+						OursPawn->OnePunch = true;
+						AttackAnimTime += DeltaTime / (OursPawn->AttackTime);
+						if (PrevAttackTick != 2)
+						{
+							PrevAttackTick = AtakAnim(AttackAnimTime);
+							if (PrevAttackTick == 2 || PrevAttackTick == 3)
+							{
+								OursPawn->DoAttack(victim);
+							}
+						}
+						else
+						{
+							PrevAttackTick = AtakAnim(AttackAnimTime);
+						}
+						if (PrevAttackTick == 3)
+						{
+							PrevAttackTick = 1;
+							AttackAnimTime -= 1.0f;
+						}
+					}
+				}
+				else
+				{
+
+					bAttack = false;
+					OursPawn->OnePunch = false;
+					PrevAttackTick = 0;
+					if (PrevAttackTick == 2)
+					{
+						AttackAnimTime -= 1.0f;
+					}
+					else
+					{
+						AttackAnimTime = 0.0f;
+					}
+				}
+			}
 		}
 		//Zoom
 
@@ -213,6 +255,8 @@ void ATryBetterAgainPlayerController::SetupInputComponent()
 	InputComponent->BindAction("PauseMenu", IE_Pressed, this, &ATryBetterAgainPlayerController::SetPauseMenu).bConsumeInput = false;
 	InputComponent->BindAction("FirstSkill", IE_Pressed, this, &ATryBetterAgainPlayerController::FireBlink).bConsumeInput = false;
 	InputComponent->BindAction("Skill2", IE_Pressed, this, &ATryBetterAgainPlayerController::FireLance).bConsumeInput = false;
+	InputComponent->BindAction("Skill3", IE_Pressed, this, &ATryBetterAgainPlayerController::FireMeteor).bConsumeInput = false;
+	InputComponent->BindAction("Skill4", IE_Pressed, this, &ATryBetterAgainPlayerController::FireAura).bConsumeInput = false;
 }
 
 
@@ -308,10 +352,67 @@ void ATryBetterAgainPlayerController::FireBlink()
 }
 void ATryBetterAgainPlayerController::FireLance()
 {
+	if (OursPawn != NULL&&State!=Skill::FireLance)
+	{
+		int32 SkillNum = (int32)Skill::FireLance - (int32)Skill::Fire_Start;
+
+		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
+		{
+			FHitResult Hit;
+			GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+
+			float Range = (700 + OursPawn->MagicRangeA)*OursPawn->MagicRangeM;
+			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
+			{
+				State = Skill::FireLance;
+				WaitTime = (1.0f-OursPawn->CastTimeA)*OursPawn->CastTimeM;
+				Direct = Hit;
+			}
+		}
+	}
+}
+void ATryBetterAgainPlayerController::FireMeteor()
+{
+	if (OursPawn != NULL&&State != Skill::FireMeteor)
+	{
+		int32 SkillNum = (int32)Skill::FireMeteor - (int32)Skill::Fire_Start;
+
+		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
+		{
+			FHitResult Hit;
+			GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+
+			float Range = (700 + OursPawn->MagicRangeA)*OursPawn->MagicRangeM;
+			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
+			{
+				OursPawn->FacedToEnemy(Hit.ImpactPoint);
+				State = Skill::FireMeteor;
+				WaitTime = (3.0f - OursPawn->CastTimeA)*OursPawn->CastTimeM;
+				Direct = Hit;
+			}
+		}
+	}
+}
+void ATryBetterAgainPlayerController::FireAura()
+{
 	if (OursPawn != NULL)
 	{
-		FHitResult Hit;
-		GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-		OursPawn->FireLance(Hit);
+		int32 SkillNum = (int32)Skill::FireAura - (int32)Skill::Fire_Start;
+
+		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
+		{
+			OursPawn->FireAura();
+		}
+	}
+}
+void ATryBetterAgainPlayerController::DoSkill(Skill State)
+{
+	switch (State)
+	{
+	case Skill::FireLance:
+		OursPawn->FireLance(Direct);
+		break;
+	case Skill::FireMeteor:
+		OursPawn->FireMeteor(Direct);
 	}
 }

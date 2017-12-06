@@ -29,8 +29,10 @@ public:
 	class Effects* FireBurn(ACommonAncestor *Victim);
 	Effects* FireFire(int32 i=1);
 	Effects* FireAfterBurn(ACommonAncestor *Victim, int32 Damage);
+	void FireMeteor(FHitResult Hit);
 	void FireBlink(FHitResult Hit);
 	void FireLance(FHitResult Hit);
+	void FireAura();
 
 
 

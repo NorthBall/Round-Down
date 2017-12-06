@@ -117,11 +117,16 @@ enum class NameEffects {
 	
 };
 enum class Skill {
+	None,
 	Fire_Start,
 	FireBurn,
 	FireFire,
 	FireAfterBurn,
+	FireMeteor,
+	FireCombo,
 	FireBlink,
+	FireRing,
 	FireLance,
+	FireAura,
 	Skill_Max
 };
