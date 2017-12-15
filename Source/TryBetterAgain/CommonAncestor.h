@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "InvWeapon.h"
 #include "GameFramework/Character.h"
 #include "CommonAncestor.generated.h"
 
@@ -17,22 +16,28 @@ public:
 	// Sets default values for this character's properties
 	ACommonAncestor();
 
-protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void TickExample(float DeltaTime);
+//*
 	//effects
 	float InvulTime;
 	//Stats area
 	//health and mana
 	UPROPERTY(BlueprintReadWrite, Category = "Health")
 		int32 Health;
+	UPROPERTY(BlueprintReadWrite, Category = "Health")
+		int32 TickHealthA;
+	UPROPERTY(BlueprintReadWrite, Category = "Health")
+		int32 TickPHealthA;
+	UPROPERTY(BlueprintReadWrite, Category = "Health")
+		int32 TickMHealthA;
+	UPROPERTY(BlueprintReadWrite, Category = "Health")
+		int32 TickHealthM;
 	UPROPERTY(BlueprintReadWrite,VisibleAnywhere,Transient, Category = "Health")
 		int32 MaxHealth;
 	UPROPERTY(BlueprintReadWrite, Category = "Health")
@@ -249,12 +254,13 @@ public:
 			Victim->Destroy();
 		Victim->UpdateHealthBar();
 	};
-	//UFUNCTION(BlueprintCallable, Category = "Attack")
+	UFUNCTION(BlueprintCallable, Category = "Attack")
 		void DoAttack(ACommonAncestor *Victim);
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void Dead();
 	//update functions
-	void InitStats();//init commit
+	UFUNCTION(BlueprintCallable, Category = "Self")
+		void InitStats();//init commit
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void UpdateAll() ;
 	UFUNCTION(BlueprintCallable, Category = "Self")
@@ -278,4 +284,5 @@ public:
 	//just support variables
 	int32 i;
 	float EffectiveCD;
+	//*/
 };

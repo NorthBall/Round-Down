@@ -105,12 +105,12 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 							oldVictim = victim;
 						}
 						is_gonna_attacking = true;
-						UE_LOG(LogTemp, Warning, TEXT("Set victim"));
+						//UE_LOG(LogTemp, Warning, TEXT("Set victim"));
 					}
 					else {
 						is_gonna_attacking = false;
 						DontAttack();
-						UE_LOG(LogTemp, Warning, TEXT("Move destination to HZ"));
+						//UE_LOG(LogTemp, Warning, TEXT("Move destination to HZ"));
 						SetNewMoveDestination(Hit.ImpactPoint);
 					}
 				}
@@ -402,6 +402,7 @@ void ATryBetterAgainPlayerController::FireAura()
 		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
 		{
 			OursPawn->FireAura();
+			//UE_LOG(LogTemp, Warning, TEXT("StartAura"));
 		}
 	}
 }

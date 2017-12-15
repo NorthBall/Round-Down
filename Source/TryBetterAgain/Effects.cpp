@@ -58,6 +58,8 @@ void Effects::NullifyStats()
 	 //health and mana
 	 TickHealthA = 0;
 	 TickHealthM = 1.0f;
+	 TickPHealthA = 0;
+	 TickMHealthA = 0;
 	 TickMaxHealthA = 0;
 	 TickMaxHealthM = 1.0f;
 	 TickManaA = 0;

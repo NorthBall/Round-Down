@@ -14,7 +14,7 @@ class TRYBETTERAGAIN_API AFireMeteor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AFireMeteor();
-	class ATryBetterAgainCharacter* owner;
+	class ATryBetterAgainCharacter *Hero;
 	float TimeToRelease;
 	USceneComponent *Root;
 protected:

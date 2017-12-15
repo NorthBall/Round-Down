@@ -1,6 +1,7 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
 #include "TryBetterAgainCharacter.h"
+#include "Components/SphereComponent.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -15,12 +16,13 @@
 #include "Effects.h"
 #include "FireLance.h"
 #include "FireMeteor.h"
+#include "MyFireAura.h"
 #include "TryBetterAgainPlayerController.h"
 #define maxi(a,b) ((a)<(b)?(b):(a))
 #define maxskills 10
 #define mini(a,b) ((a)<(b)?(a):(b))
 
-ATryBetterAgainCharacter::ATryBetterAgainCharacter()
+ATryBetterAgainCharacter::ATryBetterAgainCharacter():ACommonAncestor()
 {
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -69,12 +71,13 @@ ATryBetterAgainCharacter::ATryBetterAgainCharacter()
 	CameraUp = 1500;
 	CameraDown = 600;
 
-}
 
+	FireEffectAura = nullptr;
+}
 void ATryBetterAgainCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
+	TickExample(DeltaSeconds);
 	if (CursorToWorld != nullptr)
 	{
 		if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
@@ -119,16 +122,7 @@ bool ATryBetterAgainCharacter::FacedToEnemy(FVector enemyLocation)
 	bZooming = 0;
 }*/
 
-// Called to bind functionality to input
-void ATryBetterAgainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	//Hook up events for "ZoomIn"
-	
-/*	InputComponent->BindAction("ZoomIn", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);
-	InputComponent->BindAction("ZoomOut", IE_Released, this, &ATryBetterAgainCharacter::NoZoom);*/
-}
 void ATryBetterAgainCharacter::DoAttack(ACommonAncestor* Victim)
 {
 	Victim->Health -= (AttackDamage*(int)(100 * Victim->PhysicMultiplier)) / 100;
@@ -171,12 +165,12 @@ Effects* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
 		BurnEffect = Victim->AddNewEffect(false, false, false, NameEffects::FireBurnE, 2.0f);
 		BurnEffect->IsSingle = false;
 		BurnEffect->SpecInt = mini(1, SkillLevel[(int32)Skill::FireBurn - (int32)Skill::Fire_Start]);
-		BurnEffect->TickHealthA = -BurnEffect->SpecInt;
+		BurnEffect->TickMHealthA = -BurnEffect->SpecInt;
 	}
 	else
 	{
 		BurnEffect->SpecInt = mini(BurnEffect->SpecInt + 1, SkillLevel[(int32)Skill::FireBurn - (int32)Skill::Fire_Start]);
-		BurnEffect->TickHealthA = -BurnEffect->SpecInt;
+		BurnEffect->TickMHealthA = -BurnEffect->SpecInt;
 		BurnEffect->EffectTime = 2.0f;
 	}
 	return BurnEffect;
@@ -187,7 +181,7 @@ Effects* ATryBetterAgainCharacter::FireAfterBurn(ACommonAncestor *Victim, int32 
 	Effects* BurnEffect = Victim->AddNewEffect(false, false, false, NameEffects::FireAfterBurnE, (float)time);
 	if (BurnEffect != nullptr) {
 		BurnEffect->IsSingle = false;
-		BurnEffect->TickHealthA = -(Damage*SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start]) / (10 * time * 4);
+		BurnEffect->TickMHealthA = -(Damage*SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start]) / (10 * time * 4);
 	}
  return BurnEffect;
 }
@@ -240,10 +234,10 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 				for (i = 0; i < n; i++)
 				{
 					Target = Cast<AAI>(All[i].GetActor());
-					if (Target != NULL)
+					if (Target != nullptr)
 					{
 
-						Damage= (80*SkillLevel[(int32)Skill::FireBlink-(int32)Skill::Fire_Start] + MagicPowerA)*MagicPowerM;
+						Damage= (80*SkillLevel[(int32)Skill::FireBlink-(int32)Skill::Fire_Start] + MagicPowerA)*MagicPowerM*Target->MagicMultiplierM;
 						Target->Health -= Damage;
 						OursEffect=FireAfterBurn(Target, Damage);
 						/*OursEffect = (Target->AddNewEffect(false, false, false, NameEffects::FireBlinkE, 4.0f));
@@ -251,7 +245,7 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 						OursEffect->IsSingle = false;*/
 
 						BurnEffect = Target->FindName(NameEffects::FireBurnE);
-						if (BurnEffect != NULL)
+						if (BurnEffect != nullptr)
 						{
 							Health += BurnEffect->SpecInt * 10;
 							FireFire(BurnEffect->SpecInt);
@@ -267,13 +261,14 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 
 			}
 		}
-		SkillCDTimes[0] = (5.0f - CoolDownTimeA / CoolDownTimeM);
+		SkillCDTimes[SkillNum] = (5.0f - CoolDownTimeA) / CoolDownTimeM;
 			}
 			
 }
 void ATryBetterAgainCharacter::FireMeteor(FHitResult Hit)
 {
 
+	int32 SkillNum = (int32)Skill::FireMeteor - (int32)Skill::Fire_Start;
 
 	UE_LOG(LogTemp, Warning, TEXT("vizov"));
 	FacedToEnemy(Hit.ImpactPoint);
@@ -289,14 +284,15 @@ void ATryBetterAgainCharacter::FireMeteor(FHitResult Hit)
 		return;
 	}
 	//SpawnMesh(location);
-	Meteor->owner = this;
+	Meteor->Hero = this;
 	FireFire();
-	SkillCDTimes[0] = (5.0f - CoolDownTimeA / CoolDownTimeM);
+	SkillCDTimes[SkillNum] = (5.0f - CoolDownTimeA) / CoolDownTimeM;
 
 }
 void ATryBetterAgainCharacter::FireLance(FHitResult Hit)
 {
-	
+
+	int32 SkillNum = (int32)Skill::FireLance - (int32)Skill::Fire_Start;
 
 		UE_LOG(LogTemp, Warning, TEXT("vizov"));
 		FacedToEnemy(Hit.ImpactPoint);
@@ -310,10 +306,25 @@ void ATryBetterAgainCharacter::FireLance(FHitResult Hit)
 		}
 		Lance->owner = this;
 		FireFire();
-		SkillCDTimes[0] = (5.0f - CoolDownTimeA / CoolDownTimeM);
+		SkillCDTimes[SkillNum] = (0.5f - CoolDownTimeA )/ CoolDownTimeM;
 	
 }
 void ATryBetterAgainCharacter::FireAura()
 {
 
+	AMyFireAura *FireCollisionAura;
+	int32 SkillNum = (int32)Skill::FireAura - (int32)Skill::Fire_Start;
+	
+	if (FireEffectAura == nullptr)
+	{
+		FireFire();
+		FireEffectAura = AddNewEffect(true, true, true, NameEffects::FireAuraS);
+		FireCollisionAura = GetWorld()->SpawnActor<AMyFireAura>(AMyFireAura::StaticClass(),GetActorLocation(),FRotator::ZeroRotator);
+		FireCollisionAura->Aura->AttachToComponent(GetCapsuleComponent(),FAttachmentTransformRules::KeepWorldTransform);
+		FireCollisionAura->Aura->SetSphereRadius(150.0f + MagicRangeA, true);
+		FireCollisionAura->Owner = this;
+		FireCollisionAura->Duration = 5.0f;
+		SkillCDTimes[SkillNum] = (7.0f - CoolDownTimeA) / CoolDownTimeM;
+
+	}
 }

@@ -2,7 +2,6 @@
 
 #include "CommonAncestor.h"
 #include "InvWeapon.h"
-#include <cmath>
 #include "Effects.h"
 #define maxweapons 20
 #define maxi(a,b) ((a)<(b)?(b):(a))
@@ -15,7 +14,7 @@ ACommonAncestor::ACommonAncestor()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	//set arrays
-
+//*
 	WeapType.AddZeroed(maxweapons);
 	HaveWeap.AddZeroed(maxweapons);
 	WeapSlots.AddZeroed(maxweapons);
@@ -32,21 +31,31 @@ ACommonAncestor::ACommonAncestor()
 
 	InitStats();
 	InvulTime = 0.0f;
-	
+	//*/
 }
 
 // Called when the game starts or when spawned
 void ACommonAncestor::BeginPlay()
 {
 	Super::BeginPlay();
-	if (HaveWeap[0]==false) UE_LOG(LogTemp, Warning, TEXT("NotHavingWeap"));
+	if (Base == nullptr || LastPermanent == nullptr || LastPositive == nullptr) Destroy();
+	//if (HaveWeap[0]==false) UE_LOG(LogTemp, Warning, TEXT("NotHavingWeap"));
+
+	InitStats();
+	InvulTime = 0.0f;
 }
 
 // Called every frame
 void ACommonAncestor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	InvulTime = maxi(0.0f, InvulTime - DeltaTime);
+	TickExample(DeltaTime);
+	//*InvulTime = maxi(0.0f, InvulTime - DeltaTime);
+	//*/
+}
+
+void ACommonAncestor::TickExample(float DeltaTime)
+{
 	EffectiveCD = DeltaTime / CoolDownTimeM;
 	for (i = 0; i < maxskills; i++)
 	{
@@ -64,32 +73,23 @@ void ACommonAncestor::Tick(float DeltaTime)
 	}
 }
 
-// Called to bind functionality to input
-void ACommonAncestor::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
 
 void ACommonAncestor::Dead()
 {
-	Destroy();
+	//Destroy();
 }
 void ACommonAncestor::DoAttack(ACommonAncestor *Victim)
 {
+	//*
 	Victim->Health -= (AttackDamage*(int)(100*Victim->PhysicMultiplier))/100;
 	Victim->UpdateHealthBar();//may be deleted
 	if (Victim->Health <= 0) Victim->Dead();
+	//*/
 	
 }
 void ACommonAncestor::UpdateAll()
 {
-	
-	MaxHealth = (MaxHealthA*(int)(MaxHealthM * 100)) / 100;
-	if (Health <= 0) Dead();
-	if (Health > MaxHealth) Health = MaxHealth;
-
+//*
 	MaxMana = (MaxManaA*(int)(MaxManaM * 100)) / 100;
 	if (Mana <= 0) Mana=0;
 	if (Mana > MaxMana) Mana = MaxMana;
@@ -103,6 +103,9 @@ void ACommonAncestor::UpdateAll()
 		AttackRange = (AttackRangeA*(int)(AttackRangeM * 100)) / 100;
 	else
 		AttackRange = MeleeAttackRangeA;
+	RedSt = (RedStA*(int)(RedStM * 100)) / 100;
+	GreenSt = (GreenStA*(int)(GreenStM * 100)) / 100;
+	BlueSt = (BlueStA*(int)(BlueStM * 100)) / 100;
 	Armor = (ArmorA*(int)(ArmorM * 100)) / 100 - (NegateArmorA*(int)(NegateArmorM * 100)) / 100;
 	if (Armor > 0.0f)
 	{
@@ -110,12 +113,16 @@ void ACommonAncestor::UpdateAll()
 	}
 	else
 	{
-		PhysicMultiplier = ((100 - Armor) / 100.0f) / PhysicMultiplierM;
+		PhysicMultiplier = ((100 - Armor) / 100.0f) * PhysicMultiplierM;
 	}
-	RedSt = (RedStA*(int)(RedStM * 100)) / 100;
-	GreenSt = (GreenStA*(int)(GreenStM * 100)) / 100;
-	BlueSt = (BlueStA*(int)(BlueStM * 100)) / 100;
-	//UpdateHealthBar();
+	Health += TickHealthA;
+	Health += TickPHealthA*PhysicMultiplier;
+	Health += TickMHealthA*MagicMultiplierM;
+	Health *= TickHealthM;
+	MaxHealth = (MaxHealthA*(int)(MaxHealthM * 100)) / 100;
+	if (Health <= 0) Dead();
+	if (Health > MaxHealth) Health = MaxHealth;
+	//UpdateHealthBar();*/
 }
 
 
@@ -124,6 +131,7 @@ void ACommonAncestor::UpdateAll()
 
 void ACommonAncestor::UpdateExp()
 {
+	//*
 	if (Exp > LvlExp)
 	{
 		lvl++;
@@ -134,9 +142,11 @@ void ACommonAncestor::UpdateExp()
 		UpdateAll();
 		UpdateHealthBar();
 	}
+	//*/
 }
 void ACommonAncestor::InitStats()
 {
+	//*
 	TimeToUpdate = 0.0f;
 
 	Health = 100;
@@ -172,6 +182,7 @@ void ACommonAncestor::InitStats()
 	BaseNegateArmorA = 0;
 	BaseNegateArmorM = 1.0f;
 	BasePhysicMultiplierM = 1.0f;
+	BaseMagicMultiplierM = 1.0f;
 	BaseRedStA = 0;
 	BaseRedStM = 1.0f;
 	BaseGreenStA = 0;
@@ -186,9 +197,15 @@ void ACommonAncestor::InitStats()
 	ElectricStacks = 0.0f;
 	ResetStats();
 	UpdateAll();
+	//*/
 }
 void ACommonAncestor::ResetStats()
 {
+	//*
+	TickHealthA = 0;
+	TickPHealthA = 0;
+	TickMHealthA = 0;
+	TickHealthM = 1.0f;
 	MaxHealthA = BaseMaxHealthA;
 	MaxHealthM = BaseMaxHealthM;
 	MaxManaA = BaseMaxManaA;
@@ -223,13 +240,14 @@ void ACommonAncestor::ResetStats()
 	GreenStA = BaseGreenStA;
 	GreenStM = BaseGreenStM;
 	BlueStA = BaseBlueStA;
-	BlueStM = BaseBlueStM;
+	BlueStM = BaseBlueStM;//*/
 }
 Effects* ACommonAncestor::AddNewEffect(bool Visual,bool Permanent, bool Positive ,NameEffects Number, float Time )
 {
+	//*
 	Effects* NewEff;
 	NewEff = new Effects;
-	if (NewEff != NULL)
+	if (NewEff != nullptr)
 	{
 		NewEff->IsVisual = Visual;
 		NewEff->IsPermanent = Permanent;
@@ -241,6 +259,8 @@ Effects* ACommonAncestor::AddNewEffect(bool Visual,bool Permanent, bool Positive
 			NewEff->prev = Base;
 			Base->next->prev = NewEff;
 			Base->next = NewEff;
+			if (LastPermanent->IsVisual) LastPermanent = NewEff;
+			if (LastPositive->IsVisual) LastPositive = NewEff;
 		}
 		else
 		{
@@ -250,6 +270,8 @@ Effects* ACommonAncestor::AddNewEffect(bool Visual,bool Permanent, bool Positive
 				NewEff->prev = LastPermanent->prev;
 				LastPermanent->next->prev = NewEff;
 				LastPermanent->next = NewEff;
+				LastPermanent = NewEff;
+				if (LastPositive->IsPermanent) LastPositive = NewEff;
 			}
 			else
 			{
@@ -270,14 +292,14 @@ Effects* ACommonAncestor::AddNewEffect(bool Visual,bool Permanent, bool Positive
 				}
 			}
 		}
-		if (Permanent) LastPermanent = NewEff;
-		if (Positive) LastPositive = NewEff;
 	}
-	else return NULL;
-	return NewEff;
+	else return nullptr;
+	return NewEff;//*/
+	//return nullptr;
 }
 void ACommonAncestor::CalcEffects(float Delta)
 {
+	//*
 	Effects *iter=(Base->prev);
 	while (!iter->IsPermanent)
 	{
@@ -296,10 +318,11 @@ void ACommonAncestor::CalcEffects(float Delta)
 		CalcOneEffect(iter,Delta);
 		iter = iter->prev;
 	}
-
+	//*/
 }
 void ACommonAncestor::CalcOneEffect(Effects* iter,float Delta)
 {
+	//*
 	while(Delta>0.25f) {
 		Delta -= 0.25f;
 		UE_LOG(LogTemp, Warning, TEXT("IsSingle problems"));
@@ -307,8 +330,10 @@ void ACommonAncestor::CalcOneEffect(Effects* iter,float Delta)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Absolutely shure updating"));
 			//health&&mana
-			Health += iter->TickHealthA;
-			Health *= iter->TickHealthM;
+			TickHealthA += iter->TickHealthA;
+			TickHealthM *= iter->TickHealthM;
+			TickMHealthA += iter->TickMHealthA;
+			TickPHealthA += iter->TickPHealthA;
 			iter->MaxHealthA += iter->TickMaxHealthA;
 			iter->MaxHealthM *= iter->TickMaxHealthM;
 			iter->MaxManaA += iter->TickMaxManaA;
@@ -383,10 +408,12 @@ void ACommonAncestor::CalcOneEffect(Effects* iter,float Delta)
 	GreenStM *= iter->GreenStM;
 	BlueStA += iter->BlueStA;
 	BlueStM *= iter->BlueStM;
+	//*/
 }
 
 void ACommonAncestor::DeleteEffect(Effects* iter)
 {
+	//*
 	iter->prev->next = iter->next;
 	iter->next->prev = iter->prev;
 	if (iter == LastPositive)
@@ -394,15 +421,17 @@ void ACommonAncestor::DeleteEffect(Effects* iter)
 		LastPositive = iter->prev;
 	}
 	delete iter;
+	//*/
 }
 Effects* ACommonAncestor::FindName(NameEffects Number)
 {
+	//*
 	Effects* iter;
 	iter = Base->prev;
 	while (iter != Base)
 	{
 		if (iter->Name == Number) return iter;
 		iter = iter->prev;
-	}
-	return NULL;
+	}//*/
+	return nullptr;
 }

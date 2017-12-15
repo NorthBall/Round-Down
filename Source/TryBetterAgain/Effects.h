@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include <map>
-#include <string>
+//#include <map>
+//#include <string>
 
 /**
  * 
@@ -70,6 +70,8 @@ public:
 		//health and mana
 		int32 TickHealthA;
 		float TickHealthM;
+		int32 TickPHealthA;
+		int32 TickMHealthA;
 		int32 TickMaxHealthA;
 		float TickMaxHealthM;
 		int32 TickManaA;
@@ -113,7 +115,9 @@ enum class NameEffects {
 	FireBurnE,
 	FireFireS,
 	FireAfterBurnE,
-	FireBlinkE
+	FireBlinkE,
+	FireAuraS,
+	FireAuraE
 	
 };
 enum class Skill {

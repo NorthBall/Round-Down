@@ -11,6 +11,7 @@ AFireMeteor::AFireMeteor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("DummyRoot"));
+	RootComponent = Root;
 }
 
 // Called when the game starts or when spawned
@@ -28,13 +29,12 @@ void AFireMeteor::Tick(float DeltaTime)
 	TimeToRelease -= DeltaTime;
 	if (TimeToRelease < 0)
 	{
-		ATryBetterAgainCharacter* Hero = Cast<ATryBetterAgainCharacter>(owner);
 		if (Hero == nullptr)
 		{
 			Destroy();
 			return;
 		}
-		int32 Damage = (100 * Hero->SkillLevel[(int32)Skill::FireMeteor - (int32)Skill::Fire_Start] + Hero->MagicPowerA)*Hero->MagicPowerM;
+		int32 Damage;
 		int32 i, n;
 		AAI* Target;
 		Effects* OursEffect;
@@ -48,15 +48,17 @@ void AFireMeteor::Tick(float DeltaTime)
 		for (i = 0; i < n; i++)
 		{
 			Target = Cast<AAI>(All[i].GetActor());
-			if (Target != NULL)
+			if (Target != nullptr)
 			{
+
+				Damage = (100 * Hero->SkillLevel[(int32)Skill::FireMeteor - (int32)Skill::Fire_Start] + Hero->MagicPowerA)*Hero->MagicPowerM*Target->MagicMultiplierM;
+				UE_LOG(LogTemp, Warning, TEXT("Level=%d,Power=%f,Armor=%f"), Hero->SkillLevel[(int32)Skill::FireMeteor - (int32)Skill::Fire_Start], Hero->MagicPowerM, Target->MagicMultiplierM);
 				Target->Health -= Damage;
 				OursEffect = Hero->FireAfterBurn(Target, Damage);
 				BurnEffect = Hero->FireBurn(Target);
 				if (Target->Health <= 0) Target->Dead();
 			}
 		}
-		Hero->UpdateAll();
 		Destroy();
 	}
 }

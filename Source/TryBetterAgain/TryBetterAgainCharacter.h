@@ -33,7 +33,7 @@ public:
 	void FireBlink(FHitResult Hit);
 	void FireLance(FHitResult Hit);
 	void FireAura();
-
+	Effects *FireEffectAura;
 
 
 
@@ -42,8 +42,6 @@ public:
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	bool FacedToEnemy(FVector enemyLocation);
 
