@@ -257,7 +257,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 		void DoAttack(ACommonAncestor *Victim);
 	UFUNCTION(BlueprintCallable, Category = "Self")
-		void Dead();
+		virtual void Dead();
 	//update functions
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void InitStats();//init commit

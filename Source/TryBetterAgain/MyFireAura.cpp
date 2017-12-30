@@ -44,7 +44,8 @@ void AMyFireAura::Tick(float DeltaTime)
 			Owner->DeleteEffect(Owner->FireEffectAura);
 			Owner->FireEffectAura = nullptr;
 		}
-		Destroy();
+		if(!Destroy())
+			UE_LOG(LogTemp, Warning, TEXT("Big time Problem"));
 	}
 	
 

@@ -41,7 +41,7 @@ void ACommonAncestor::BeginPlay()
 	if (Base == nullptr || LastPermanent == nullptr || LastPositive == nullptr) Destroy();
 	//if (HaveWeap[0]==false) UE_LOG(LogTemp, Warning, TEXT("NotHavingWeap"));
 
-	InitStats();
+	//InitStats();
 	InvulTime = 0.0f;
 }
 
@@ -76,7 +76,8 @@ void ACommonAncestor::TickExample(float DeltaTime)
 
 void ACommonAncestor::Dead()
 {
-	//Destroy();
+	//GetController()->Destroy();
+	Destroy();
 }
 void ACommonAncestor::DoAttack(ACommonAncestor *Victim)
 {
@@ -416,6 +417,10 @@ void ACommonAncestor::DeleteEffect(Effects* iter)
 	//*
 	iter->prev->next = iter->next;
 	iter->next->prev = iter->prev;
+	if (iter == LastPermanent)
+	{
+		LastPermanent = iter->prev;
+	}
 	if (iter == LastPositive)
 	{
 		LastPositive = iter->prev;
