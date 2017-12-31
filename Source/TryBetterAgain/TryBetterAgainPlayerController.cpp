@@ -103,7 +103,7 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 					if (victim != nullptr) {
 						if (victim != oldVictim)
 						{
-							bAttack = false;
+							DontAttack();
 							oldVictim = victim;
 						}
 						is_gonna_attacking = true;
@@ -181,7 +181,7 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 
 					bAttack = false;
 					OursPawn->OnePunch = false;
-					PrevAttackTick = 0;
+					
 					if (PrevAttackTick == 2)
 					{
 						AttackAnimTime -= 1.0f;
@@ -190,6 +190,7 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 					{
 						AttackAnimTime = 0.0f;
 					}
+					PrevAttackTick = 0;
 				}
 			}
 		}
@@ -237,7 +238,17 @@ void ATryBetterAgainPlayerController::Attack()
 
 void ATryBetterAgainPlayerController::DontAttack()
 {
-	bAttack = false;
+	bAttack = false; OursPawn->OnePunch = false;
+
+	if (PrevAttackTick == 2)
+	{
+		AttackAnimTime -= 1.0f;
+	}
+	else
+	{
+		AttackAnimTime = 0.0f;
+	}
+	PrevAttackTick = 0;
 }
 
 void ATryBetterAgainPlayerController::SetupInputComponent()

@@ -260,15 +260,15 @@ Effects* ACommonAncestor::AddNewEffect(bool Visual,bool Permanent, bool Positive
 			NewEff->prev = Base;
 			Base->next->prev = NewEff;
 			Base->next = NewEff;
-			if (LastPermanent->IsVisual) LastPermanent = NewEff;
-			if (LastPositive->IsVisual) LastPositive = NewEff;
+			if (LastPermanent==Base) LastPermanent = NewEff;
+			if (LastPositive==Base) LastPositive = NewEff;
 		}
 		else
 		{
 			if (Permanent)
 			{
 				NewEff->next = LastPermanent->next;
-				NewEff->prev = LastPermanent->prev;
+				NewEff->prev = LastPermanent;
 				LastPermanent->next->prev = NewEff;
 				LastPermanent->next = NewEff;
 				LastPermanent = NewEff;
