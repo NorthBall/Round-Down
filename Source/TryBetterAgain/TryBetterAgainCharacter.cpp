@@ -312,14 +312,16 @@ void ATryBetterAgainCharacter::FireLance(FHitResult Hit)
 void ATryBetterAgainCharacter::FireAura()
 {
 
-	AMyFireAura *FireCollisionAura;
+	AMyFireAura *FireCollisionAura=nullptr;
 	int32 SkillNum = (int32)Skill::FireAura - (int32)Skill::Fire_Start;
 	
 	if (FireEffectAura == nullptr)
 	{
+		
+		FireCollisionAura = GetWorld()->SpawnActor<AMyFireAura>(AMyFireAura::StaticClass(),GetActorLocation(),FRotator::ZeroRotator);
+		if (FireCollisionAura == nullptr) return;
 		FireFire();
 		FireEffectAura = AddNewEffect(true, true, true, NameEffects::FireAuraS);
-		FireCollisionAura = GetWorld()->SpawnActor<AMyFireAura>(AMyFireAura::StaticClass(),GetActorLocation(),FRotator::ZeroRotator);
 		FireCollisionAura->Aura->AttachToComponent(GetCapsuleComponent(),FAttachmentTransformRules::KeepWorldTransform);
 		FireCollisionAura->Aura->SetSphereRadius(150.0f + MagicRangeA, true);
 		FireCollisionAura->Owner = this;

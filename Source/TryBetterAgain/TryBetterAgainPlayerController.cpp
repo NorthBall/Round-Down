@@ -24,6 +24,7 @@
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 #include "Effects.h"
 
+#define MinSpeed 0.01f
 ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
 {
 	bShowMouseCursor = true;
@@ -71,6 +72,7 @@ void ATryBetterAgainPlayerController::BeginPlay()
 
 	
 	State = Skill::None;
+	WaitTime = 0;
 }
 
 
@@ -130,8 +132,9 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 				if (Distance > OursPawn->AttackRange)
 				{
 					//victim->SpawnMesh(destination);
-					if (!IsMoved)
+					if (!IsMoved||OursPawn->GetVelocity().Size2D()<MinSpeed)
 					{
+						UE_LOG(LogTemp, Warning, TEXT("Korsun wants move"));
 						NPK->MoveToActor(victim, OursPawn->AttackRange);
 						IsMoved = true;
 					}

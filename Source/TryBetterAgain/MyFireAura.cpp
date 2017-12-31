@@ -19,14 +19,14 @@ AMyFireAura::AMyFireAura()
 	Owner = nullptr;
 	Duration = 25.0f;
 	RootComponent = Aura;
-	Aura->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//Aura->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 // Called when the game starts or when spawned
 void AMyFireAura::BeginPlay()
 {
 	Super::BeginPlay();
-	Aura->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//Aura->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
 }
 
@@ -59,9 +59,11 @@ void AMyFireAura::FireAuraPlay(UPrimitiveComponent* OverlappedComp, AActor* Othe
 		UE_LOG(LogTemp, Warning, TEXT("FireAuraAttacks"));
 		AAI *victim = Cast<AAI>(OtherActor);
 		if (victim == nullptr) return;
+		if(Added.FindNode(victim)!=nullptr) return;
 		UE_LOG(LogTemp, Warning, TEXT("CastToVictim"));
 		Effects *AddEffect = victim->AddNewEffect(false, true, false, NameEffects::FireAuraE);
 		if (AddEffect == nullptr) return;
+		Added.AddTail(victim);
 		AddEffect->IsSingle = false;
 		AddEffect->TickMHealthA = -10;
 		AddEffect->MagicMultiplierM = 2.0f;
@@ -70,12 +72,13 @@ void AMyFireAura::FireAuraPlay(UPrimitiveComponent* OverlappedComp, AActor* Othe
 }
 void AMyFireAura::FireAuraDontPlay(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && (OtherActor!=Owner))
 	{
 		AAI *victim = Cast<AAI>(OtherActor);
 		if (victim == nullptr) return;
 		Effects *DeletingEffect = victim->FindName(NameEffects::FireAuraE);
 		if (DeletingEffect == nullptr) return;
+		Added.RemoveNode(victim);
 		victim->DeleteEffect(DeletingEffect);
 
 	}

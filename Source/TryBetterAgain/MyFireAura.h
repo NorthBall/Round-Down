@@ -14,6 +14,7 @@ class TRYBETTERAGAIN_API AMyFireAura : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AMyFireAura();
+	TDoubleLinkedList <class AAI*> Added;
 	float Duration;
 	class USphereComponent * Aura;
 	class ATryBetterAgainCharacter *Owner;
