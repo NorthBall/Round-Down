@@ -19,7 +19,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<class AFireLance> LanceBP;//копье
-
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		TSubclassOf<class AFirePrimitive> FirePrimitiveBP;//minimal fireball
 	//UFUNCTION(BlueprintCallable, Category = "Attack")
 		void DoAttack(ACommonAncestor *Victim) ;
 	//playable functions
@@ -30,6 +31,7 @@ public:
 	Effects* FireFire(int32 i=1);
 	Effects* FireAfterBurn(ACommonAncestor *Victim, int32 Damage);
 	void FireMeteor(FHitResult Hit);
+	void FireQueue(FHitResult Hit);
 	void FireBlink(FHitResult Hit);
 	void FireLance(FHitResult Hit);
 	void FireAura();
@@ -77,9 +79,10 @@ public:
 		class ATryBetterAgainPlayerController* RealController;
 	float ZoomFactor;
 	int bZooming;
-
+/*
 	void ZoomIn();
 	void ZoomOut();
+	*/
 	//void NoZoom();
 
 };

@@ -22,7 +22,7 @@ public:
 		class UProjectileMovementComponent* ProjectileMovement;
 
 	AMyProjectile();
-
+	int Damage=0;
 	ACommonAncestor* owner;
 
 	/** called when projectile hits something */

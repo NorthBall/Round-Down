@@ -1,6 +1,7 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
 #include "MyProjectile.h"
+#include "Effects.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 
@@ -51,10 +52,9 @@ void AMyProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 	{
 		AAI* victim = Cast<AAI>(OtherActor);
 		UE_LOG(LogTemp, Warning, TEXT("BeforeCalculateAttack"));
-		TArray<int32> flags;
 		if (victim != nullptr) {
 			UE_LOG(LogTemp, Warning, TEXT("CalculateAttack"));
-			owner->CalculateAttack(victim, flags);
+			owner->DealDamage(victim, Damage, DamageType::Physical);
 
 			Destroy();
 		}

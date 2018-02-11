@@ -127,10 +127,20 @@ enum class Skill {
 	FireFire,
 	FireAfterBurn,
 	FireMeteor,
-	FireCombo,
+	FireQueue,
 	FireBlink,
 	FireRing,
 	FireLance,
 	FireAura,
 	Skill_Max
+};
+enum class DamageType {
+	Pure,
+	Physical,
+	Magic
+};
+enum class BotType
+{
+	EnigmaWarrior=1,
+	EnigmaMage
 };

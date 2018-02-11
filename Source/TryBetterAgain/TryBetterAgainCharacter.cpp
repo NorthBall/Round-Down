@@ -15,6 +15,7 @@
 #include "AI.h"
 #include "Effects.h"
 #include "FireLance.h"
+#include "FirePrimitive.h"
 #include "FireMeteor.h"
 #include "MyFireAura.h"
 #include "TryBetterAgainPlayerController.h"
@@ -288,6 +289,24 @@ void ATryBetterAgainCharacter::FireMeteor(FHitResult Hit)
 	FireFire();
 	SkillCDTimes[SkillNum] = (5.0f - CoolDownTimeA) / CoolDownTimeM;
 
+}
+void ATryBetterAgainCharacter::FireQueue(FHitResult Hit)
+{
+	int32 SkillNum = (int32)Skill::FireQueue - (int32)Skill::Fire_Start;
+
+	UE_LOG(LogTemp, Warning, TEXT("vizov"));
+	FacedToEnemy(Hit.ImpactPoint);
+	FRotator deltaRotate = (Hit.ImpactPoint - GetActorLocation() + FVector(0, 0, GetActorLocation().Z - Hit.ImpactPoint.Z)).Rotation();
+	FVector location = GetActorLocation() + GetActorForwardVector() * 50;
+	AFirePrimitive* FireBall = GetWorld()->SpawnActor<AFirePrimitive>(FirePrimitiveBP, location, deltaRotate);
+	if (FireBall == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Fing imposible"));
+		return;
+	}
+	FireBall->owner = this;
+	FireFire();
+	SkillCDTimes[SkillNum] = (5.0f - CoolDownTimeA) / CoolDownTimeM;
 }
 void ATryBetterAgainCharacter::FireLance(FHitResult Hit)
 {

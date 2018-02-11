@@ -53,7 +53,6 @@ void ACommonAncestor::Tick(float DeltaTime)
 	//*InvulTime = maxi(0.0f, InvulTime - DeltaTime);
 	//*/
 }
-
 void ACommonAncestor::TickExample(float DeltaTime)
 {
 	EffectiveCD = DeltaTime / CoolDownTimeM;
@@ -71,8 +70,8 @@ void ACommonAncestor::TickExample(float DeltaTime)
 		UpdateAll();
 		UpdateHealthBar();
 	}
+	
 }
-
 
 void ACommonAncestor::Dead()
 {
@@ -99,6 +98,7 @@ void ACommonAncestor::UpdateAll()
 	AttackSpeed = (AttackSpeedA*(int)(AttackSpeedM * 100)) / 100;
 	AttackTime = 150.0f / AttackSpeed;
 	PunchRate = (AttackSpeed*PunchTime) / (150.0f);
+	if (!HaveWeap[0]) PunchRate*=1.2f;
 	DamagePerSecond = AttackDamage*(AttackSpeed / 150.f);
 	if (ISRange)
 		AttackRange = (AttackRangeA*(int)(AttackRangeM * 100)) / 100;
@@ -439,4 +439,22 @@ Effects* ACommonAncestor::FindName(NameEffects Number)
 		iter = iter->prev;
 	}//*/
 	return nullptr;
+}
+void  ACommonAncestor::DealDamage(ACommonAncestor *Victim, int Damage, DamageType Type)
+{
+	switch (Type) {
+	case DamageType::Pure :
+		Victim->Health -= Damage;
+		Victim->UpdateHealthBar();//may be deleted
+		if (Victim->Health <= 0) Victim->Dead();
+		break;
+	case DamageType::Physical :
+		Victim->Health -= (Damage*(int)(100 * Victim->PhysicMultiplier)) / 100;
+		Victim->UpdateHealthBar();//may be deleted
+		if (Victim->Health <= 0) Victim->Dead();
+	case DamageType::Magic:
+		Victim->Health -= (Damage*(int)(100 * Victim->MagicMultiplierM)) / 100;
+		Victim->UpdateHealthBar();//may be deleted
+		if (Victim->Health <= 0) Victim->Dead();
+	}
 }

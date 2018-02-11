@@ -25,6 +25,7 @@
 #include "Effects.h"
 
 #define MinSpeed 0.01f
+#define mini(a,b) ((a)<(b)?(a):(b))
 ATryBetterAgainPlayerController::ATryBetterAgainPlayerController()
 {
 	bShowMouseCursor = true;
@@ -69,6 +70,7 @@ void ATryBetterAgainPlayerController::BeginPlay()
 	OursPawn->SkillLevel[(int32)Skill::FireMeteor - (int32)Skill::Fire_Start] = 2;
 	OursPawn->SkillLevel[(int32)Skill::FireLance - (int32)Skill::Fire_Start] = 3;
 	OursPawn->SkillLevel[(int32)Skill::FireAura - (int32)Skill::Fire_Start] = 3;
+	OursPawn->SkillLevel[(int32)Skill::FireQueue - (int32)Skill::Fire_Start] = 3;
 
 	
 	State = Skill::None;
@@ -84,11 +86,17 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 	{
 		if (State != Skill::None)
 		{
+			if (State == Skill::FireQueue)
+			{
+				GetHitResultUnderCursor(ECC_Visibility, false, Direct);
+				OursPawn->FacedToEnemy(Direct.ImpactPoint);
+			}
+			FullTime += DeltaTime;
 			WaitTime -= DeltaTime;
 			if (WaitTime <= 0.0f)
 			{
-				DoSkill(State);
-				State = Skill::None;
+				WaitTime = DoSkill(State, FullTime);
+				if(WaitTime<=0.0f)	State = Skill::None;
 			}
 		}
 		else
@@ -228,6 +236,7 @@ void ATryBetterAgainPlayerController::CastSpell()
 		FVector location = OursPawn->GetActorLocation() + OursPawn->GetActorForwardVector() * 50;
 		AMyProjectile* Projectile = World->SpawnActor<AMyProjectile>(MyProjectileBP, location, deltaRotate);
 		Projectile->owner = OursPawn;
+		Projectile->Damage = OursPawn->AttackDamage;
 	}
 }
 
@@ -271,6 +280,8 @@ void ATryBetterAgainPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Skill2", IE_Pressed, this, &ATryBetterAgainPlayerController::FireLance).bConsumeInput = false;
 	InputComponent->BindAction("Skill3", IE_Pressed, this, &ATryBetterAgainPlayerController::FireMeteor).bConsumeInput = false;
 	InputComponent->BindAction("Skill4", IE_Pressed, this, &ATryBetterAgainPlayerController::FireAura).bConsumeInput = false;
+	InputComponent->BindAction("CancelSkill", IE_Pressed, this, &ATryBetterAgainPlayerController::CancelSkill).bConsumeInput = false;
+	InputComponent->BindAction("Skill5", IE_Pressed, this, &ATryBetterAgainPlayerController::FireQueue).bConsumeInput = false;
 }
 
 
@@ -356,6 +367,54 @@ int ATryBetterAgainPlayerController::AtakAnim(float AtakAnim)
 	if (AtakAnim < 1.0f) return 2;
 	return 3;
 }
+void ATryBetterAgainPlayerController::FireMeteor()
+{
+	if (OursPawn != NULL&&State != Skill::FireMeteor)
+	{
+		int32 SkillNum = (int32)Skill::FireMeteor - (int32)Skill::Fire_Start;
+
+		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
+		{
+			FHitResult Hit;
+			GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+
+			float Range = (700 + OursPawn->MagicRangeA)*OursPawn->MagicRangeM;
+			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
+			{
+				OursPawn->FacedToEnemy(Hit.ImpactPoint);
+				State = Skill::FireMeteor;
+				DoStop();
+				WaitTime = (3.0f - OursPawn->CastTimeA)*OursPawn->CastTimeM;
+				FullTime = 0.0f;
+				Direct = Hit;
+			}
+		}
+	}
+}
+void ATryBetterAgainPlayerController::FireQueue()
+{
+	if (OursPawn != NULL&&State != Skill::FireQueue)
+	{
+		int32 SkillNum = (int32)Skill::FireQueue - (int32)Skill::Fire_Start;
+
+		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
+		{
+			FHitResult Hit;
+			GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+
+			float Range = (700 + OursPawn->MagicRangeA)*OursPawn->MagicRangeM;
+			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
+			{
+				OursPawn->FacedToEnemy(Hit.ImpactPoint);
+				State = Skill::FireQueue;
+				DoStop();
+				WaitTime = (2.0f - OursPawn->CastTimeA)*OursPawn->CastTimeM;
+				FullTime = 0.0f;
+				Direct = Hit;
+			}
+		}
+	}
+}
 void ATryBetterAgainPlayerController::FireBlink()
 {
 	if (OursPawn != NULL) {
@@ -379,34 +438,15 @@ void ATryBetterAgainPlayerController::FireLance()
 			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
 			{
 				State = Skill::FireLance;
+				DoStop();
 				WaitTime = (1.0f-OursPawn->CastTimeA)*OursPawn->CastTimeM;
+				FullTime = 0.0f; 
 				Direct = Hit;
 			}
 		}
 	}
 }
-void ATryBetterAgainPlayerController::FireMeteor()
-{
-	if (OursPawn != NULL&&State != Skill::FireMeteor)
-	{
-		int32 SkillNum = (int32)Skill::FireMeteor - (int32)Skill::Fire_Start;
 
-		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
-		{
-			FHitResult Hit;
-			GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-
-			float Range = (700 + OursPawn->MagicRangeA)*OursPawn->MagicRangeM;
-			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
-			{
-				OursPawn->FacedToEnemy(Hit.ImpactPoint);
-				State = Skill::FireMeteor;
-				WaitTime = (3.0f - OursPawn->CastTimeA)*OursPawn->CastTimeM;
-				Direct = Hit;
-			}
-		}
-	}
-}
 void ATryBetterAgainPlayerController::FireAura()
 {
 	if (OursPawn != NULL)
@@ -420,14 +460,32 @@ void ATryBetterAgainPlayerController::FireAura()
 		}
 	}
 }
-void ATryBetterAgainPlayerController::DoSkill(Skill State)
+float ATryBetterAgainPlayerController::DoSkill(Skill State,float Time)
 {
+
 	switch (State)
-	{
+	{	
+	case Skill::FireMeteor:
+		OursPawn->FireMeteor(Direct);
+		break;
+	case Skill::FireQueue:
+		OursPawn->FireQueue(Direct);
+		return mini((2.0f - OursPawn->CastTimeA)*OursPawn->CastTimeM, 5.0f - FullTime);
 	case Skill::FireLance:
 		OursPawn->FireLance(Direct);
 		break;
-	case Skill::FireMeteor:
-		OursPawn->FireMeteor(Direct);
 	}
+	return 0;
+}
+void ATryBetterAgainPlayerController::DoStop()
+{
+	
+		is_gonna_attacking = false;
+		DontAttack();
+		NPK->StopMovement();
+}
+void ATryBetterAgainPlayerController::CancelSkill()
+{
+	State = Skill::None;
+
 }

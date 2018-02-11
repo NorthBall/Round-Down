@@ -12,9 +12,10 @@ class ATryBetterAgainPlayerController : public APlayerController
 
 public:
 	//skill area
+	void FireMeteor();
+	void FireQueue();
 	void FireBlink();
 	void FireLance();
-	void FireMeteor();
 	void FireAura();
 
 	ATryBetterAgainPlayerController();
@@ -31,8 +32,11 @@ public:
 		bool bAttack;
 	enum class Skill State;
 	float WaitTime;
+	float FullTime;
 	FHitResult Direct;
-	void DoSkill(Skill State);
+	float DoSkill(Skill State,float Time);
+	void DoStop();
+	void CancelSkill();
 	//attack area
 	float Distance;
 	class AAI *oldVictim;

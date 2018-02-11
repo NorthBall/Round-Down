@@ -23,6 +23,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void TickExample(float DeltaTime);
+	//ROTATION area
+	/*FRotator DestRotation;
+	bool NeedRotation = false;
+	void Rotate();
+	void ReqForRotate(FVector Dest);*/
 //*
 	//effects
 	float InvulTime;
@@ -136,6 +141,19 @@ public:
 		float GreenStM;
 	UPROPERTY( BlueprintReadWrite, Category = "Stats")
 		float BlueStM;
+		//movement
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float MovementSpeed;
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float MovementSpeedA;
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float MovementSpeedM;
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float MovementRotate;
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float MovementRotateA;
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float MovementRotateM;
 		//expirience
 	UPROPERTY(BlueprintReadWrite, Category = "Experience")
 		int32 Exp;
@@ -210,7 +228,15 @@ public:
 		float BaseGreenStM;
 	UPROPERTY(BlueprintReadWrite, Category = "Stats")
 		float BaseBlueStM;
-
+	//movement
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float BaseMovementSpeedA;
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float BaseMovementSpeedM;
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float BaseMovementRotateA;
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float BaseMovementRotateM;
 		//extra
 	UPROPERTY(BlueprintReadWrite, Category = "EnemyVar")
 		int32 FireStacks;
@@ -246,18 +272,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "DEBUG")
 		void SpawnMesh(FVector a);
 		//influence functions
-	UFUNCTION(BlueprintCallable, Category = "Attack")
-		void CalculateAttack( ACommonAncestor *Victim, TArray<int32> flags)
-	{
-		Victim->Health -= AttackDamage;
-		if (Victim->Health < 0)
-			Victim->Destroy();
-		Victim->UpdateHealthBar();
-	};
+	
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 		void DoAttack(ACommonAncestor *Victim);
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		virtual void Dead();
+	//support
+		void DealDamage(ACommonAncestor *Victim, int Damage, enum class DamageType Type);
 	//update functions
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void InitStats();//init commit
