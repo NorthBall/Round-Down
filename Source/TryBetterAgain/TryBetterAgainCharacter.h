@@ -14,14 +14,28 @@ class ATryBetterAgainCharacter : public ACommonAncestor
 
 public:
 	//class definitons
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		int32 Class;
+	UPROPERTY( BlueprintReadWrite, Category = "Class")
+		int32 MyClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		TSubclassOf<class AFireLance> LanceBP;//копье
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		TSubclassOf<class AFirePrimitive> FirePrimitiveBP;//minimal fireball
+	//UFUNCTION(BlueprintCallable, Category = "Attack")
+		void DoAttack(ACommonAncestor *Victim) ;
 	//playable functions
-	UFUNCTION(BlueprintCallable, Category = "Damage")
+	UFUNCTION(BlueprintCallable, Category = "Class")
 		void ChooseClass(int32 choise)	{};
-	
-
-
+	//class functions MAY BE VERY MUCH
+	class Effects* FireBurn(ACommonAncestor *Victim);
+	Effects* FireFire(int32 i=1);
+	Effects* FireAfterBurn(ACommonAncestor *Victim, int32 Damage);
+	void FireMeteor(FHitResult Hit);
+	void FireQueue(FHitResult Hit);
+	void FireBlink(FHitResult Hit);
+	void FireLance(FHitResult Hit);
+	void FireAura();
+	Effects *FireEffectAura;
 
 
 
@@ -30,8 +44,6 @@ public:
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	bool FacedToEnemy(FVector enemyLocation);
 
@@ -67,9 +79,10 @@ public:
 		class ATryBetterAgainPlayerController* RealController;
 	float ZoomFactor;
 	int bZooming;
-
+/*
 	void ZoomIn();
 	void ZoomOut();
+	*/
 	//void NoZoom();
 
 };

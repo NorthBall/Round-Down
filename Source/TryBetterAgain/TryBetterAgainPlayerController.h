@@ -11,6 +11,13 @@ class ATryBetterAgainPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	//skill area
+	void FireMeteor();
+	void FireQueue();
+	void FireBlink();
+	void FireLance();
+	void FireAura();
+
 	ATryBetterAgainPlayerController();
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
@@ -20,8 +27,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<class UUserWidget> WidgetClass;
 	UUserWidget* PauseMenu;
+	//doing area
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		bool bAttack;
+	enum class Skill State;
+	float WaitTime;
+	float FullTime;
+	FHitResult Direct;
+	float DoSkill(Skill State,float Time);
+	void DoStop();
+	void CancelSkill();
+	//attack area
+	float Distance;
+	class AAI *oldVictim;
+	bool IsMoved;
+
 
 	bool leftClicked;
 
