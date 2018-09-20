@@ -2,7 +2,7 @@
 
 #include "MyAIController.h"
 #include "TryBetterAgainPlayerController.h"
-#include "AI/Navigation/NavigationSystem.h"
+//#include "AI/Navigation/NavigationSystem.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "TryBetterAgainCharacter.h"
