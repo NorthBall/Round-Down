@@ -138,7 +138,7 @@ void ATryBetterAgainCharacter::DoAttack(ACommonAncestor* Victim)
 Effects* ATryBetterAgainCharacter::FireFire(int32 i)
 {
 	Effects* BuffEffect = FindName(NameEffects::FireFireS);
-	if (BuffEffect == nullptr)
+	/*if (BuffEffect == nullptr)
 	{
 		BuffEffect = AddNewEffect(false, false, true, NameEffects::FireFireS, 2.0f);
 		BuffEffect->IsSingle = true;
@@ -155,13 +155,14 @@ Effects* ATryBetterAgainCharacter::FireFire(int32 i)
 		BuffEffect->CoolDownTimeM = 100.0 / (100.0 + 4 * BuffEffect->SpecInt);
 		BuffEffect->EffectTime = 2.0f;
 	}
+	*/
 	return BuffEffect;
 }
 Effects* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
 {
 
 	Effects* BurnEffect = Victim->FindName(NameEffects::FireBurnE);
-	if (BurnEffect == nullptr)
+	/*if (BurnEffect == nullptr)
 	{
 		BurnEffect = Victim->AddNewEffect(false, false, false, NameEffects::FireBurnE, 2.0f);
 		BurnEffect->IsSingle = false;
@@ -173,7 +174,7 @@ Effects* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
 		BurnEffect->SpecInt = mini(BurnEffect->SpecInt + 1, SkillLevel[(int32)Skill::FireBurn - (int32)Skill::Fire_Start]);
 		BurnEffect->TickMHealthA = -BurnEffect->SpecInt;
 		BurnEffect->EffectTime = 2.0f;
-	}
+	}*/
 	return BurnEffect;
 }
 Effects* ATryBetterAgainCharacter::FireAfterBurn(ACommonAncestor *Victim, int32 Damage)
@@ -182,7 +183,7 @@ Effects* ATryBetterAgainCharacter::FireAfterBurn(ACommonAncestor *Victim, int32 
 	Effects* BurnEffect = Victim->AddNewEffect(false, false, false, NameEffects::FireAfterBurnE, (float)time);
 	if (BurnEffect != nullptr) {
 		BurnEffect->IsSingle = false;
-		BurnEffect->TickMHealthA = -(Damage*SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start]) / (10 * time * 4);
+//		BurnEffect->TickMHealthA = -(Damage*SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start]) / (10 * time * 4);
 	}
  return BurnEffect;
 }
@@ -246,13 +247,13 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 						OursEffect->IsSingle = false;*/
 
 						BurnEffect = Target->FindName(NameEffects::FireBurnE);
-						if (BurnEffect != nullptr)
+						/*if (BurnEffect != nullptr)
 						{
 							Health += BurnEffect->SpecInt * 10;
 							FireFire(BurnEffect->SpecInt);
 							Target->DeleteEffect(BurnEffect);
 						}
-						if(OursEffect!=nullptr) Target->CalcOneEffect(OursEffect, 0);
+						if(OursEffect!=nullptr) Target->CalcOneEffect(OursEffect, 0);*/
 						Target->UpdateHealthBar();
 						if (Target->Health <= 0) Target->Dead();
 					}

@@ -33,6 +33,17 @@ public:
 	float InvulTime;
 	//Stats area
 	//health and mana
+	UPROPERTY(BlueprintReadWrite, Category = "Params")
+		TMap<FString, int32> BaseA;// стандартные значения параметров. Нужны только для обновления
+	UPROPERTY(BlueprintReadWrite, Category = "Params")
+		TMap<FString, float> BaseM;
+	UPROPERTY(BlueprintReadWrite, Category = "Params")
+		TMap<FString, int32> RealA;//реальные значения параметров. Нужны
+	UPROPERTY(BlueprintReadWrite, Category = "Params")
+		TMap<FString, float> RealM; 
+	/*UPROPERTY(BlueprintReadWrite, Category = "Params")
+		TMap<FString, int32> EverlastingA;//Параметры без базовых значений, такие как текущее хп.*/
+
 	UPROPERTY(BlueprintReadWrite, Category = "Health")
 		int32 Health;
 	UPROPERTY(BlueprintReadWrite, Category = "Health")
@@ -238,10 +249,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Movement")
 		float BaseMovementRotateM;
 		//extra
-	UPROPERTY(BlueprintReadWrite, Category = "EnemyVar")
-		int32 FireStacks;
-	UPROPERTY(BlueprintReadWrite, Category = "EnemyVar")
-		float ElectricStacks;
 	TArray<float> SkillCDTimes;
 	TArray<int32> SkillLevel;
 		//weapon section
@@ -258,21 +265,17 @@ public:
 	Effects* AddNewEffect(bool Visual, bool Permanent, bool Positive,enum class NameEffects Number, float Time = 1.0f);
 	Effects* FindName(enum class NameEffects Number);
 	void CalcEffects(float Delta);
-	void CalcOneEffect(Effects *iter,float Delta);
 	void DeleteEffect(Effects* iter);
 		//anim values
 	 UPROPERTY(BlueprintReadWrite,Category="Animations")
 		bool OnePunch = false;
 	 UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Animations")
-		 float PunchTime=0.8f;
+		 float PunchTime=1.2f;
 		//blueprints functions
 	UFUNCTION(BlueprintImplementableEvent, Category = "HealthBar")
 		void UpdateHealthBar();
-			//MUST BE DELETED
-	UFUNCTION(BlueprintImplementableEvent, Category = "DEBUG")
-		void SpawnMesh(FVector a);
+			
 		//influence functions
-	
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 		void DoAttack(ACommonAncestor *Victim);
 	UFUNCTION(BlueprintCallable, Category = "Self")
@@ -288,20 +291,7 @@ public:
 		void ResetStats();
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void UpdateExp() ;
-	//effects functions
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void ChangePhys(TArray<int32>flags) {};
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void ChangeMagic(TArray<int32>flags) {};
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void ChangeResist(TArray<int32>flags) {};
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void ChangeRange(TArray<int32>flags) {};
-	UFUNCTION(BlueprintCallable, Category = "Self")
-		void ChangeHealth(TArray<int32>flags) {};
-
-	
-	
+		
 	//just support variables
 	int32 i;
 	float EffectiveCD;

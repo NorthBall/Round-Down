@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include <map>
-//#include <string>
+
 
 /**
  * 
@@ -23,10 +22,10 @@ public:
 	float EffectTime;
 	bool IsPositive;
 	enum class NameEffects Name;
-	int32 SpecInt;
-	float SpecFloat;
-	//std::map <std::string,int32> IntByTick;
+	virtual void Apply(float Delta);
+	class ACommonAncestor* Target,*Caster;
 
+	/*
 	//Stats area
 	//health and mana
 		int32 MaxHealthA;
@@ -109,7 +108,7 @@ public:
 		int32 TickBlueStA;
 		float TickRedStM;
 		float TickGreenStM;
-		float TickBlueStM;
+		float TickBlueStM;*/
 };
 enum class NameEffects {
 	FireBurnE,

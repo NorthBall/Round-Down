@@ -3,7 +3,7 @@
 #include "TryBetterAgainPlayerController.h"
 
 #include "MyAIController.h"
-#include "AI/Navigation/NavigationSystem.h"
+//#include "AI/Navigation/NavigationSystem.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "TryBetterAgainCharacter.h"
@@ -293,7 +293,7 @@ void ATryBetterAgainPlayerController::SetNewMoveDestination(const FVector DestLo
 	
 	if (OursPawn)
 	{
-		UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
+		UNavigationSystemBase* const NavSys = GetWorld()->GetNavigationSystem();
 		float const Distance = FVector::Dist(DestLocation, OursPawn->GetActorLocation());
 		
 		// We need to issue move command only if far enough in order for walk animation to play correctly

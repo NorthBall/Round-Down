@@ -80,8 +80,8 @@ void ACommonAncestor::Dead()
 }
 void ACommonAncestor::DoAttack(ACommonAncestor *Victim)
 {
-	//*
-	Victim->Health -= (AttackDamage*(int)(100*Victim->PhysicMultiplier))/100;
+	//
+	Victim->Health -= AttackDamage*Victim->PhysicMultiplier;
 	Victim->UpdateHealthBar();//may be deleted
 	if (Victim->Health <= 0) Victim->Dead();
 	//*/
@@ -89,10 +89,37 @@ void ACommonAncestor::DoAttack(ACommonAncestor *Victim)
 }
 void ACommonAncestor::UpdateAll()
 {
-//*
+
+	//Health += RealA["TickHealth"] * RealM["HealHealth"];
+	//
+	//if (Health <= 0) Dead();
+	//if (Health > MaxHealth) Health = MaxHealth;
+	//Mana += RealA["TickMana"] * RealM["HealMana"];
+
+	//if (Mana <= 0) Mana = 0;
+	//if (Mana > MaxMana) Mana = MaxMana;
 	MaxMana = (MaxManaA*(int)(MaxManaM * 100)) / 100;
 	if (Mana <= 0) Mana=0;
 	if (Mana > MaxMana) Mana = MaxMana;
+
+	AttackDamage=RealA["AttackDamage"] * RealM["AttackDamage"];
+	AttackSpeed = RealA["AttackSpeed"] * RealM["AttackSpeed"];
+	AttackTime = 150.0f / AttackSpeed;
+	PunchRate = (AttackSpeed*PunchTime) / (150.0f);
+	//if (!HaveWeap[0]) PunchRate *= 1.2f;
+	DamagePerSecond = AttackDamage * (AttackSpeed / 150.f);
+	if (ISRange)
+		AttackRange = RealA["AttackRange"] * RealM["AttackRange"];
+	else
+		AttackRange = RealA["MeleeAttackRange"];
+	RedSt = RealA["RedSt"] * RealM["RedSt"];
+	GreenSt = RealA["GreenSt"] * RealM["GreenSt"];
+	BlueSt = RealA["BlueSt"] * RealM["BlueSt"];
+	Armor = RealA["Armor"] * RealM["Armor"]-RealA["NegateArmor"]*RealM["NegateArmor"];
+	if (Armor>0.0f)
+		PhysicMultiplier = (100.0f) / (100 + Armor)*RealM["PhysicMultiplier"];
+	else
+		PhysicMultiplier = ((100 - Armor) / 100.0f) * RealM["PhysicMultiplier"];
 
 	AttackDamage = (AttackDamageA*(int)(AttackDamageM * 100)) / 100;
 	AttackSpeed = (AttackSpeedA*(int)(AttackSpeedM * 100)) / 100;
@@ -123,7 +150,7 @@ void ACommonAncestor::UpdateAll()
 	MaxHealth = (MaxHealthA*(int)(MaxHealthM * 100)) / 100;
 	if (Health <= 0) Dead();
 	if (Health > MaxHealth) Health = MaxHealth;
-	//UpdateHealthBar();*/
+	//UpdateHealthBar();
 }
 
 
@@ -138,8 +165,8 @@ void ACommonAncestor::UpdateExp()
 		lvl++;
 		Exp -= LvlExp;
 		LvlExp *= 1.4;
-		AttackDamageM /= 0.95f;
-		AttackSpeedM *= 0.95f;
+		BaseM["AttackDamage"] /= 0.95f;
+		BaseM["AttackSpeed"] *= 0.95f;
 		UpdateAll();
 		UpdateHealthBar();
 	}
@@ -150,24 +177,51 @@ void ACommonAncestor::InitStats()
 	//*
 	TimeToUpdate = 0.0f;
 
+	//EverlastingA.Add("Health", 100);
 	Health = 100;
+	BaseA.Add("TickHealth", 0);//восстановление хп за тик
+	BaseM.Add("HealHealth", 1.);//множитель восстановления здоровья
+	BaseA.Add("MaxHealth", 100);
+	BaseM.Add("MaxHealth", 1.);
+	//EverlastingA.Add("Mana", 100);
+	Mana = 100;
+	BaseA.Add("TickMana", 0);//восстановление маны за тик
+	BaseM.Add("HealMana", 1.);//множитель восстановления маны
+	BaseA.Add("MaxMana", 100);
+	BaseM.Add("MaxMana", 1.);
+
 	BaseMaxHealthA = 100;
 	BaseMaxHealthM = 1.0f;
-	Mana = 100;
 	BaseMaxManaA = 100;
 	BaseMaxManaM = 1.0f;
 
-	BaseAttackRangeA = 100;
-	BaseAttackRangeM = 1.0f;
+	BaseA.Add("MaxAttackRange", 500);
+	BaseM.Add("MaxAttackRange", 1.);
+	BaseA.Add("AttackDamage", 100);
+	BaseM.Add("AttackDamage", 1.);
+	BaseA.Add("AttackSpeed", 100);
+	BaseM.Add("AttackSpeed", 1.);
+	PreAttack = 0.45f;
+	ISRange = false;
+	BaseA.Add("MeleeAttackRange", 150);
+
+
 	BaseAttackDamageA = 10;
 	BaseAttackDamageM = 1.0f;
 	BaseAttackSpeedA = 100;
 	BaseAttackSpeedM = 1.0f;
-	PreAttack = 0.45f;
-	ISRange = false;
 	BaseAttackRangeA = 500;
 	BaseAttackRangeM = 1.0f;
 	BaseMeleeAttackRangeA = 150;
+
+	BaseA.Add("MagicPower", 0);
+	BaseM.Add("MagicPower", 1.);
+	BaseA.Add("MagicRange", 0);
+	BaseM.Add("MagicRange", 1.);
+	BaseA.Add("CastTime", 0);
+	BaseM.Add("CastTime", 1.);
+	BaseA.Add("CoolDownTime", 0);
+	BaseM.Add("CoolDownTime", 1.);
 
 	BaseMagicPowerA = 0;
 	BaseMagicPowerM = 1.0f;
@@ -178,31 +232,48 @@ void ACommonAncestor::InitStats()
 	BaseCoolDownTimeA = 0;
 	BaseCoolDownTimeM = 1.0f;
 
+	BaseA.Add("Armor", 100);
+	BaseM.Add("Armor", 1.);
+	BaseA.Add("NegateArmor", 0);
+	BaseM.Add("NegateArmor", 1.);
+	BaseM.Add("PhysicMultiplier", 1.);
+	BaseM.Add("MagicMultiplier", 1.);
+
 	BaseArmorA = 0;
 	BaseArmorM = 1.0f;
 	BaseNegateArmorA = 0;
 	BaseNegateArmorM = 1.0f;
 	BasePhysicMultiplierM = 1.0f;
 	BaseMagicMultiplierM = 1.0f;
+
+	BaseA.Add("RedSt", 100);
+	BaseM.Add("RedSt", 1.);
+	BaseA.Add("GreenSt", 100);
+	BaseM.Add("GreenSt", 1.);
+	BaseA.Add("BlueSt", 100);
+	BaseM.Add("BlueSt", 1.);
+	
+
 	BaseRedStA = 0;
 	BaseRedStM = 1.0f;
 	BaseGreenStA = 0;
 	BaseGreenStM = 1.0f;
 	BaseBlueStA = 0;
 	BaseBlueStM = 1.0f;
+
 	Exp = 0;
 	lvl = 1;
 	LvlExp = 100;
-	//extra
-	FireStacks = 0;
-	ElectricStacks = 0.0f;
 	ResetStats();
 	UpdateAll();
-	//*/
+	
 }
 void ACommonAncestor::ResetStats()
 {
 	//*
+	RealA = BaseA;
+	RealM = BaseM;
+
 	TickHealthA = 0;
 	TickPHealthA = 0;
 	TickMHealthA = 0;
@@ -304,113 +375,23 @@ void ACommonAncestor::CalcEffects(float Delta)
 	Effects *iter=(Base->prev);
 	while (!iter->IsPermanent)
 	{
-		iter->EffectTime -= Delta;
+		iter->Apply(Delta);
 		UE_LOG(LogTemp, Warning, TEXT("EffectTime=%f"), iter->EffectTime);
 		iter = iter->prev;
 		if (iter->next->EffectTime < 0.0f)
 		{
 			DeleteEffect(iter->next);
 		}
-		else CalcOneEffect(iter->next,Delta);
 		
 	}
 	while (!iter->IsVisual)
 	{
-		CalcOneEffect(iter,Delta);
+		iter->Apply(Delta);
 		iter = iter->prev;
 	}
 	//*/
 }
-void ACommonAncestor::CalcOneEffect(Effects* iter,float Delta)
-{
-	//*
-	while(Delta>0.25f) {
-		Delta -= 0.25f;
-		UE_LOG(LogTemp, Warning, TEXT("IsSingle problems"));
-		if (!iter->IsSingle)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Absolutely shure updating"));
-			//health&&mana
-			TickHealthA += iter->TickHealthA;
-			TickHealthM *= iter->TickHealthM;
-			TickMHealthA += iter->TickMHealthA;
-			TickPHealthA += iter->TickPHealthA;
-			iter->MaxHealthA += iter->TickMaxHealthA;
-			iter->MaxHealthM *= iter->TickMaxHealthM;
-			iter->MaxManaA += iter->TickMaxManaA;
-			iter->MaxManaM *= iter->TickMaxManaM;
-			//attack
-			iter->AttackDamageA += iter->TickAttackDamageA;
-			iter->AttackDamageM *= iter->TickAttackDamageM;
-			iter->AttackSpeedA += iter->TickAttackSpeedA;
-			iter->AttackSpeedM *= iter->TickAttackSpeedM;
-			iter->PreAttack += iter->TickPreAttack;
-			iter->AttackRangeA += iter->TickAttackRangeA;
-			iter->MeleeAttackRangeA += iter->TickMeleeAttackRangeA;
-			iter->AttackRangeM *= iter->TickAttackRangeM;
-			//magic
-			iter->MagicPowerA += iter->TickMagicPowerA;
-			iter->MagicPowerM *= iter->TickMagicPowerM;
-			iter->MagicRangeA += iter->TickMagicRangeA;
-			iter->MagicRangeM *= iter->TickMagicRangeM;
-			iter->CastTimeA += iter->TickCastTimeA;
-			iter->CastTimeM *= iter->TickCastTimeM;
-			iter->CoolDownTimeA += iter->TickCoolDownTimeA;
-			iter->CoolDownTimeM *= iter->TickCoolDownTimeM;
-			//armor&&resist
-			iter->ArmorA += iter->TickArmorA;
-			iter->ArmorM *= iter->TickArmorM;
-			iter->NegateArmorA += iter->TickNegateArmorA;
-			iter->NegateArmorM *= iter->TickNegateArmorM;
-			iter->PhysicMultiplierM *= iter->TickPhysicMultiplierM;
-			iter->MagicMultiplierM *= iter->TickMagicMultiplierM;
-			//base stats
-			iter->RedStA += iter->TickRedStA;
-			iter->RedStM *= iter->TickRedStM;
-			iter->GreenStA += iter->TickGreenStA;
-			iter->GreenStM *= iter->TickGreenStM;
-			iter->BlueStA += iter->TickBlueStA;
-			iter->BlueStM *= iter->TickBlueStM;
-		}
-	}
-	UE_LOG(LogTemp, Warning, TEXT("problems?"));
-	MaxHealthA += iter->MaxHealthA;
-	MaxHealthM *= iter->MaxHealthM;
-	MaxManaA += iter->MaxManaA;
-	MaxManaM *= iter->MaxManaM;
 
-	AttackDamageA += iter->AttackDamageA;
-	AttackDamageM *= iter->AttackDamageM;
-	AttackSpeedA += iter->AttackSpeedA;
-	AttackSpeedM *= iter->AttackSpeedM;
-	AttackRangeA += iter->AttackRangeA;
-	MeleeAttackRangeA += iter->MeleeAttackRangeA;
-	AttackRangeM *= iter->AttackRangeM;
-
-	MagicPowerA += iter->MagicPowerA;
-	MagicPowerM *= iter->MagicPowerM;
-	MagicRangeA += iter->MagicRangeA;
-	MagicRangeM *= iter->MagicRangeM;
-	CastTimeA += iter->CastTimeA;
-	CastTimeM *= iter->CastTimeM;
-	CoolDownTimeA += iter->CoolDownTimeA;
-	CoolDownTimeM *= iter->CoolDownTimeM;
-
-	ArmorA += iter->ArmorA;
-	ArmorM *= iter->ArmorM;
-	NegateArmorA += iter->NegateArmorA;
-	NegateArmorM *= iter->NegateArmorM;
-	PhysicMultiplierM *= iter->PhysicMultiplierM;
-	MagicMultiplierM *= iter->MagicMultiplierM;
-
-	RedStA += iter->RedStA;
-	RedStM *= iter->RedStM;
-	GreenStA += iter->GreenStA;
-	GreenStM *= iter->GreenStM;
-	BlueStA += iter->BlueStA;
-	BlueStM *= iter->BlueStM;
-	//*/
-}
 
 void ACommonAncestor::DeleteEffect(Effects* iter)
 {
@@ -449,11 +430,11 @@ void  ACommonAncestor::DealDamage(ACommonAncestor *Victim, int Damage, DamageTyp
 		if (Victim->Health <= 0) Victim->Dead();
 		break;
 	case DamageType::Physical :
-		Victim->Health -= (Damage*(int)(100 * Victim->PhysicMultiplier)) / 100;
+		Victim->Health -= Damage*Victim->PhysicMultiplier;
 		Victim->UpdateHealthBar();//may be deleted
 		if (Victim->Health <= 0) Victim->Dead();
 	case DamageType::Magic:
-		Victim->Health -= (Damage*(int)(100 * Victim->MagicMultiplierM)) / 100;
+		Victim->Health -= Damage* Victim->MagicMultiplierM;
 		Victim->UpdateHealthBar();//may be deleted
 		if (Victim->Health <= 0) Victim->Dead();
 	}

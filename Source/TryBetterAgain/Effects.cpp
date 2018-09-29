@@ -9,14 +9,16 @@ Effects::Effects()
 	IsSingle = true;
 	EffectTime = 0.0f;
 	IsPositive = true;
-	NullifyStats();
-	//IntByTick["yolo"] = 0;
 }
 
 Effects::~Effects()
 {
 }
-void Effects::NullifyStats()
+void Effects::Apply(float Delta)
+{
+	if (!IsPermanent) EffectTime -= Delta;
+}
+/*void Effects::NullifyStats()
 {
 	//health and mana
 	 MaxHealthA = 0;
@@ -98,4 +100,4 @@ void Effects::NullifyStats()
 	 TickRedStM = 1.0f;
 	 TickGreenStM = 1.0f;
 	 TickBlueStM = 1.0f;
-}
+}*/

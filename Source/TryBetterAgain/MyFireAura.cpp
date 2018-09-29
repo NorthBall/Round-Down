@@ -56,7 +56,7 @@ void AMyFireAura::FireAuraPlay(UPrimitiveComponent* OverlappedComp, AActor* Othe
 	//UE_LOG(LogTemp, Warning, TEXT("Prooobleeems"));
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) &&(OtherActor!=Owner))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("FireAuraAttacks"));
+		/*UE_LOG(LogTemp, Warning, TEXT("FireAuraAttacks"));
 		AAI *victim = Cast<AAI>(OtherActor);
 		if (victim == nullptr) return;
 		if(Added.FindNode(victim)!=nullptr) return;
@@ -67,7 +67,7 @@ void AMyFireAura::FireAuraPlay(UPrimitiveComponent* OverlappedComp, AActor* Othe
 		AddEffect->IsSingle = false;
 		AddEffect->TickMHealthA = -10;
 		AddEffect->MagicMultiplierM = 2.0f;
-		victim->CalcOneEffect(AddEffect, 0.0f);
+		victim->CalcOneEffect(AddEffect, 0.0f);*/
 	}
 }
 void AMyFireAura::FireAuraDontPlay(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
