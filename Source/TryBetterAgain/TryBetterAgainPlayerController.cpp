@@ -132,18 +132,18 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 				bAttack = false;
 			}
 			//get distance from victim
-			if (is_gonna_attacking)	Distance = FVector::Dist2D(victim->GetActorLocation(), OursPawn->GetActorLocation());
+			if (is_gonna_attacking)	Distance = FVector::Dist(victim->GetActorLocation(), OursPawn->GetActorLocation())- victim->GetCapsuleComponent()->GetScaledCapsuleRadius();
 			//set path to victim
 			if (is_gonna_attacking && !bAttack) 
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Korsun is %f  iq"), Distance - OursPawn->AttackRange);
+				UE_LOG(LogTemp, Warning, TEXT("Korsun is %f  iq i %f tuposti"), Distance - OursPawn->AttackRange,Distance);
 				if (Distance > OursPawn->AttackRange)
 				{
 					//victim->SpawnMesh(destination);
 					if (!IsMoved||OursPawn->GetVelocity().Size2D()<MinSpeed)
 					{
 						UE_LOG(LogTemp, Warning, TEXT("Korsun wants move"));
-						NPK->MoveToActor(victim, OursPawn->AttackRange);
+						NPK->MoveToActor(victim, OursPawn->AttackRange,false,true);
 						IsMoved = true;
 					}
 				}
@@ -378,13 +378,13 @@ void ATryBetterAgainPlayerController::FireMeteor()
 			FHitResult Hit;
 			GetHitResultUnderCursor(ECC_Visibility, false, Hit);
 
-			float Range = (700 + OursPawn->MagicRangeA)*OursPawn->MagicRangeM;
+			float Range = (700 + OursPawn->RealA["MagicRange"])*OursPawn->RealM["MagicRange"];
 			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
 			{
 				OursPawn->FacedToEnemy(Hit.ImpactPoint);
 				State = Skill::FireMeteor;
 				DoStop();
-				WaitTime = (3.0f - OursPawn->CastTimeA)*OursPawn->CastTimeM;
+				WaitTime = (3.0f - OursPawn->RealA["CastTime"])*OursPawn->RealM["CastTime"];
 				FullTime = 0.0f;
 				Direct = Hit;
 			}
@@ -402,13 +402,13 @@ void ATryBetterAgainPlayerController::FireQueue()
 			FHitResult Hit;
 			GetHitResultUnderCursor(ECC_Visibility, false, Hit);
 
-			float Range = (700 + OursPawn->MagicRangeA)*OursPawn->MagicRangeM;
+			float Range = (700 + OursPawn->RealA["MagicRange"])*OursPawn->RealM["MagicRange"];
 			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
 			{
 				OursPawn->FacedToEnemy(Hit.ImpactPoint);
 				State = Skill::FireQueue;
 				DoStop();
-				WaitTime = (2.0f - OursPawn->CastTimeA)*OursPawn->CastTimeM;
+				WaitTime = (2.0f - OursPawn->RealA["CastTime"])*OursPawn->RealM["CastTime"];
 				FullTime = 0.0f;
 				Direct = Hit;
 			}
@@ -434,12 +434,12 @@ void ATryBetterAgainPlayerController::FireLance()
 			FHitResult Hit;
 			GetHitResultUnderCursor(ECC_Visibility, false, Hit);
 
-			float Range = (700 + OursPawn->MagicRangeA)*OursPawn->MagicRangeM;
+			float Range = (700 + OursPawn->RealA["MagicRange"])*OursPawn->RealM["MagicRange"];
 			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
 			{
 				State = Skill::FireLance;
 				DoStop();
-				WaitTime = (1.0f-OursPawn->CastTimeA)*OursPawn->CastTimeM;
+				WaitTime = (1.0f-OursPawn->RealA["CastTime"])*OursPawn->RealM["CastTime"];
 				FullTime = 0.0f; 
 				Direct = Hit;
 			}
@@ -470,7 +470,7 @@ float ATryBetterAgainPlayerController::DoSkill(Skill State,float Time)
 		break;
 	case Skill::FireQueue:
 		OursPawn->FireQueue(Direct);
-		return mini((2.0f - OursPawn->CastTimeA)*OursPawn->CastTimeM, 5.0f - FullTime);
+		return mini((2.0f - OursPawn->RealA["CastTime"])*OursPawn->RealM["CastTime"], 5.0f - FullTime);
 	case Skill::FireLance:
 		OursPawn->FireLance(Direct);
 		break;

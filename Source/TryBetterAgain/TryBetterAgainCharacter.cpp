@@ -14,10 +14,11 @@
 #include "MyAIController.h"
 #include "AI.h"
 #include "Effects.h"
-#include "FireLance.h"
-#include "FirePrimitive.h"
-#include "FireMeteor.h"
-#include "MyFireAura.h"
+#include "Effects/FireFireS.h"
+#include "Skills/FireLance.h"
+#include "Skills/FirePrimitive.h"
+#include "Skills/FireMeteor.h"
+#include "Skills/MyFireAura.h"
 #include "TryBetterAgainPlayerController.h"
 #define maxi(a,b) ((a)<(b)?(b):(a))
 #define maxskills 10
@@ -145,17 +146,28 @@ Effects* ATryBetterAgainCharacter::FireFire(int32 i)
 		BuffEffect->SpecInt = mini(i, SkillLevel[(int32)Skill::FireFire - (int32)Skill::Fire_Start]);
 		BuffEffect->AttackSpeedA = 10 * BuffEffect->SpecInt;
 		BuffEffect->CastTimeM = 100.0 / (100.0 + 5 * BuffEffect->SpecInt);
-		BuffEffect->CoolDownTimeM = 100.0 / (100.0 + 4 * BuffEffect->SpecInt);
+		BuffEffect->RealM["CoolDownTime"] = 100.0 / (100.0 + 4 * BuffEffect->SpecInt);
 	}
 	else
 	{
 		BuffEffect->SpecInt = mini(BuffEffect->SpecInt + i, SkillLevel[(int32)Skill::FireFire - (int32)Skill::Fire_Start]);
 		BuffEffect->AttackSpeedA = 10 * BuffEffect->SpecInt;
 		BuffEffect->CastTimeM = 100.0 / (100.0 + 5 * BuffEffect->SpecInt);
-		BuffEffect->CoolDownTimeM = 100.0 / (100.0 + 4 * BuffEffect->SpecInt);
+		BuffEffect->RealM["CoolDownTime"] = 100.0 / (100.0 + 4 * BuffEffect->SpecInt);
 		BuffEffect->EffectTime = 2.0f;
 	}
 	*/
+	if (BuffEffect == nullptr)
+	{
+		BuffEffect = new FireFireS;
+		BuffEffect->Target = this;
+	}
+	else
+	{
+		FireFireS* Buff2 = (FireFireS*)(BuffEffect);
+		Buff2->AddEffect();
+		Buff2->EffectTime = 2.0f;
+	}
 	return BuffEffect;
 }
 Effects* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
@@ -180,9 +192,12 @@ Effects* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
 Effects* ATryBetterAgainCharacter::FireAfterBurn(ACommonAncestor *Victim, int32 Damage)
 {
 	int32 time = 2;	
-	Effects* BurnEffect = Victim->AddNewEffect(false, false, false, NameEffects::FireAfterBurnE, (float)time);
+	Effects* BurnEffect;
+	BurnEffect = new Effects;
+	Victim->AddNewEffect(false,BurnEffect);
+	//= Victim->AddNewEffect(false, false, false, NameEffects::FireAfterBurnE, (float)time);
 	if (BurnEffect != nullptr) {
-		BurnEffect->IsSingle = false;
+		//BurnEffect->IsSingle = false;
 //		BurnEffect->TickMHealthA = -(Damage*SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start]) / (10 * time * 4);
 	}
  return BurnEffect;
@@ -195,11 +210,11 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 	{
 
 		UE_LOG(LogTemp, Warning, TEXT("vizov"));
-		if (FVector::Dist2D(Hit.ImpactPoint, GetActorLocation())<(500 + MagicRangeA)*MagicRangeM)
+		if (FVector::Dist2D(Hit.ImpactPoint, GetActorLocation())<(500 + RealA["MagicRange"])*RealM["MagicRange"])
 		{
 			bool IsLegal = false;
 			int32 i, n;
-			float CollisionRange = (150 + MagicRangeA)*MagicRangeM;
+			float CollisionRange = (150 + RealA["MagicRange"])*RealM["MagicRange"];
 			TArray<FOverlapResult> All;
 			AAI *Target;
 			Effects *Legalization;
@@ -228,7 +243,7 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 				Effects* OursEffect;
 				Effects* BurnEffect;
 				int32 Damage;
-				float Range = (300 + MagicRangeA)*MagicRangeM;
+				float Range = (300 + RealA["MagicRange"])*RealM["MagicRange"];
 
 				GetWorld()->OverlapMultiByObjectType(All, GetActorLocation(), FQuat(), ECollisionChannel::ECC_Pawn, FCollisionShape::MakeSphere(Range));
 				n = All.Num();
@@ -239,7 +254,7 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 					if (Target != nullptr)
 					{
 
-						Damage= (80*SkillLevel[(int32)Skill::FireBlink-(int32)Skill::Fire_Start] + MagicPowerA)*MagicPowerM*Target->MagicMultiplierM;
+						Damage= (80*SkillLevel[(int32)Skill::FireBlink-(int32)Skill::Fire_Start] + RealA["MagicPower"])*RealM["MagicPower"]*Target->RealA["MagicMultiplier"];
 						Target->Health -= Damage;
 						OursEffect=FireAfterBurn(Target, Damage);
 						/*OursEffect = (Target->AddNewEffect(false, false, false, NameEffects::FireBlinkE, 4.0f));
@@ -263,7 +278,7 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 
 			}
 		}
-		SkillCDTimes[SkillNum] = (5.0f - CoolDownTimeA) / CoolDownTimeM;
+		SkillCDTimes[SkillNum] = (5.0f - RealA["CoolDownTime"]) / RealM["CoolDownTime"];
 			}
 			
 }
@@ -288,7 +303,7 @@ void ATryBetterAgainCharacter::FireMeteor(FHitResult Hit)
 	//SpawnMesh(location);
 	Meteor->Hero = this;
 	FireFire();
-	SkillCDTimes[SkillNum] = (5.0f - CoolDownTimeA) / CoolDownTimeM;
+	SkillCDTimes[SkillNum] = (5.0f - RealA["CoolDownTime"]) / RealM["CoolDownTime"];
 
 }
 void ATryBetterAgainCharacter::FireQueue(FHitResult Hit)
@@ -307,7 +322,7 @@ void ATryBetterAgainCharacter::FireQueue(FHitResult Hit)
 	}
 	FireBall->owner = this;
 	FireFire();
-	SkillCDTimes[SkillNum] = (5.0f - CoolDownTimeA) / CoolDownTimeM;
+	SkillCDTimes[SkillNum] = (5.0f - RealA["CoolDownTime"]) / RealM["CoolDownTime"];
 }
 void ATryBetterAgainCharacter::FireLance(FHitResult Hit)
 {
@@ -326,7 +341,7 @@ void ATryBetterAgainCharacter::FireLance(FHitResult Hit)
 		}
 		Lance->owner = this;
 		FireFire();
-		SkillCDTimes[SkillNum] = (0.5f - CoolDownTimeA )/ CoolDownTimeM;
+		SkillCDTimes[SkillNum] = (0.5f - RealA["CoolDownTime"] )/ RealM["CoolDownTime"];
 	
 }
 void ATryBetterAgainCharacter::FireAura()
@@ -341,12 +356,12 @@ void ATryBetterAgainCharacter::FireAura()
 		FireCollisionAura = GetWorld()->SpawnActor<AMyFireAura>(AMyFireAura::StaticClass(),GetActorLocation(),FRotator::ZeroRotator);
 		if (FireCollisionAura == nullptr) return;
 		FireFire();
-		FireEffectAura = AddNewEffect(true, true, true, NameEffects::FireAuraS);
+/*		FireEffectAura = AddNewEffect(true, true, true, NameEffects::FireAuraS);
 		FireCollisionAura->Aura->AttachToComponent(GetCapsuleComponent(),FAttachmentTransformRules::KeepWorldTransform);
-		FireCollisionAura->Aura->SetSphereRadius(150.0f + MagicRangeA, true);
+		FireCollisionAura->Aura->SetSphereRadius(150.0f + RealA["MagicRange"], true);
 		FireCollisionAura->Owner = this;
 		FireCollisionAura->Duration = 5.0f;
-		SkillCDTimes[SkillNum] = (7.0f - CoolDownTimeA) / CoolDownTimeM;
-
+		SkillCDTimes[SkillNum] = (7.0f - RealA["CoolDownTime"]) / RealM["CoolDownTime"];
+*/
 	}
 }

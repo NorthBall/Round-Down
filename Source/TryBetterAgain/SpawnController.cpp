@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SpawnController.h"
-#include "TableBots.h"
+#include "Bots/TableBots.h"
 
 void ASpawnController::SpawnBots()
 {

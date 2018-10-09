@@ -20,13 +20,15 @@ ACommonAncestor::ACommonAncestor()
 	WeapSlots.AddZeroed(maxweapons);
 	SkillCDTimes.AddZeroed(maxskills);
 	SkillLevel.AddZeroed(maxskills);
-	Base = new Effects;
-	Base->next = Base;
-	Base->prev = Base;
-	Base->IsPermanent = true;
-	Base->IsVisual = true;
-	LastPositive = Base;
-	LastPermanent = Base;
+	BaseInfluence = new Effects;
+	BaseInfluence->next = BaseInfluence;
+	BaseInfluence->prev = BaseInfluence;
+	BaseTemporal = new Effects;
+	BaseTemporal->next = BaseTemporal;
+	BaseTemporal->prev = BaseTemporal;
+	BasePermanent = new Effects;
+	BasePermanent->next = BasePermanent;
+	BasePermanent->prev = BasePermanent;
 	//preset stats
 
 	InitStats();
@@ -38,7 +40,7 @@ ACommonAncestor::ACommonAncestor()
 void ACommonAncestor::BeginPlay()
 {
 	Super::BeginPlay();
-	if (Base == nullptr || LastPermanent == nullptr || LastPositive == nullptr) Destroy();
+	if (BaseInfluence == nullptr || BaseTemporal == nullptr || BasePermanent == nullptr) Destroy();
 	//if (HaveWeap[0]==false) UE_LOG(LogTemp, Warning, TEXT("NotHavingWeap"));
 
 	//InitStats();
@@ -55,7 +57,7 @@ void ACommonAncestor::Tick(float DeltaTime)
 }
 void ACommonAncestor::TickExample(float DeltaTime)
 {
-	EffectiveCD = DeltaTime / CoolDownTimeM;
+	EffectiveCD = DeltaTime / RealM["CoolDownTime"];
 	for (i = 0; i < maxskills; i++)
 	{
 		SkillCDTimes[i] = maxi(0, SkillCDTimes[i] - EffectiveCD);
@@ -66,7 +68,6 @@ void ACommonAncestor::TickExample(float DeltaTime)
 		ResetStats();
 		CalcEffects(TimeToUpdate);
 		TimeToUpdate -= 0.25f;
-		//UE_LOG(LogTemp, Warning, TEXT("TimeToUpdatebug=%f"), TimeToUpdate);
 		UpdateAll();
 		UpdateHealthBar();
 	}
@@ -90,15 +91,13 @@ void ACommonAncestor::DoAttack(ACommonAncestor *Victim)
 void ACommonAncestor::UpdateAll()
 {
 
-	//Health += RealA["TickHealth"] * RealM["HealHealth"];
-	//
-	//if (Health <= 0) Dead();
-	//if (Health > MaxHealth) Health = MaxHealth;
-	//Mana += RealA["TickMana"] * RealM["HealMana"];
+	Health += RealA["TickHealth"] * RealM["HealHealth"];
+	if (Health <= 0) Dead();
+	MaxHealth = RealA["MaxHealth"] * RealM["MaxHealth"];
+	if (Health > MaxHealth) Health = MaxHealth;
 
-	//if (Mana <= 0) Mana = 0;
-	//if (Mana > MaxMana) Mana = MaxMana;
-	MaxMana = (MaxManaA*(int)(MaxManaM * 100)) / 100;
+	Mana += RealA["TickMana"] * RealM["HealMana"];
+	MaxMana = RealA["MaxMana"] * RealM["MaxMana"];
 	if (Mana <= 0) Mana=0;
 	if (Mana > MaxMana) Mana = MaxMana;
 
@@ -106,7 +105,6 @@ void ACommonAncestor::UpdateAll()
 	AttackSpeed = RealA["AttackSpeed"] * RealM["AttackSpeed"];
 	AttackTime = 150.0f / AttackSpeed;
 	PunchRate = (AttackSpeed*PunchTime) / (150.0f);
-	//if (!HaveWeap[0]) PunchRate *= 1.2f;
 	DamagePerSecond = AttackDamage * (AttackSpeed / 150.f);
 	if (ISRange)
 		AttackRange = RealA["AttackRange"] * RealM["AttackRange"];
@@ -120,37 +118,6 @@ void ACommonAncestor::UpdateAll()
 		PhysicMultiplier = (100.0f) / (100 + Armor)*RealM["PhysicMultiplier"];
 	else
 		PhysicMultiplier = ((100 - Armor) / 100.0f) * RealM["PhysicMultiplier"];
-
-	AttackDamage = (AttackDamageA*(int)(AttackDamageM * 100)) / 100;
-	AttackSpeed = (AttackSpeedA*(int)(AttackSpeedM * 100)) / 100;
-	AttackTime = 150.0f / AttackSpeed;
-	PunchRate = (AttackSpeed*PunchTime) / (150.0f);
-	if (!HaveWeap[0]) PunchRate*=1.2f;
-	DamagePerSecond = AttackDamage*(AttackSpeed / 150.f);
-	if (ISRange)
-		AttackRange = (AttackRangeA*(int)(AttackRangeM * 100)) / 100;
-	else
-		AttackRange = MeleeAttackRangeA;
-	RedSt = (RedStA*(int)(RedStM * 100)) / 100;
-	GreenSt = (GreenStA*(int)(GreenStM * 100)) / 100;
-	BlueSt = (BlueStA*(int)(BlueStM * 100)) / 100;
-	Armor = (ArmorA*(int)(ArmorM * 100)) / 100 - (NegateArmorA*(int)(NegateArmorM * 100)) / 100;
-	if (Armor > 0.0f)
-	{
-		PhysicMultiplier = (100.0f) / (100 + Armor)*PhysicMultiplierM;
-	}
-	else
-	{
-		PhysicMultiplier = ((100 - Armor) / 100.0f) * PhysicMultiplierM;
-	}
-	Health += TickHealthA;
-	Health += TickPHealthA*PhysicMultiplier;
-	Health += TickMHealthA*MagicMultiplierM;
-	Health *= TickHealthM;
-	MaxHealth = (MaxHealthA*(int)(MaxHealthM * 100)) / 100;
-	if (Health <= 0) Dead();
-	if (Health > MaxHealth) Health = MaxHealth;
-	//UpdateHealthBar();
 }
 
 
@@ -190,11 +157,11 @@ void ACommonAncestor::InitStats()
 	BaseA.Add("MaxMana", 100);
 	BaseM.Add("MaxMana", 1.);
 
-	BaseMaxHealthA = 100;
+	/*BaseMaxHealthA = 100;
 	BaseMaxHealthM = 1.0f;
 	BaseMaxManaA = 100;
 	BaseMaxManaM = 1.0f;
-
+	*/
 	BaseA.Add("MaxAttackRange", 500);
 	BaseM.Add("MaxAttackRange", 1.);
 	BaseA.Add("AttackDamage", 100);
@@ -205,7 +172,7 @@ void ACommonAncestor::InitStats()
 	ISRange = false;
 	BaseA.Add("MeleeAttackRange", 150);
 
-
+	/*
 	BaseAttackDamageA = 10;
 	BaseAttackDamageM = 1.0f;
 	BaseAttackSpeedA = 100;
@@ -213,7 +180,7 @@ void ACommonAncestor::InitStats()
 	BaseAttackRangeA = 500;
 	BaseAttackRangeM = 1.0f;
 	BaseMeleeAttackRangeA = 150;
-
+	*/
 	BaseA.Add("MagicPower", 0);
 	BaseM.Add("MagicPower", 1.);
 	BaseA.Add("MagicRange", 0);
@@ -222,7 +189,7 @@ void ACommonAncestor::InitStats()
 	BaseM.Add("CastTime", 1.);
 	BaseA.Add("CoolDownTime", 0);
 	BaseM.Add("CoolDownTime", 1.);
-
+/*
 	BaseMagicPowerA = 0;
 	BaseMagicPowerM = 1.0f;
 	BaseMagicRangeA = 0;
@@ -231,21 +198,21 @@ void ACommonAncestor::InitStats()
 	BaseCastTimeM = 1.0f;
 	BaseCoolDownTimeA = 0;
 	BaseCoolDownTimeM = 1.0f;
-
+	*/
 	BaseA.Add("Armor", 100);
 	BaseM.Add("Armor", 1.);
 	BaseA.Add("NegateArmor", 0);
 	BaseM.Add("NegateArmor", 1.);
 	BaseM.Add("PhysicMultiplier", 1.);
 	BaseM.Add("MagicMultiplier", 1.);
-
+	/*
 	BaseArmorA = 0;
 	BaseArmorM = 1.0f;
 	BaseNegateArmorA = 0;
 	BaseNegateArmorM = 1.0f;
 	BasePhysicMultiplierM = 1.0f;
 	BaseMagicMultiplierM = 1.0f;
-
+	*/
 	BaseA.Add("RedSt", 100);
 	BaseM.Add("RedSt", 1.);
 	BaseA.Add("GreenSt", 100);
@@ -253,14 +220,14 @@ void ACommonAncestor::InitStats()
 	BaseA.Add("BlueSt", 100);
 	BaseM.Add("BlueSt", 1.);
 	
-
+/*
 	BaseRedStA = 0;
 	BaseRedStM = 1.0f;
 	BaseGreenStA = 0;
 	BaseGreenStM = 1.0f;
 	BaseBlueStA = 0;
 	BaseBlueStM = 1.0f;
-
+	*/
 	Exp = 0;
 	lvl = 1;
 	LvlExp = 100;
@@ -270,53 +237,67 @@ void ACommonAncestor::InitStats()
 }
 void ACommonAncestor::ResetStats()
 {
-	//*
 	RealA = BaseA;
 	RealM = BaseM;
-
-	TickHealthA = 0;
-	TickPHealthA = 0;
-	TickMHealthA = 0;
-	TickHealthM = 1.0f;
-	MaxHealthA = BaseMaxHealthA;
-	MaxHealthM = BaseMaxHealthM;
-	MaxManaA = BaseMaxManaA;
-	MaxManaM = BaseMaxManaM;
-
-	AttackDamageA = BaseAttackDamageA;
-	AttackDamageM = BaseAttackDamageM;
-	AttackSpeedA = BaseAttackSpeedA;
-	AttackSpeedM = BaseAttackSpeedM;
-	AttackRangeA = BaseAttackRangeA;
-	MeleeAttackRangeA = BaseMeleeAttackRangeA;
-	AttackRangeM = BaseAttackRangeM;
-
-	MagicPowerA = BaseMagicPowerA;
-	MagicPowerM = BaseMagicPowerM;
-	MagicRangeA = BaseMagicRangeA;
-	MagicRangeM = BaseMagicRangeM;
-	CastTimeA = BaseCastTimeA;
-	CastTimeM = BaseCastTimeM;
-	CoolDownTimeA = BaseCoolDownTimeA;
-	CoolDownTimeM = BaseCoolDownTimeM;
-
-	ArmorA = BaseArmorA;
-	ArmorM = BaseArmorM;
-	NegateArmorA = BaseNegateArmorA;
-	NegateArmorM = BaseNegateArmorM;
-	PhysicMultiplierM = BasePhysicMultiplierM;
-	MagicMultiplierM = BaseMagicMultiplierM;
-
-	RedStA = BaseRedStA;
-	RedStM = BaseRedStM;
-	GreenStA = BaseGreenStA;
-	GreenStM = BaseGreenStM;
-	BlueStA = BaseBlueStA;
-	BlueStM = BaseBlueStM;//*/
+	
 }
-Effects* ACommonAncestor::AddNewEffect(bool Visual,bool Permanent, bool Positive ,NameEffects Number, float Time )
+void ACommonAncestor::AddNewEffect(bool Influent, Effects* iter )
 {
-	//*
+	if (Influent)
+	{
+		if (iter->IsPositive)
+		{
+			iter->next = BaseInfluence->next;
+			iter->prev = BaseInfluence;
+			BaseInfluence->next->prev = iter;
+			BaseInfluence->next = iter;
+		}
+		else
+		{
+			iter->next = BaseInfluence;
+			iter->prev = BaseInfluence->prev;
+			BaseInfluence->prev->next = iter;
+			BaseInfluence->prev = iter;
+		}
+	}
+	else
+	{
+		if (iter->IsPermanent)
+		{
+			if (iter->IsPositive)
+			{
+				iter->next = BasePermanent->next;
+				iter->prev = BasePermanent;
+				BasePermanent->next->prev = iter;
+				BasePermanent->next = iter;
+			}
+			else
+			{
+				iter->next = BasePermanent;
+				iter->prev = BasePermanent->prev;
+				BasePermanent->prev->next = iter;
+				BasePermanent->prev = iter;
+			}
+		}
+		else
+		{
+			if (iter->IsPositive)
+			{
+				iter->next = BaseTemporal->next;
+				iter->prev = BaseTemporal;
+				BaseTemporal->next->prev = iter;
+				BaseTemporal->next = iter;
+			}
+			else
+			{
+				iter->next = BaseTemporal;
+				iter->prev = BaseTemporal->prev;
+				BaseTemporal->prev->next = iter;
+				BaseTemporal->prev = iter;
+			}
+		}
+	}
+	/*
 	Effects* NewEff;
 	NewEff = new Effects;
 	if (NewEff != nullptr)
@@ -366,14 +347,41 @@ Effects* ACommonAncestor::AddNewEffect(bool Visual,bool Permanent, bool Positive
 		}
 	}
 	else return nullptr;
-	return NewEff;//*/
+	return NewEff;*/
 	//return nullptr;
 }
 void ACommonAncestor::CalcEffects(float Delta)
 {
 	//*
-	Effects *iter=(Base->prev);
-	while (!iter->IsPermanent)
+	Effects *iter=BaseInfluence->next;
+	while (iter != BaseInfluence)
+	{
+		iter->Apply(Delta);
+		UE_LOG(LogTemp, Warning, TEXT("EffectTime=%f"), iter->EffectTime);
+		iter = iter->next;
+		if (iter->prev->EffectTime < 0.0f)
+		{
+			DeleteEffect(iter->prev);
+		}
+	}
+	iter = BasePermanent->next;
+	while (iter != BasePermanent)
+	{
+		iter->Apply(Delta);
+		iter = iter->next;
+	}
+	iter = BaseTemporal->next;
+	while (iter != BaseTemporal)
+	{
+		iter->Apply(Delta);
+		UE_LOG(LogTemp, Warning, TEXT("EffectTime=%f"), iter->EffectTime);
+		iter = iter->next;
+		if (iter->prev->EffectTime < 0.0f)
+		{
+			DeleteEffect(iter->prev);
+		}
+	}
+	/*while (!iter->IsPermanent)
 	{
 		iter->Apply(Delta);
 		UE_LOG(LogTemp, Warning, TEXT("EffectTime=%f"), iter->EffectTime);
@@ -395,7 +403,10 @@ void ACommonAncestor::CalcEffects(float Delta)
 
 void ACommonAncestor::DeleteEffect(Effects* iter)
 {
-	//*
+	iter->prev->next = iter->next;
+	iter->next->prev = iter->prev;
+	delete iter;
+	/*
 	iter->prev->next = iter->next;
 	iter->next->prev = iter->prev;
 	if (iter == LastPermanent)
@@ -409,9 +420,31 @@ void ACommonAncestor::DeleteEffect(Effects* iter)
 	delete iter;
 	//*/
 }
-Effects* ACommonAncestor::FindName(NameEffects Number)
+Effects* ACommonAncestor::FindName(enum NameEffects Number, bool OnlyInfluence)
 {
-	//*
+	Effects* iter;
+	iter=BaseInfluence->next;
+	while (iter != BaseInfluence)
+	{
+		if (iter->Name == Number) return iter;
+		iter = iter->next;
+	}
+	if (!OnlyInfluence)
+	{
+		iter = BasePermanent->next;
+		while (iter != BasePermanent)
+		{
+			if (iter->Name == Number) return iter;
+			iter = iter->next;
+		}
+		iter = BaseTemporal->next;
+		while (iter != BaseTemporal)
+		{
+			if (iter->Name == Number) return iter;
+			iter = iter->next;
+		}
+	}
+	/*
 	Effects* iter;
 	iter = Base->prev;
 	while (iter != Base)
@@ -434,7 +467,7 @@ void  ACommonAncestor::DealDamage(ACommonAncestor *Victim, int Damage, DamageTyp
 		Victim->UpdateHealthBar();//may be deleted
 		if (Victim->Health <= 0) Victim->Dead();
 	case DamageType::Magic:
-		Victim->Health -= Damage* Victim->MagicMultiplierM;
+		Victim->Health -= Damage* Victim->RealM["MagicMultiplier"];
 		Victim->UpdateHealthBar();//may be deleted
 		if (Victim->Health <= 0) Victim->Dead();
 	}
