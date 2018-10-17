@@ -1,12 +1,12 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Effects.h"
-//#include "FireAfterBurnE.generated.h"
-//UCLASS()
-class TRYBETTERAGAIN_API FireAfterBurnE : public Effects
+#include "FireAfterBurnE.generated.h"
+UCLASS()
+class TRYBETTERAGAIN_API UFireAfterBurnE : public UEffects
 {
-	//GENERATED_BODY()
+	GENERATED_BODY()
 	int SingleDamage;
-	FireAfterBurnE() ;
+	UFireAfterBurnE() ;
 	virtual void Apply(float Delta) override;
 };

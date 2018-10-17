@@ -1,10 +1,10 @@
 #include "FireBlinkE.h"
 
-FireBlinkE::FireBlinkE()
+UFireBlinkE::UFireBlinkE()
 {
 
 }
-void FireBlinkE::Apply(float Delta)
+void UFireBlinkE::Apply(float Delta)
 {
 
 }

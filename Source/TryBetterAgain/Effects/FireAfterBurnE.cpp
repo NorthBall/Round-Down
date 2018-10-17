@@ -1,9 +1,9 @@
 #include "FireAfterBurnE.h"
-FireAfterBurnE::FireAfterBurnE()
+UFireAfterBurnE::UFireAfterBurnE()
 {
 	IsPermanent = false;
 }
-void FireAfterBurnE::Apply(float Delta)
+void UFireAfterBurnE::Apply(float Delta)
 {
 
 }

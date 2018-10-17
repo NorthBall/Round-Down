@@ -1,12 +1,12 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Effects.h"
-//#include "FireAfterBurnE.generated.h"
-//UCLASS()
-class TRYBETTERAGAIN_API FireBlinkE : public Effects
+#include "FireBlinkE.generated.h"
+UCLASS()
+class TRYBETTERAGAIN_API UFireBlinkE : public UEffects
 {
-	//GENERATED_BODY()
+	GENERATED_BODY()
 	int SingleDamage;
-	FireBlinkE();
+	UFireBlinkE();
 	virtual void Apply(float Delta) override;
 };

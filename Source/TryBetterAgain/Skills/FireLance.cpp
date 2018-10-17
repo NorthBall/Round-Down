@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+#pragma once
 #include "FireLance.h"
 #include "Effects.h"
+#include "Effects/FireBurnE.h"
 #include "Components/SphereComponent.h"
 #include "TryBetterAgainCharacter.h"
 
@@ -39,8 +40,8 @@ void AFireLance::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimit
 		Hero->FireBurn(victim);
 		int32 i, n;
 		AAI* Target;
-		Effects* OursEffect;
-		Effects* BurnEffect;
+		UEffects* OursEffect;
+		UEffects* BurnEffect;
 
 		float Range= (150 + Hero->RealA["MagicRange"])*Hero->RealM["MagicRange"];
 		TArray<FOverlapResult> All;

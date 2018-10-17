@@ -61,7 +61,7 @@ void AMyFireAura::FireAuraPlay(UPrimitiveComponent* OverlappedComp, AActor* Othe
 		if (victim == nullptr) return;
 		if(Added.FindNode(victim)!=nullptr) return;
 		UE_LOG(LogTemp, Warning, TEXT("CastToVictim"));
-		Effects *AddEffect = victim->AddNewEffect(false, true, false, NameEffects::FireAuraE);
+		UEffects *AddEffect = victim->AddNewEffect(false, true, false, NameEffects::FireAuraE);
 		if (AddEffect == nullptr) return;
 		Added.AddTail(victim);
 		AddEffect->IsSingle = false;
@@ -76,7 +76,7 @@ void AMyFireAura::FireAuraDontPlay(UPrimitiveComponent* OverlappedComp, AActor* 
 	{
 		AAI *victim = Cast<AAI>(OtherActor);
 		if (victim == nullptr) return;
-		Effects *DeletingEffect = victim->FindName(NameEffects::FireAuraE);
+		UEffects *DeletingEffect = victim->FindName(NameEffects::FireAuraE);
 		if (DeletingEffect == nullptr) return;
 		Added.RemoveNode(victim);
 		victim->DeleteEffect(DeletingEffect);

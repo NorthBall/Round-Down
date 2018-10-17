@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+#pragma once
 #include "FireMeteor.h"
 #include "TryBetterAgainCharacter.h"
 #include "Effects.h"
+#include "Effects/FireBurnE.h"
 
 
 // Sets default values
@@ -37,8 +38,8 @@ void AFireMeteor::Tick(float DeltaTime)
 		int32 Damage;
 		int32 i, n;
 		AAI* Target;
-		Effects* OursEffect;
-		Effects* BurnEffect;
+		UEffects* OursEffect;
+		UEffects* BurnEffect;
 		float Range = (150 + Hero->RealA["MagicRange"])*Hero->RealM["MagicRange"];
 		TArray<FOverlapResult> All;
 		GetWorld()->OverlapMultiByObjectType(All, GetActorLocation(), FQuat(), ECollisionChannel::ECC_Pawn, FCollisionShape::MakeSphere(Range));

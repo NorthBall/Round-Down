@@ -14,6 +14,6 @@ ATryBetterAgainGameMode::ATryBetterAgainGameMode()
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/TopDownCPP/Blueprints/TopDownCharacter"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
-		//DefaultPawnClass = PlayerPawnBPClass.Class;
+		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 }

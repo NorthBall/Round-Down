@@ -15,6 +15,7 @@
 #include "AI.h"
 #include "Effects.h"
 #include "Effects/FireFireS.h"
+#include "Effects/FireBurnE.h"
 #include "Skills/FireLance.h"
 #include "Skills/FirePrimitive.h"
 #include "Skills/FireMeteor.h"
@@ -136,44 +137,30 @@ void ATryBetterAgainCharacter::DoAttack(ACommonAncestor* Victim)
 	FireFire();
 	
 }
-Effects* ATryBetterAgainCharacter::FireFire(int32 i)
+UFireFireS* ATryBetterAgainCharacter::FireFire(int32 i)
 {
-	Effects* BuffEffect = FindName(NameEffects::FireFireS);
-	/*if (BuffEffect == nullptr)
+	UEffects* BuffEffect = FindName(NameEffects::FireFireS);
+	UFireFireS* RightTypeBuff;
+	RightTypeBuff = Cast<UFireFireS>(BuffEffect);
+	if (RightTypeBuff == nullptr)
 	{
-		BuffEffect = AddNewEffect(false, false, true, NameEffects::FireFireS, 2.0f);
-		BuffEffect->IsSingle = true;
-		BuffEffect->SpecInt = mini(i, SkillLevel[(int32)Skill::FireFire - (int32)Skill::Fire_Start]);
-		BuffEffect->AttackSpeedA = 10 * BuffEffect->SpecInt;
-		BuffEffect->CastTimeM = 100.0 / (100.0 + 5 * BuffEffect->SpecInt);
-		BuffEffect->RealM["CoolDownTime"] = 100.0 / (100.0 + 4 * BuffEffect->SpecInt);
+		RightTypeBuff = NewObject<UFireFireS>(this, FireSBP);
+		AddNewEffect(false, RightTypeBuff);
+		RightTypeBuff->Target = this;
+		RightTypeBuff->IncrementEffect();
 	}
 	else
 	{
-		BuffEffect->SpecInt = mini(BuffEffect->SpecInt + i, SkillLevel[(int32)Skill::FireFire - (int32)Skill::Fire_Start]);
-		BuffEffect->AttackSpeedA = 10 * BuffEffect->SpecInt;
-		BuffEffect->CastTimeM = 100.0 / (100.0 + 5 * BuffEffect->SpecInt);
-		BuffEffect->RealM["CoolDownTime"] = 100.0 / (100.0 + 4 * BuffEffect->SpecInt);
-		BuffEffect->EffectTime = 2.0f;
+		
+		RightTypeBuff->IncrementEffect();
 	}
-	*/
-	if (BuffEffect == nullptr)
-	{
-		BuffEffect = new FireFireS;
-		BuffEffect->Target = this;
-	}
-	else
-	{
-		FireFireS* Buff2 = (FireFireS*)(BuffEffect);
-		Buff2->AddEffect();
-		Buff2->EffectTime = 2.0f;
-	}
-	return BuffEffect;
+	return RightTypeBuff;
 }
-Effects* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
+UFireBurnE* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
 {
 
-	Effects* BurnEffect = Victim->FindName(NameEffects::FireBurnE);
+	UEffects* BurnEffect = Victim->FindName(NameEffects::FireBurnE);
+	UFireBurnE* RTEffect = Cast<UFireBurnE>(BurnEffect);
 	/*if (BurnEffect == nullptr)
 	{
 		BurnEffect = Victim->AddNewEffect(false, false, false, NameEffects::FireBurnE, 2.0f);
@@ -187,14 +174,25 @@ Effects* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
 		BurnEffect->TickMHealthA = -BurnEffect->SpecInt;
 		BurnEffect->EffectTime = 2.0f;
 	}*/
-	return BurnEffect;
+	if (RTEffect == nullptr)
+	{
+		RTEffect = NewObject<UFireBurnE>();
+		Victim->AddNewEffect(false, RTEffect);
+		RTEffect->Target = Victim;
+		RTEffect->EffectTime = 2.0f;
+	}
+	else
+	{
+		RTEffect->IncrementEffect();
+	}
+	return RTEffect;
 }
-Effects* ATryBetterAgainCharacter::FireAfterBurn(ACommonAncestor *Victim, int32 Damage)
+UEffects* ATryBetterAgainCharacter::FireAfterBurn(ACommonAncestor *Victim, int32 Damage)
 {
 	int32 time = 2;	
-	Effects* BurnEffect;
-	BurnEffect = new Effects;
-	Victim->AddNewEffect(false,BurnEffect);
+	UEffects* BurnEffect;
+	BurnEffect = NewObject<UEffects>();
+	//Victim->AddNewEffect(false,BurnEffect);
 	//= Victim->AddNewEffect(false, false, false, NameEffects::FireAfterBurnE, (float)time);
 	if (BurnEffect != nullptr) {
 		//BurnEffect->IsSingle = false;
@@ -217,7 +215,7 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 			float CollisionRange = (150 + RealA["MagicRange"])*RealM["MagicRange"];
 			TArray<FOverlapResult> All;
 			AAI *Target;
-			Effects *Legalization;
+			UEffects *Legalization;
 			GetWorld()->OverlapMultiByObjectType(All, Hit.ImpactPoint, FQuat(), ECollisionChannel::ECC_Pawn, FCollisionShape::MakeSphere(CollisionRange));
 			n = All.Num();
 			for (i = 0; i < n; i++)
@@ -240,8 +238,8 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 				FacedToEnemy(Hit.ImpactPoint);
 				SetActorLocation(Hit.ImpactPoint + FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 				FireFire();
-				Effects* OursEffect;
-				Effects* BurnEffect;
+				UEffects* OursEffect;
+				UEffects* BurnEffect;
 				int32 Damage;
 				float Range = (300 + RealA["MagicRange"])*RealM["MagicRange"];
 
@@ -293,8 +291,8 @@ void ATryBetterAgainCharacter::FireMeteor(FHitResult Hit)
 	FVector location = FVector(Hit.ImpactPoint.X,Hit.ImpactPoint.Y,GetActorLocation().Z);
 	FActorSpawnParameters a;
 	a.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	AFireMeteor* Meteor = GetWorld()->SpawnActor<AFireMeteor>(AFireMeteor::StaticClass(), location, deltaRotate);
-	//Meteor->SetActorLocation(location);
+	AFireMeteor* Meteor = GetWorld()->SpawnActor<AFireMeteor>(location, deltaRotate);
+		//Meteor->SetActorLocation(location);
 	if (Meteor == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Fing imposible"));
@@ -353,7 +351,7 @@ void ATryBetterAgainCharacter::FireAura()
 	if (FireEffectAura == nullptr)
 	{
 		
-		FireCollisionAura = GetWorld()->SpawnActor<AMyFireAura>(AMyFireAura::StaticClass(),GetActorLocation(),FRotator::ZeroRotator);
+		FireCollisionAura = GetWorld()->SpawnActor<AMyFireAura>(GetActorLocation(),FRotator::ZeroRotator);
 		if (FireCollisionAura == nullptr) return;
 		FireFire();
 /*		FireEffectAura = AddNewEffect(true, true, true, NameEffects::FireAuraS);

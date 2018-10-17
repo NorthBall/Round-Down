@@ -3,20 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/NoExportTypes.h"
+#include "Effects.generated.h"
 
-
+UCLASS(Blueprintable)
 /**
  * 
  */
-class TRYBETTERAGAIN_API Effects
+class TRYBETTERAGAIN_API UEffects: public UObject
 {
+	GENERATED_BODY()
 public:
-	Effects();
-	virtual ~Effects();
-	Effects *prev;
-	Effects *next;
+	UEffects();
+	virtual ~UEffects();
+	UEffects *prev;
+	UEffects *next;
 	//class ACommonAncestor *owner;
-	bool IsPermanent;//permanent effects will not update
+	bool IsPermanent;//permanent Effects will not update
 	float EffectTime;
 	bool IsPositive;//support variables
 	bool Dispellable;//

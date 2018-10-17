@@ -20,13 +20,13 @@ ACommonAncestor::ACommonAncestor()
 	WeapSlots.AddZeroed(maxweapons);
 	SkillCDTimes.AddZeroed(maxskills);
 	SkillLevel.AddZeroed(maxskills);
-	BaseInfluence = new Effects;
+	BaseInfluence = NewObject<UEffects>();
 	BaseInfluence->next = BaseInfluence;
 	BaseInfluence->prev = BaseInfluence;
-	BaseTemporal = new Effects;
+	BaseTemporal = NewObject <UEffects>();
 	BaseTemporal->next = BaseTemporal;
 	BaseTemporal->prev = BaseTemporal;
-	BasePermanent = new Effects;
+	BasePermanent = NewObject<UEffects>();
 	BasePermanent->next = BasePermanent;
 	BasePermanent->prev = BasePermanent;
 	//preset stats
@@ -77,6 +77,34 @@ void ACommonAncestor::TickExample(float DeltaTime)
 void ACommonAncestor::Dead()
 {
 	//GetController()->Destroy();
+	UEffects* iter;
+	iter = BaseInfluence->next;
+	while (iter != BaseInfluence)
+	{
+		iter = iter->next;
+		DeleteEffect(iter->prev);
+	}
+	DeleteEffect(BaseInfluence);
+	BaseInfluence = nullptr;
+
+	iter = BasePermanent->next;
+	while (iter != BasePermanent)
+	{
+		iter = iter->next;
+		DeleteEffect(iter->prev);
+	}
+	DeleteEffect(BasePermanent);
+	BasePermanent = nullptr;
+
+	iter = BaseTemporal->next;
+	while (iter != BaseTemporal)
+	{
+		iter = iter->next;
+		DeleteEffect(iter->prev);
+	}
+	DeleteEffect(BaseTemporal);
+	BaseTemporal = nullptr;
+	
 	Destroy();
 }
 void ACommonAncestor::DoAttack(ACommonAncestor *Victim)
@@ -91,12 +119,18 @@ void ACommonAncestor::DoAttack(ACommonAncestor *Victim)
 void ACommonAncestor::UpdateAll()
 {
 
-	Health += RealA["TickHealth"] * RealM["HealHealth"];
+	Health += RealA["HealthRegen"] * RealM["HealthRegen"];
+	Health -= RealA["TickDamage"] * RealM["TickDamage"];
+	if (FindName(NameEffects::FireBurnE)!=nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Health=%d"), Health);
+	}
 	if (Health <= 0) Dead();
 	MaxHealth = RealA["MaxHealth"] * RealM["MaxHealth"];
 	if (Health > MaxHealth) Health = MaxHealth;
 
-	Mana += RealA["TickMana"] * RealM["HealMana"];
+	Mana += RealA["ManaRegen"] * RealM["ManaRegen"];
+	Mana -= RealA["ManaDiffuse"] * RealM["ManaDiffuse"];
 	MaxMana = RealA["MaxMana"] * RealM["MaxMana"];
 	if (Mana <= 0) Mana=0;
 	if (Mana > MaxMana) Mana = MaxMana;
@@ -146,14 +180,18 @@ void ACommonAncestor::InitStats()
 
 	//EverlastingA.Add("Health", 100);
 	Health = 100;
-	BaseA.Add("TickHealth", 0);//восстановление хп за тик
-	BaseM.Add("HealHealth", 1.);//множитель восстановления здоровья
+	BaseA.Add("HealthRegen", 0);//восстановление хп за тик
+	BaseM.Add("HealthRegen", 1.);//множитель восстановления здоровья
+	BaseA.Add("TickDamage", 0);//дот эффекты
+	BaseM.Add("TickDamage", 1.);
 	BaseA.Add("MaxHealth", 100);
 	BaseM.Add("MaxHealth", 1.);
 	//EverlastingA.Add("Mana", 100);
 	Mana = 100;
-	BaseA.Add("TickMana", 0);//восстановление маны за тик
-	BaseM.Add("HealMana", 1.);//множитель восстановления маны
+	BaseA.Add("ManaRegen", 0);//восстановление маны за тик
+	BaseM.Add("ManaRegen", 1.);//множитель восстановления маны
+	BaseA.Add("ManaDiffuse", 0);//сжигание маны
+	BaseM.Add("ManaDiffuse", 1.);//сжигание маны
 	BaseA.Add("MaxMana", 100);
 	BaseM.Add("MaxMana", 1.);
 
@@ -241,7 +279,7 @@ void ACommonAncestor::ResetStats()
 	RealM = BaseM;
 	
 }
-void ACommonAncestor::AddNewEffect(bool Influent, Effects* iter )
+void ACommonAncestor::AddNewEffect(bool Influent, UEffects* iter )
 {
 	if (Influent)
 	{
@@ -298,8 +336,8 @@ void ACommonAncestor::AddNewEffect(bool Influent, Effects* iter )
 		}
 	}
 	/*
-	Effects* NewEff;
-	NewEff = new Effects;
+	UEffects* NewEff;
+	NewEff = new UEffects;
 	if (NewEff != nullptr)
 	{
 		NewEff->IsVisual = Visual;
@@ -353,7 +391,7 @@ void ACommonAncestor::AddNewEffect(bool Influent, Effects* iter )
 void ACommonAncestor::CalcEffects(float Delta)
 {
 	//*
-	Effects *iter=BaseInfluence->next;
+	UEffects *iter=BaseInfluence->next;
 	while (iter != BaseInfluence)
 	{
 		iter->Apply(Delta);
@@ -401,11 +439,12 @@ void ACommonAncestor::CalcEffects(float Delta)
 }
 
 
-void ACommonAncestor::DeleteEffect(Effects* iter)
+void ACommonAncestor::DeleteEffect(UEffects* iter)
 {
 	iter->prev->next = iter->next;
 	iter->next->prev = iter->prev;
-	delete iter;
+	iter->next = nullptr;
+	iter->prev = nullptr;
 	/*
 	iter->prev->next = iter->next;
 	iter->next->prev = iter->prev;
@@ -420,9 +459,9 @@ void ACommonAncestor::DeleteEffect(Effects* iter)
 	delete iter;
 	//*/
 }
-Effects* ACommonAncestor::FindName(enum NameEffects Number, bool OnlyInfluence)
+UEffects* ACommonAncestor::FindName(enum NameEffects Number, bool OnlyInfluence)
 {
-	Effects* iter;
+	UEffects* iter;
 	iter=BaseInfluence->next;
 	while (iter != BaseInfluence)
 	{
@@ -445,7 +484,7 @@ Effects* ACommonAncestor::FindName(enum NameEffects Number, bool OnlyInfluence)
 		}
 	}
 	/*
-	Effects* iter;
+	UEffects* iter;
 	iter = Base->prev;
 	while (iter != Base)
 	{

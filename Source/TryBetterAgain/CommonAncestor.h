@@ -29,7 +29,7 @@ public:
 	void Rotate();
 	void ReqForRotate(FVector Dest);*/
 //*
-	//effects
+	//Effects
 	float InvulTime;
 	//Stats area
 		//primal stats
@@ -102,15 +102,15 @@ public:
 	TArray<int32> WeapType;
 	TArray<bool> HaveWeap;
 	TArray<class InvWeapon*> WeapSlots;
-		//effects section
+		//Effects section
 	float TimeToUpdate;
-	class Effects *BaseInfluence;
-	Effects *BaseTemporal;
-	Effects *BasePermanent;
-	void AddNewEffect(bool Influent, Effects* iter);
-	Effects* FindName(enum class NameEffects Number, bool OnlyInfluence = false);
+	class UEffects *BaseInfluence;
+	UEffects *BaseTemporal;
+	UEffects *BasePermanent;
+	void AddNewEffect(bool Influent, UEffects* iter);
+	UEffects* FindName(enum class NameEffects Number, bool OnlyInfluence = false);
 	void CalcEffects(float Delta);
-	void DeleteEffect(Effects* iter);
+	void DeleteEffect(UEffects* iter);
 		//anim values
 	 UPROPERTY(BlueprintReadWrite,Category="Animations")
 		bool OnePunch = false;

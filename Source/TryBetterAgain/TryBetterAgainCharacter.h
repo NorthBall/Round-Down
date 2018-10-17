@@ -17,6 +17,8 @@ public:
 	UPROPERTY( BlueprintReadWrite, Category = "Class")
 		int32 MyClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = Effects)
+		TSubclassOf<class UFireFireS> FireSBP;//копье
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<class AFireLance> LanceBP;//копье
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
@@ -27,15 +29,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Class")
 		void ChooseClass(int32 choise)	{};
 	//class functions MAY BE VERY MUCH
-	class Effects* FireBurn(ACommonAncestor *Victim);
-	Effects* FireFire(int32 i=1);
-	Effects* FireAfterBurn(ACommonAncestor *Victim, int32 Damage);
+	class UFireBurnE* FireBurn(ACommonAncestor *Victim);
+	class UFireFireS* FireFire(int32 i=1);
+	class UEffects* FireAfterBurn(ACommonAncestor *Victim, int32 Damage);
 	void FireMeteor(FHitResult Hit);
 	void FireQueue(FHitResult Hit);
 	void FireBlink(FHitResult Hit);
 	void FireLance(FHitResult Hit);
 	void FireAura();
-	Effects *FireEffectAura;
+	UEffects *FireEffectAura;
 
 
 

@@ -2,7 +2,7 @@
 
 #include "Effects.h"
 
-Effects::Effects()
+UEffects::UEffects()
 {
 	IsPermanent = false;
 	EffectTime = 0.0f;
@@ -10,10 +10,10 @@ Effects::Effects()
 	Dispellable = false;
 }
 
-Effects::~Effects()
+UEffects::~UEffects()
 {
 }
-void Effects::Apply(float Delta)
+void UEffects::Apply(float Delta)
 {
 	if (!IsPermanent) EffectTime -= Delta;
 }

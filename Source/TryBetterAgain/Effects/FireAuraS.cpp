@@ -1,10 +1,10 @@
 #include "FireAuraS.h"
 
-FireAuraS::FireAuraS()
+UFireAuraS::UFireAuraS()
 {
 
 }
-void FireAuraS::Apply(float Delta)
+void UFireAuraS::Apply(float Delta)
 {
 
 }
