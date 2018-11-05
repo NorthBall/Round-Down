@@ -4,17 +4,33 @@
 #include "Effects.h"
 #include "Effects/FireBurnE.h"
 #include "Components/SphereComponent.h"
+#include "Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "TryBetterAgainCharacter.h"
 
 AFireLance::AFireLance():AMotherOfProjectiles()
 {
-
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 	CollisionComp->OnComponentHit.AddDynamic(this, &AFireLance::OnHit);
+}
+void AFireLance::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (Exploding)
+	{
+		TimeToDissapear -= DeltaSeconds;
+		//UE_LOG(LogTemp, Warning, TEXT("Tryin %f"), TimeToDissapear);
+		if (TimeToDissapear<0.0f)
+		{
+			Destroy();
+		}
+	}
 }
 void AFireLance::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 
 
 }
@@ -40,7 +56,7 @@ void AFireLance::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimit
 		Hero->FireBurn(victim);
 		int32 i, n;
 		AAI* Target;
-		UEffects* OursEffect;
+		UEffects* SpellEffect;
 		UEffects* BurnEffect;
 
 		float Range= (150 + Hero->RealA["MagicRange"])*Hero->RealM["MagicRange"];
@@ -53,17 +69,27 @@ void AFireLance::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimit
 			Target = Cast<AAI>(All[i].GetActor());
 			if (Target != nullptr)
 			{
-				Damage = (50 * Hero->SkillLevel[(int32)Skill::FireLance - (int32)Skill::Fire_Start] + Hero->RealA["MagicPower"])*Hero->RealM["MagicPower"]*Target->RealM["MagicMultiplierM"];
+				Damage = (50 * Hero->SkillLevel[(int32)Skill::FireLance - (int32)Skill::Fire_Start] + Hero->RealA["MagicPower"])*Hero->RealM["MagicPower"]*Target->RealM["MagicMultiplier"];
 				Target->Health -= Damage;
-				OursEffect = Hero->FireAfterBurn(Target, Damage);
+				SpellEffect = Hero->FireAfterBurn(Target, Damage);
 				BurnEffect = Hero->FireBurn(Target);
 				if (Target->Health <= 0) Target->Dead();
 			}
 		}
 		Hero->UpdateAll();
-		Destroy();
-
+		Changes();
+		
 	}
+}
+
+void AFireLance::Changes()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Tryin to Stop"));
+	LanceSelf->SetVisibility(false);
+	Explosion->SetVisibility(true);
+	Exploding = true;
+	ProjectileMovement->Velocity = FVector(0);
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 

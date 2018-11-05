@@ -20,6 +20,51 @@ ACommonAncestor::ACommonAncestor()
 	WeapSlots.AddZeroed(maxweapons);
 	SkillCDTimes.AddZeroed(maxskills);
 	SkillLevel.AddZeroed(maxskills);
+	//preset stats
+
+	InitStats();
+	InvulTime = 0.0f;
+	//*/
+}
+
+ACommonAncestor::~ACommonAncestor()
+{
+	/*
+	UEffects* iter;
+	iter = BaseInfluence->next;
+	while (iter != BaseInfluence)
+	{
+		iter = iter->next;
+		DeleteEffect(iter->prev);
+	}
+	DeleteEffect(BaseInfluence);
+	BaseInfluence = nullptr;
+
+	iter = BasePermanent->next;
+	while (iter != BasePermanent)
+	{
+		iter = iter->next;
+		DeleteEffect(iter->prev);
+	}
+	DeleteEffect(BasePermanent);
+	BasePermanent = nullptr;
+
+	iter = BaseTemporal->next;
+	while (iter != BaseTemporal)
+	{
+		iter = iter->next;
+		DeleteEffect(iter->prev);
+	}
+	DeleteEffect(BaseTemporal);
+	BaseTemporal = nullptr;
+	*/
+}
+
+// Called when the game starts or when spawned
+void ACommonAncestor::BeginPlay()
+{
+	Super::BeginPlay();
+
 	BaseInfluence = NewObject<UEffects>();
 	BaseInfluence->next = BaseInfluence;
 	BaseInfluence->prev = BaseInfluence;
@@ -29,17 +74,6 @@ ACommonAncestor::ACommonAncestor()
 	BasePermanent = NewObject<UEffects>();
 	BasePermanent->next = BasePermanent;
 	BasePermanent->prev = BasePermanent;
-	//preset stats
-
-	InitStats();
-	InvulTime = 0.0f;
-	//*/
-}
-
-// Called when the game starts or when spawned
-void ACommonAncestor::BeginPlay()
-{
-	Super::BeginPlay();
 	if (BaseInfluence == nullptr || BaseTemporal == nullptr || BasePermanent == nullptr) Destroy();
 	//if (HaveWeap[0]==false) UE_LOG(LogTemp, Warning, TEXT("NotHavingWeap"));
 
@@ -104,7 +138,6 @@ void ACommonAncestor::Dead()
 	}
 	DeleteEffect(BaseTemporal);
 	BaseTemporal = nullptr;
-	
 	Destroy();
 }
 void ACommonAncestor::DoAttack(ACommonAncestor *Victim)
@@ -121,10 +154,6 @@ void ACommonAncestor::UpdateAll()
 
 	Health += RealA["HealthRegen"] * RealM["HealthRegen"];
 	Health -= RealA["TickDamage"] * RealM["TickDamage"];
-	if (FindName(NameEffects::FireBurnE)!=nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Health=%d"), Health);
-	}
 	if (Health <= 0) Dead();
 	MaxHealth = RealA["MaxHealth"] * RealM["MaxHealth"];
 	if (Health > MaxHealth) Health = MaxHealth;
@@ -395,7 +424,7 @@ void ACommonAncestor::CalcEffects(float Delta)
 	while (iter != BaseInfluence)
 	{
 		iter->Apply(Delta);
-		UE_LOG(LogTemp, Warning, TEXT("EffectTime=%f"), iter->EffectTime);
+		//UE_LOG(LogTemp, Warning, TEXT("EffectTime=%f"), iter->EffectTime);
 		iter = iter->next;
 		if (iter->prev->EffectTime < 0.0f)
 		{
@@ -412,7 +441,7 @@ void ACommonAncestor::CalcEffects(float Delta)
 	while (iter != BaseTemporal)
 	{
 		iter->Apply(Delta);
-		UE_LOG(LogTemp, Warning, TEXT("EffectTime=%f"), iter->EffectTime);
+	//	UE_LOG(LogTemp, Warning, TEXT("EffectTime=%f"), iter->EffectTime);
 		iter = iter->next;
 		if (iter->prev->EffectTime < 0.0f)
 		{
@@ -441,6 +470,7 @@ void ACommonAncestor::CalcEffects(float Delta)
 
 void ACommonAncestor::DeleteEffect(UEffects* iter)
 {
+	iter->DeleteSelf();
 	iter->prev->next = iter->next;
 	iter->next->prev = iter->prev;
 	iter->next = nullptr;
@@ -461,6 +491,7 @@ void ACommonAncestor::DeleteEffect(UEffects* iter)
 }
 UEffects* ACommonAncestor::FindName(enum NameEffects Number, bool OnlyInfluence)
 {
+	if (BaseInfluence == nullptr || BaseTemporal == nullptr || BasePermanent == nullptr) return nullptr;
 	UEffects* iter;
 	iter=BaseInfluence->next;
 	while (iter != BaseInfluence)

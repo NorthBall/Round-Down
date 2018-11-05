@@ -18,7 +18,9 @@ public:
 		int32 MyClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
-		TSubclassOf<class UFireFireS> FireSBP;//копье
+		TSubclassOf<class UFireFireS> FireSBP;//бафф
+	UPROPERTY(EditDefaultsOnly, Category = Effects)
+		TSubclassOf<class UFireBurnE> BurnEBP;//стандартный поджог
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<class AFireLance> LanceBP;//копье
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)

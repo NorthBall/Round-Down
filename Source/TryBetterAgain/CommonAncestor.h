@@ -15,7 +15,7 @@ class TRYBETTERAGAIN_API ACommonAncestor : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ACommonAncestor();
-
+	~ACommonAncestor();
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -104,8 +104,11 @@ public:
 	TArray<class InvWeapon*> WeapSlots;
 		//Effects section
 	float TimeToUpdate;
+	UPROPERTY()
 	class UEffects *BaseInfluence;
+	UPROPERTY()
 	UEffects *BaseTemporal;
+	UPROPERTY()
 	UEffects *BasePermanent;
 	void AddNewEffect(bool Influent, UEffects* iter);
 	UEffects* FindName(enum class NameEffects Number, bool OnlyInfluence = false);

@@ -16,7 +16,10 @@ class TRYBETTERAGAIN_API UEffects: public UObject
 public:
 	UEffects();
 	virtual ~UEffects();
+	virtual void DeleteSelf();//if need delete something faster? than GC will do
+	UPROPERTY()
 	UEffects *prev;
+	UPROPERTY()
 	UEffects *next;
 	//class ACommonAncestor *owner;
 	bool IsPermanent;//permanent Effects will not update

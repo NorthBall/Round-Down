@@ -13,6 +13,9 @@ UEffects::UEffects()
 UEffects::~UEffects()
 {
 }
+void UEffects::DeleteSelf()
+{
+}
 void UEffects::Apply(float Delta)
 {
 	if (!IsPermanent) EffectTime -= Delta;

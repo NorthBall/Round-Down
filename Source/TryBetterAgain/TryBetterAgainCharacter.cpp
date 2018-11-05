@@ -16,6 +16,7 @@
 #include "Effects.h"
 #include "Effects/FireFireS.h"
 #include "Effects/FireBurnE.h"
+#include "Effects/FireAfterBurnE.h"
 #include "Skills/FireLance.h"
 #include "Skills/FirePrimitive.h"
 #include "Skills/FireMeteor.h"
@@ -161,25 +162,14 @@ UFireBurnE* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
 
 	UEffects* BurnEffect = Victim->FindName(NameEffects::FireBurnE);
 	UFireBurnE* RTEffect = Cast<UFireBurnE>(BurnEffect);
-	/*if (BurnEffect == nullptr)
-	{
-		BurnEffect = Victim->AddNewEffect(false, false, false, NameEffects::FireBurnE, 2.0f);
-		BurnEffect->IsSingle = false;
-		BurnEffect->SpecInt = mini(1, SkillLevel[(int32)Skill::FireBurn - (int32)Skill::Fire_Start]);
-		BurnEffect->TickMHealthA = -BurnEffect->SpecInt;
-	}
-	else
-	{
-		BurnEffect->SpecInt = mini(BurnEffect->SpecInt + 1, SkillLevel[(int32)Skill::FireBurn - (int32)Skill::Fire_Start]);
-		BurnEffect->TickMHealthA = -BurnEffect->SpecInt;
-		BurnEffect->EffectTime = 2.0f;
-	}*/
+	
 	if (RTEffect == nullptr)
 	{
-		RTEffect = NewObject<UFireBurnE>();
+		RTEffect = NewObject<UFireBurnE>(Victim,BurnEBP);
 		Victim->AddNewEffect(false, RTEffect);
 		RTEffect->Target = Victim;
-		RTEffect->EffectTime = 2.0f;
+		RTEffect->Caster = this;
+		RTEffect->IncrementEffect();
 	}
 	else
 	{
@@ -190,11 +180,13 @@ UFireBurnE* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
 UEffects* ATryBetterAgainCharacter::FireAfterBurn(ACommonAncestor *Victim, int32 Damage)
 {
 	int32 time = 2;	
-	UEffects* BurnEffect;
-	BurnEffect = NewObject<UEffects>();
-	//Victim->AddNewEffect(false,BurnEffect);
+	UFireAfterBurnE* BurnEffect;
+	BurnEffect = NewObject<UFireAfterBurnE>();
+	BurnEffect->Target = Victim;
+	BurnEffect->SingleDamage = (Damage*SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start]) / (10 * time * 4);
+	Victim->AddNewEffect(false,BurnEffect);
 	//= Victim->AddNewEffect(false, false, false, NameEffects::FireAfterBurnE, (float)time);
-	if (BurnEffect != nullptr) {
+	if (BurnEffect == nullptr) {
 		//BurnEffect->IsSingle = false;
 //		BurnEffect->TickMHealthA = -(Damage*SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start]) / (10 * time * 4);
 	}
