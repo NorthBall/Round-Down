@@ -6,6 +6,31 @@
 #include "UObject/NoExportTypes.h"
 #include "Effects.generated.h"
 
+UENUM(BlueprintType)
+enum class ENameEffects :uint8 {
+	FireBurnE UMETA(DisplayName = "FBurnE"),
+	FireFireS UMETA(DisplayName = "FFireS"),
+	FireAfterBurnE UMETA(DisplayName = "FAfterBurnE"),
+	FireBlinkE UMETA(DisplayName = "FBlinkE"),
+	FireAuraS UMETA(DisplayName = "FAuraS"),
+	FireAuraE UMETA(DisplayName = "FAuraE")
+
+};
+UENUM(BlueprintType)
+enum class ESkill :uint8 {
+	None,
+	Fire_Start,
+	FireBurn,
+	FireFire,
+	FireAfterBurn,
+	FireMeteor,
+	FireQueue,
+	FireBlink,
+	FireRing,
+	FireLance,
+	FireAura,
+	Skill_Max
+};
 UCLASS(Blueprintable)
 /**
  * 
@@ -26,34 +51,12 @@ public:
 	float EffectTime;
 	bool IsPositive;//support variables
 	bool Dispellable;//
-	enum class NameEffects Name;
+	enum class ENameEffects Name;
 	virtual void Apply(float Delta);
 	class ACommonAncestor* Target,*Caster;
 
 };
-enum class NameEffects {
-	FireBurnE,
-	FireFireS,
-	FireAfterBurnE,
-	FireBlinkE,
-	FireAuraS,
-	FireAuraE
-	
-};
-enum class Skill {
-	None,
-	Fire_Start,
-	FireBurn,
-	FireFire,
-	FireAfterBurn,
-	FireMeteor,
-	FireQueue,
-	FireBlink,
-	FireRing,
-	FireLance,
-	FireAura,
-	Skill_Max
-};
+
 enum class DamageType {
 	Pure,
 	Physical,

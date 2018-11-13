@@ -58,22 +58,22 @@ void ATryBetterAgainPlayerController::BeginPlay()
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Korsun is onehugredandforty  iq"));
 	SetViewTargetWithBlend(OursPawn,1.0f);
-	OursPawn->InitStats();
+	//OursPawn->InitStats();
 	oldVictim = NULL;
 	IsMoved = false;
 	//skill TEST AREA DELETE THIS
-	OursPawn->Health = 50;
-	OursPawn->SkillLevel[(int32)Skill::FireBlink-(int32)Skill::Fire_Start] = 1;
-	OursPawn->SkillLevel[(int32)Skill::FireBurn - (int32)Skill::Fire_Start] = 7;
-	OursPawn->SkillLevel[(int32)Skill::FireFire - (int32)Skill::Fire_Start] = 100;
-	OursPawn->SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start] = 5;
-	OursPawn->SkillLevel[(int32)Skill::FireMeteor - (int32)Skill::Fire_Start] = 2;
-	OursPawn->SkillLevel[(int32)Skill::FireLance - (int32)Skill::Fire_Start] = 3;
-	OursPawn->SkillLevel[(int32)Skill::FireAura - (int32)Skill::Fire_Start] = 3;
-	OursPawn->SkillLevel[(int32)Skill::FireQueue - (int32)Skill::Fire_Start] = 3;
-
+	//OursPawn->Health = 50;
+	OursPawn->SkillLevel[(int32)ESkill::FireBlink-(int32)ESkill::Fire_Start] = 1;
+	OursPawn->SkillLevel[(int32)ESkill::FireBurn - (int32)ESkill::Fire_Start] = 7;
+	OursPawn->SkillLevel[(int32)ESkill::FireFire - (int32)ESkill::Fire_Start] = 100;
+	OursPawn->SkillLevel[(int32)ESkill::FireAfterBurn - (int32)ESkill::Fire_Start] = 5;
+	OursPawn->SkillLevel[(int32)ESkill::FireMeteor - (int32)ESkill::Fire_Start] = 2;
+	OursPawn->SkillLevel[(int32)ESkill::FireLance - (int32)ESkill::Fire_Start] = 3;
+	OursPawn->SkillLevel[(int32)ESkill::FireAura - (int32)ESkill::Fire_Start] = 3;
+	OursPawn->SkillLevel[(int32)ESkill::FireQueue - (int32)ESkill::Fire_Start] = 3;
+	//UE_LOG(LogTemp, Warning, TEXT("Init SkillLevel"));
 	
-	State = Skill::None;
+	State = ESkill::None;
 	WaitTime = 0;
 }
 
@@ -84,9 +84,9 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 	
 	if (OursPawn != nullptr)
 	{
-		if (State != Skill::None)
+		if (State != ESkill::None)
 		{
-			if (State == Skill::FireQueue)
+			if (State == ESkill::FireQueue)
 			{
 				GetHitResultUnderCursor(ECC_Visibility, false, Direct);
 				OursPawn->FacedToEnemy(Direct.ImpactPoint);
@@ -96,7 +96,7 @@ void ATryBetterAgainPlayerController::PlayerTick(float DeltaTime)
 			if (WaitTime <= 0.0f)
 			{
 				WaitTime = DoSkill(State, FullTime);
-				if(WaitTime<=0.0f)	State = Skill::None;
+				if(WaitTime<=0.0f)	State = ESkill::None;
 			}
 		}
 		else
@@ -369,9 +369,9 @@ int ATryBetterAgainPlayerController::AtakAnim(float AtakAnim)
 }
 void ATryBetterAgainPlayerController::FireMeteor()
 {
-	if (OursPawn != NULL&&State != Skill::FireMeteor)
+	if (OursPawn != NULL&&State != ESkill::FireMeteor)
 	{
-		int32 SkillNum = (int32)Skill::FireMeteor - (int32)Skill::Fire_Start;
+		int32 SkillNum = (int32)ESkill::FireMeteor - (int32)ESkill::Fire_Start;
 
 		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
 		{
@@ -382,7 +382,7 @@ void ATryBetterAgainPlayerController::FireMeteor()
 			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
 			{
 				OursPawn->FacedToEnemy(Hit.ImpactPoint);
-				State = Skill::FireMeteor;
+				State = ESkill::FireMeteor;
 				DoStop();
 				WaitTime = (3.0f - OursPawn->RealA["CastTime"])*OursPawn->RealM["CastTime"];
 				FullTime = 0.0f;
@@ -393,9 +393,9 @@ void ATryBetterAgainPlayerController::FireMeteor()
 }
 void ATryBetterAgainPlayerController::FireQueue()
 {
-	if (OursPawn != NULL&&State != Skill::FireQueue)
+	if (OursPawn != NULL&&State != ESkill::FireQueue)
 	{
-		int32 SkillNum = (int32)Skill::FireQueue - (int32)Skill::Fire_Start;
+		int32 SkillNum = (int32)ESkill::FireQueue - (int32)ESkill::Fire_Start;
 
 		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
 		{
@@ -406,7 +406,7 @@ void ATryBetterAgainPlayerController::FireQueue()
 			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
 			{
 				OursPawn->FacedToEnemy(Hit.ImpactPoint);
-				State = Skill::FireQueue;
+				State = ESkill::FireQueue;
 				DoStop();
 				WaitTime = (2.0f - OursPawn->RealA["CastTime"])*OursPawn->RealM["CastTime"];
 				FullTime = 0.0f;
@@ -425,9 +425,9 @@ void ATryBetterAgainPlayerController::FireBlink()
 }
 void ATryBetterAgainPlayerController::FireLance()
 {
-	if (OursPawn != NULL&&State!=Skill::FireLance)
+	if (OursPawn != NULL&&State!=ESkill::FireLance)
 	{
-		int32 SkillNum = (int32)Skill::FireLance - (int32)Skill::Fire_Start;
+		int32 SkillNum = (int32)ESkill::FireLance - (int32)ESkill::Fire_Start;
 
 		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
 		{
@@ -437,7 +437,7 @@ void ATryBetterAgainPlayerController::FireLance()
 			float Range = (700 + OursPawn->RealA["MagicRange"])*OursPawn->RealM["MagicRange"];
 			if (FVector::Dist2D(Hit.ImpactPoint, OursPawn->GetActorLocation()) < Range)
 			{
-				State = Skill::FireLance;
+				State = ESkill::FireLance;
 				DoStop();
 				WaitTime = (1.0f-OursPawn->RealA["CastTime"])*OursPawn->RealM["CastTime"];
 				FullTime = 0.0f; 
@@ -451,7 +451,7 @@ void ATryBetterAgainPlayerController::FireAura()
 {
 	if (OursPawn != NULL)
 	{
-		int32 SkillNum = (int32)Skill::FireAura - (int32)Skill::Fire_Start;
+		int32 SkillNum = (int32)ESkill::FireAura - (int32)ESkill::Fire_Start;
 
 		if (OursPawn->SkillCDTimes[SkillNum] == 0.0f&&OursPawn->SkillLevel[SkillNum] != 0)
 		{
@@ -460,18 +460,18 @@ void ATryBetterAgainPlayerController::FireAura()
 		}
 	}
 }
-float ATryBetterAgainPlayerController::DoSkill(Skill State,float Time)
+float ATryBetterAgainPlayerController::DoSkill(ESkill State,float Time)
 {
 
 	switch (State)
 	{	
-	case Skill::FireMeteor:
+	case ESkill::FireMeteor:
 		OursPawn->FireMeteor(Direct);
 		break;
-	case Skill::FireQueue:
+	case ESkill::FireQueue:
 		OursPawn->FireQueue(Direct);
 		return mini((2.0f - OursPawn->RealA["CastTime"])*OursPawn->RealM["CastTime"], 5.0f - FullTime);
-	case Skill::FireLance:
+	case ESkill::FireLance:
 		OursPawn->FireLance(Direct);
 		break;
 	}
@@ -486,6 +486,6 @@ void ATryBetterAgainPlayerController::DoStop()
 }
 void ATryBetterAgainPlayerController::CancelSkill()
 {
-	State = Skill::None;
+	State = ESkill::None;
 
 }

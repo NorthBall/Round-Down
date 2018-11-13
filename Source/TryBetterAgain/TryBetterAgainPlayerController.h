@@ -2,6 +2,7 @@
 
 
 #include "CoreMinimal.h"
+#include "Effects.h"
 #include "GameFramework/PlayerController.h"
 #include "TryBetterAgainPlayerController.generated.h"
 
@@ -30,11 +31,11 @@ public:
 	//doing area
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		bool bAttack;
-	enum class Skill State;
+	ESkill State;
 	float WaitTime;
 	float FullTime;
 	FHitResult Direct;
-	float DoSkill(Skill State,float Time);
+	float DoSkill(ESkill State,float Time);
 	void DoStop();
 	void CancelSkill();
 	//attack area

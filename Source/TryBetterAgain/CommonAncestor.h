@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Effects.h"
 #include "GameFramework/Character.h"
 #include "CommonAncestor.generated.h"
 
 
-UCLASS()
+UCLASS(CustomConstructor)
 class TRYBETTERAGAIN_API ACommonAncestor : public ACharacter
 {
 	GENERATED_BODY()
@@ -92,10 +93,13 @@ public:
 		int32 lvl;
 	UPROPERTY(BlueprintReadWrite, Category = "Experience")
 		int32 LvlExp;
+	UPROPERTY(BlueprintReadWrite,EditAnywhere, Category = "Experience")
+		int32 ExpBounty;
 	
 		//extra
 	TArray<float> SkillCDTimes;
-	TArray<int32> SkillLevel;
+	UPROPERTY(BlueprintReadWrite)
+		TArray<int32> SkillLevel;
 		//weapon section
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 		int32 NumOfWeapon;
@@ -111,7 +115,7 @@ public:
 	UPROPERTY()
 	UEffects *BasePermanent;
 	void AddNewEffect(bool Influent, UEffects* iter);
-	UEffects* FindName(enum class NameEffects Number, bool OnlyInfluence = false);
+	UEffects* FindName(ENameEffects Number, bool OnlyInfluence = false);
 	void CalcEffects(float Delta);
 	void DeleteEffect(UEffects* iter);
 		//anim values
@@ -138,7 +142,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Self")
 		void ResetStats();
 	UFUNCTION(BlueprintCallable, Category = "Self")
-		void UpdateExp() ;
+		virtual void UpdateExp() ;
 		
 	//just support variables
 	int32 i;

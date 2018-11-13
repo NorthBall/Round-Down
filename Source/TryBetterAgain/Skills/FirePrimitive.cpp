@@ -34,7 +34,7 @@ void AFirePrimitive::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 			return;
 		}
 		
-		int32 Damage = (50 * Hero->SkillLevel[(int32)Skill::FireQueue - (int32)Skill::Fire_Start] + Hero->RealA["MagicPower"])*Hero->RealM["MagicPower"]*victim->RealM["MagicMultiplier"];
+		int32 Damage = (50 * Hero->SkillLevel[(int32)ESkill::FireQueue - (int32)ESkill::Fire_Start] + Hero->RealA["MagicPower"])*Hero->RealM["MagicPower"]*victim->RealM["MagicMultiplier"];
 		victim->Health -= Damage;
 		Hero->FireAfterBurn(victim, Damage);
 		Hero->FireBurn(victim);

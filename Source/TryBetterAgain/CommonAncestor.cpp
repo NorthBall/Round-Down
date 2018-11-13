@@ -23,7 +23,6 @@ ACommonAncestor::ACommonAncestor()
 	//preset stats
 
 	InitStats();
-	InvulTime = 0.0f;
 	//*/
 }
 
@@ -63,6 +62,7 @@ ACommonAncestor::~ACommonAncestor()
 // Called when the game starts or when spawned
 void ACommonAncestor::BeginPlay()
 {
+	InitStats();
 	Super::BeginPlay();
 
 	BaseInfluence = NewObject<UEffects>();
@@ -489,7 +489,7 @@ void ACommonAncestor::DeleteEffect(UEffects* iter)
 	delete iter;
 	//*/
 }
-UEffects* ACommonAncestor::FindName(enum NameEffects Number, bool OnlyInfluence)
+UEffects* ACommonAncestor::FindName(ENameEffects Number, bool OnlyInfluence)
 {
 	if (BaseInfluence == nullptr || BaseTemporal == nullptr || BasePermanent == nullptr) return nullptr;
 	UEffects* iter;
@@ -536,6 +536,7 @@ void  ACommonAncestor::DealDamage(ACommonAncestor *Victim, int Damage, DamageTyp
 		Victim->Health -= Damage*Victim->PhysicMultiplier;
 		Victim->UpdateHealthBar();//may be deleted
 		if (Victim->Health <= 0) Victim->Dead();
+		break;
 	case DamageType::Magic:
 		Victim->Health -= Damage* Victim->RealM["MagicMultiplier"];
 		Victim->UpdateHealthBar();//may be deleted

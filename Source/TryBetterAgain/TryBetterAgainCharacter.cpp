@@ -68,8 +68,8 @@ ATryBetterAgainCharacter::ATryBetterAgainCharacter():ACommonAncestor()
 	CursorToWorld->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f).Quaternion());
 
 	// Activate ticking in order to update the cursor every frame.
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
+	//PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bStartWithTickEnabled = true;
 
 	CameraSpeed = 4;
 	CameraUp = 1500;
@@ -77,6 +77,39 @@ ATryBetterAgainCharacter::ATryBetterAgainCharacter():ACommonAncestor()
 
 
 	FireEffectAura = nullptr;
+}
+void ATryBetterAgainCharacter::BeginPlay()
+{
+	InitStats();
+	SkillPoints = 0;
+	Super::BeginPlay();
+
+	BaseInfluence = NewObject<UEffects>();
+	BaseInfluence->next = BaseInfluence;
+	BaseInfluence->prev = BaseInfluence;
+	BaseTemporal = NewObject <UEffects>();
+	BaseTemporal->next = BaseTemporal;
+	BaseTemporal->prev = BaseTemporal;
+	BasePermanent = NewObject<UEffects>();
+	BasePermanent->next = BasePermanent;
+	BasePermanent->prev = BasePermanent;
+	if (BaseInfluence == nullptr || BaseTemporal == nullptr || BasePermanent == nullptr) Destroy();
+	InvulTime = 0.0f;
+}
+void ATryBetterAgainCharacter::UpdateExp()
+{
+	if (Exp > LvlExp)
+	{
+		lvl++;
+		SkillPoints++;
+		Exp -= LvlExp;
+		LvlExp *= 1.4;
+		BaseM["AttackDamage"] /= 0.95f;
+		BaseM["AttackSpeed"] *= 0.95f;
+		UE_LOG(LogTemp, Warning, TEXT("levelUp %d"),SkillPoints);
+		UpdateAll();
+		UpdateHealthBar();
+	}
 }
 void ATryBetterAgainCharacter::Tick(float DeltaSeconds)
 {
@@ -140,7 +173,9 @@ void ATryBetterAgainCharacter::DoAttack(ACommonAncestor* Victim)
 }
 UFireFireS* ATryBetterAgainCharacter::FireFire(int32 i)
 {
-	UEffects* BuffEffect = FindName(NameEffects::FireFireS);
+	int32 SkillNum = (int32)ESkill::FireFire - (int32)ESkill::Fire_Start;
+	if ( SkillLevel[SkillNum] == 0) return nullptr;
+	UEffects* BuffEffect = FindName(ENameEffects::FireFireS);
 	UFireFireS* RightTypeBuff;
 	RightTypeBuff = Cast<UFireFireS>(BuffEffect);
 	if (RightTypeBuff == nullptr)
@@ -159,8 +194,9 @@ UFireFireS* ATryBetterAgainCharacter::FireFire(int32 i)
 }
 UFireBurnE* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
 {
-
-	UEffects* BurnEffect = Victim->FindName(NameEffects::FireBurnE);
+	int32 SkillNum = (int32)ESkill::FireBurn - (int32)ESkill::Fire_Start;
+	if ( SkillLevel[SkillNum] == 0) return nullptr;
+	UEffects* BurnEffect = Victim->FindName(ENameEffects::FireBurnE);
 	UFireBurnE* RTEffect = Cast<UFireBurnE>(BurnEffect);
 	
 	if (RTEffect == nullptr)
@@ -179,22 +215,24 @@ UFireBurnE* ATryBetterAgainCharacter::FireBurn(ACommonAncestor * Victim)
 }
 UEffects* ATryBetterAgainCharacter::FireAfterBurn(ACommonAncestor *Victim, int32 Damage)
 {
+	int32 SkillNum = (int32)ESkill::FireAfterBurn - (int32)ESkill::Fire_Start;
+	if ( SkillLevel[SkillNum] == 0) return nullptr;
 	int32 time = 2;	
 	UFireAfterBurnE* BurnEffect;
 	BurnEffect = NewObject<UFireAfterBurnE>();
 	BurnEffect->Target = Victim;
-	BurnEffect->SingleDamage = (Damage*SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start]) / (10 * time * 4);
+	BurnEffect->SingleDamage = (Damage*SkillLevel[(int32)ESkill::FireAfterBurn - (int32)ESkill::Fire_Start]) / (10 * time * 4);
 	Victim->AddNewEffect(false,BurnEffect);
-	//= Victim->AddNewEffect(false, false, false, NameEffects::FireAfterBurnE, (float)time);
+	//= Victim->AddNewEffect(false, false, false, ENameEffects::FireAfterBurnE, (float)time);
 	if (BurnEffect == nullptr) {
 		//BurnEffect->IsSingle = false;
-//		BurnEffect->TickMHealthA = -(Damage*SkillLevel[(int32)Skill::FireAfterBurn - (int32)Skill::Fire_Start]) / (10 * time * 4);
+//		BurnEffect->TickMHealthA = -(Damage*SkillLevel[(int32)ESkill::FireAfterBurn - (int32)ESkill::Fire_Start]) / (10 * time * 4);
 	}
  return BurnEffect;
 }
 void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 {
-	int32 SkillNum = (int32)Skill::FireBlink - (int32)Skill::Fire_Start;
+	int32 SkillNum = (int32)ESkill::FireBlink - (int32)ESkill::Fire_Start;
 	
 	if (SkillCDTimes[SkillNum] == 0.0f&&SkillLevel[SkillNum] != 0)
 	{
@@ -215,7 +253,7 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 				Target = Cast<AAI>(All[i].GetActor());
 				if (Target != nullptr)
 				{
-					Legalization=Target->FindName(NameEffects::FireBurnE);
+					Legalization=Target->FindName(ENameEffects::FireBurnE);
 					if (Legalization != nullptr)
 					{
 						IsLegal = true;
@@ -244,14 +282,14 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 					if (Target != nullptr)
 					{
 
-						Damage= (80*SkillLevel[(int32)Skill::FireBlink-(int32)Skill::Fire_Start] + RealA["MagicPower"])*RealM["MagicPower"]*Target->RealA["MagicMultiplier"];
+						Damage= (80*SkillLevel[(int32)ESkill::FireBlink-(int32)ESkill::Fire_Start] + RealA["MagicPower"])*RealM["MagicPower"]*Target->RealA["MagicMultiplier"];
 						Target->Health -= Damage;
 						OursEffect=FireAfterBurn(Target, Damage);
-						/*OursEffect = (Target->AddNewEffect(false, false, false, NameEffects::FireBlinkE, 4.0f));
+						/*OursEffect = (Target->AddNewEffect(false, false, false, ENameEffects::FireBlinkE, 4.0f));
 						OursEffect->TickHealthA = -7;
 						OursEffect->IsSingle = false;*/
 
-						BurnEffect = Target->FindName(NameEffects::FireBurnE);
+						BurnEffect = Target->FindName(ENameEffects::FireBurnE);
 						/*if (BurnEffect != nullptr)
 						{
 							Health += BurnEffect->SpecInt * 10;
@@ -275,7 +313,7 @@ void ATryBetterAgainCharacter::FireBlink(FHitResult Hit)
 void ATryBetterAgainCharacter::FireMeteor(FHitResult Hit)
 {
 
-	int32 SkillNum = (int32)Skill::FireMeteor - (int32)Skill::Fire_Start;
+	int32 SkillNum = (int32)ESkill::FireMeteor - (int32)ESkill::Fire_Start;
 
 	UE_LOG(LogTemp, Warning, TEXT("vizov"));
 	FacedToEnemy(Hit.ImpactPoint);
@@ -298,7 +336,7 @@ void ATryBetterAgainCharacter::FireMeteor(FHitResult Hit)
 }
 void ATryBetterAgainCharacter::FireQueue(FHitResult Hit)
 {
-	int32 SkillNum = (int32)Skill::FireQueue - (int32)Skill::Fire_Start;
+	int32 SkillNum = (int32)ESkill::FireQueue - (int32)ESkill::Fire_Start;
 
 	UE_LOG(LogTemp, Warning, TEXT("vizov"));
 	FacedToEnemy(Hit.ImpactPoint);
@@ -317,7 +355,8 @@ void ATryBetterAgainCharacter::FireQueue(FHitResult Hit)
 void ATryBetterAgainCharacter::FireLance(FHitResult Hit)
 {
 
-	int32 SkillNum = (int32)Skill::FireLance - (int32)Skill::Fire_Start;
+	int32 SkillNum = (int32)ESkill::FireLance - (int32)ESkill::Fire_Start;
+	if (SkillCDTimes[SkillNum] != 0.0f || SkillLevel[SkillNum] == 0) return;
 
 		UE_LOG(LogTemp, Warning, TEXT("vizov"));
 		FacedToEnemy(Hit.ImpactPoint);
@@ -338,7 +377,7 @@ void ATryBetterAgainCharacter::FireAura()
 {
 
 	AMyFireAura *FireCollisionAura=nullptr;
-	int32 SkillNum = (int32)Skill::FireAura - (int32)Skill::Fire_Start;
+	int32 SkillNum = (int32)ESkill::FireAura - (int32)ESkill::Fire_Start;
 	
 	if (FireEffectAura == nullptr)
 	{
@@ -346,7 +385,7 @@ void ATryBetterAgainCharacter::FireAura()
 		FireCollisionAura = GetWorld()->SpawnActor<AMyFireAura>(GetActorLocation(),FRotator::ZeroRotator);
 		if (FireCollisionAura == nullptr) return;
 		FireFire();
-/*		FireEffectAura = AddNewEffect(true, true, true, NameEffects::FireAuraS);
+/*		FireEffectAura = AddNewEffect(true, true, true, ENameEffects::FireAuraS);
 		FireCollisionAura->Aura->AttachToComponent(GetCapsuleComponent(),FAttachmentTransformRules::KeepWorldTransform);
 		FireCollisionAura->Aura->SetSphereRadius(150.0f + RealA["MagicRange"], true);
 		FireCollisionAura->Owner = this;

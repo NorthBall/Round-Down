@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CommonAncestor.h"
+
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
 #include "AI.generated.h"
 
 
@@ -17,7 +19,17 @@ class TRYBETTERAGAIN_API AAI : public ACommonAncestor
 public:
 	// Sets default values for this character's properties
 	AAI();
-
+	UFUNCTION(BlueprintImplementableEvent, Category = "Initialize")
+		void LevelMultiplier(int32 level);
+	UFUNCTION(BlueprintCallable, Category = "AIController")
+		void AttackInRange(ACommonAncestor* Player, float Delta);
+	UFUNCTION(BlueprintCallable, Category = "AIController")
+		void AbortingAttack();
+	int32 AttackAnim(float Time);
+	float AttackAnimTime;
+	int32 PrevAttackTick;
+	//exp
+		virtual void Dead() override;
 protected:
 	// Called when the game starts or when spawned
 	//virtual void BeginPlay() override;

@@ -7,7 +7,7 @@
 #include "AI.h"
 #include "TryBetterAgainCharacter.generated.h"
 
-UCLASS(Blueprintable)
+UCLASS(CustomConstructor)
 class ATryBetterAgainCharacter : public ACommonAncestor
 {
 	GENERATED_BODY()
@@ -16,6 +16,14 @@ public:
 	//class definitons
 	UPROPERTY( BlueprintReadWrite, Category = "Class")
 		int32 MyClass;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Experience")
+		int32 SkillPoints;
+
+	virtual void BeginPlay() override;
+	virtual void UpdateExp() override;
+
+
 
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		TSubclassOf<class UFireFireS> FireSBP;//αΰττ

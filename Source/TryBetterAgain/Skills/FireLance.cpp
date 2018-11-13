@@ -50,7 +50,7 @@ void AFireLance::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimit
 		if (victim == nullptr) {
 			return;
 		}
-		int32 Damage = (100 * Hero->SkillLevel[(int32)Skill::FireLance - (int32)Skill::Fire_Start] + Hero->RealA["MagicPower"])*Hero->RealM["MagicPower"]*victim->RealM["MagicMultiplier"];
+		int32 Damage = (100 * Hero->SkillLevel[(int32)ESkill::FireLance - (int32)ESkill::Fire_Start] + Hero->RealA["MagicPower"])*Hero->RealM["MagicPower"]*victim->RealM["MagicMultiplier"];
 		victim->Health -= Damage;
 		Hero->FireAfterBurn(victim, Damage);
 		Hero->FireBurn(victim);
@@ -69,7 +69,7 @@ void AFireLance::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimit
 			Target = Cast<AAI>(All[i].GetActor());
 			if (Target != nullptr)
 			{
-				Damage = (50 * Hero->SkillLevel[(int32)Skill::FireLance - (int32)Skill::Fire_Start] + Hero->RealA["MagicPower"])*Hero->RealM["MagicPower"]*Target->RealM["MagicMultiplier"];
+				Damage = (50 * Hero->SkillLevel[(int32)ESkill::FireLance - (int32)ESkill::Fire_Start] + Hero->RealA["MagicPower"])*Hero->RealM["MagicPower"]*Target->RealM["MagicMultiplier"];
 				Target->Health -= Damage;
 				SpellEffect = Hero->FireAfterBurn(Target, Damage);
 				BurnEffect = Hero->FireBurn(Target);

@@ -6,7 +6,7 @@ UFireAfterBurnE::UFireAfterBurnE()
 	IsPermanent = false;
 	IsPositive = false;
 	Dispellable = true;
-	Name = NameEffects::FireAfterBurnE;
+	Name = ENameEffects::FireAfterBurnE;
 }
 void UFireAfterBurnE::Apply(float Delta)
 {

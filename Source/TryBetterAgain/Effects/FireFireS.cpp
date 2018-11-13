@@ -7,7 +7,7 @@ UFireFireS::UFireFireS()
 	IsPermanent = false;
 	IsPositive = true;
 	Dispellable = true;
-	Name = NameEffects::FireFireS;
+	Name = ENameEffects::FireFireS;
 }
 
 void UFireFireS::Apply(float Delta)
@@ -20,7 +20,7 @@ void UFireFireS::Apply(float Delta)
 }
 void UFireFireS::IncrementEffect(int32 i)
 {
-	BuffCount = (Target->SkillLevel[(int32)Skill::FireFire - (int32)Skill::Fire_Start] > BuffCount + i) ? BuffCount + i : Target->SkillLevel[(int32)Skill::FireFire - (int32)Skill::Fire_Start];
+	BuffCount = (Target->SkillLevel[(int32)ESkill::FireFire - (int32)ESkill::Fire_Start] > BuffCount + i) ? BuffCount + i : Target->SkillLevel[(int32)ESkill::FireFire - (int32)ESkill::Fire_Start];
 	EffectTime = 5.0f;
 	
 	if (Model == nullptr)

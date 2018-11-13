@@ -19,7 +19,7 @@ UFireBurnE::UFireBurnE()
 	IsPermanent = false;
 	IsPositive = false;
 	Dispellable = true;
-	Name = NameEffects::FireBurnE;
+	Name = ENameEffects::FireBurnE;
 }
 UFireBurnE::~UFireBurnE()
 {
@@ -27,7 +27,7 @@ UFireBurnE::~UFireBurnE()
 }
 void UFireBurnE::IncrementEffect(int32 i)
 {
-	DebuffCount = (Caster->SkillLevel[(int32)Skill::FireBurn - (int32)Skill::Fire_Start] > DebuffCount + i) ? DebuffCount + i : Caster->SkillLevel[(int32)Skill::FireBurn - (int32)Skill::Fire_Start];
+	DebuffCount = (Caster->SkillLevel[(int32)ESkill::FireBurn - (int32)ESkill::Fire_Start] > DebuffCount + i) ? DebuffCount + i : Caster->SkillLevel[(int32)ESkill::FireBurn - (int32)ESkill::Fire_Start];
 	if (Model == nullptr)
 	{
 		Model = Target->GetWorld()->SpawnActor<AActor>(VRepr, FVector(0.0f), FRotator::ZeroRotator);

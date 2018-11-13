@@ -52,8 +52,8 @@ void AFireMeteor::Tick(float DeltaTime)
 			if (Target != nullptr)
 			{
 
-				Damage = (100 * Hero->SkillLevel[(int32)Skill::FireMeteor - (int32)Skill::Fire_Start] + Hero->RealA["MagicPower"])*Hero->RealM["MagicPower"]*Target->RealM["MagicMultiplier"];
-				UE_LOG(LogTemp, Warning, TEXT("Level=%d,Power=%f,Armor=%f"), Hero->SkillLevel[(int32)Skill::FireMeteor - (int32)Skill::Fire_Start], Hero->RealM["MagicPower"], Target->RealM["MagicMultiplier"]);
+				Damage = (100 * Hero->SkillLevel[(int32)ESkill::FireMeteor - (int32)ESkill::Fire_Start] + Hero->RealA["MagicPower"])*Hero->RealM["MagicPower"]*Target->RealM["MagicMultiplier"];
+				UE_LOG(LogTemp, Warning, TEXT("Level=%d,Power=%f,Armor=%f"), Hero->SkillLevel[(int32)ESkill::FireMeteor - (int32)ESkill::Fire_Start], Hero->RealM["MagicPower"], Target->RealM["MagicMultiplier"]);
 				Target->Health -= Damage;
 				OursEffect = Hero->FireAfterBurn(Target, Damage);
 				BurnEffect = Hero->FireBurn(Target);
