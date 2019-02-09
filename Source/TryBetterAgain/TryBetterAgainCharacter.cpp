@@ -107,6 +107,8 @@ void ATryBetterAgainCharacter::UpdateExp()
 		BaseM["AttackDamage"] /= 0.95f;
 		BaseM["AttackSpeed"] *= 0.95f;
 		UE_LOG(LogTemp, Warning, TEXT("levelUp %d"),SkillPoints);
+		Health = MaxHealth;
+		Mana = MaxMana;
 		UpdateAll();
 		UpdateHealthBar();
 	}

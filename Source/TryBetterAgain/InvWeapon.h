@@ -3,14 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InvWeapon.generated.h"
 
 /**
  * 
  */
-class TRYBETTERAGAIN_API InvWeapon
+UCLASS(Blueprintable)
+class TRYBETTERAGAIN_API UInvWeapon:public UObject
 {
+	GENERATED_BODY()
 public:
-	InvWeapon();
+	UInvWeapon();
 	
 	//stats
 		//attack

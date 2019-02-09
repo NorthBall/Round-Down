@@ -102,10 +102,14 @@ public:
 		TArray<int32> SkillLevel;
 		//weapon section
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-		int32 NumOfWeapon;
-	TArray<int32> WeapType;
-	TArray<bool> HaveWeap;
-	TArray<class InvWeapon*> WeapSlots;
+		int32 MaxSlots;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+		int32 FreeSlots;
+	//TArray<int32> WeapType; 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+		TArray<bool> HaveWeap; //есть ли предмет в слоте
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+		TArray<class UInvWeapon*> WeapSlots; //ссылка на предмет в слоте
 		//Effects section
 	float TimeToUpdate;
 	UPROPERTY()

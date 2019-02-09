@@ -3,7 +3,7 @@
 #include "CommonAncestor.h"
 #include "InvWeapon.h"
 #include "Effects.h"
-#define maxweapons 20
+#define maxweapons 2
 #define maxi(a,b) ((a)<(b)?(b):(a))
 #define maxskills 30
 #define mini(a,b) ((a)<(b)?(a):(b))
@@ -15,9 +15,9 @@ ACommonAncestor::ACommonAncestor()
 	PrimaryActorTick.bCanEverTick = true;
 	//set arrays
 //*
-	WeapType.AddZeroed(maxweapons);
-	HaveWeap.AddZeroed(maxweapons);
-	WeapSlots.AddZeroed(maxweapons);
+	//WeapType.AddZeroed(maxweapons);
+	HaveWeap.AddZeroed(maxweapons+MaxSlots);
+	WeapSlots.AddZeroed(maxweapons+MaxSlots);
 	SkillCDTimes.AddZeroed(maxskills);
 	SkillLevel.AddZeroed(maxskills);
 	//preset stats

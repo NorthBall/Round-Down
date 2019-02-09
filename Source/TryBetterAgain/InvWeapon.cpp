@@ -2,7 +2,7 @@
 
 #include "InvWeapon.h"
 
-InvWeapon::InvWeapon()
+UInvWeapon::UInvWeapon()
 {
 }
 
