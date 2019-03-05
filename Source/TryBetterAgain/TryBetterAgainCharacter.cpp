@@ -98,7 +98,7 @@ void ATryBetterAgainCharacter::BeginPlay()
 }
 void ATryBetterAgainCharacter::UpdateExp()
 {
-	if (Exp > LvlExp)
+	if (Exp >= LvlExp)
 	{
 		lvl++;
 		SkillPoints++;
